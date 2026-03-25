@@ -40,7 +40,12 @@ CREATE TABLE Trabajadores (
     Contra VARCHAR(100) NOT NULL,
     RolTrabajadores_idRolTrabajadores INT NOT NULL,
     Activo TINYINT NOT NULL DEFAULT 1,
-    FOREIGN KEY (RolTrabajadores_idRolTrabajadores) REFERENCES RolTrabajadores(idRolTrabajadores)
+
+    INDEX fk_trabajadores_Rol_idx (RolTrabajadores_idRolTrabajadores),
+    CONSTRAINT fk_trabajadores_Rol
+        FOREIGN KEY (RolTrabajadores_idRolTrabajadores) 
+        REFERENCES RolTrabajadores(idRolTrabajadores)
+        ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
 CREATE TABLE Platillos (
@@ -50,7 +55,12 @@ CREATE TABLE Platillos (
     Precio DECIMAL(10,2) NOT NULL,
     CategoriasPlatillos_idCategoriasPlatillos INT NOT NULL,
     Activo TINYINT NOT NULL DEFAULT 1,
-    FOREIGN KEY (CategoriasPlatillos_idCategoriasPlatillos) REFERENCES CategoriasPlatillos(idCategoriasPlatillos)
+
+    INDEX fk_platillos_Categoria_idx (CategoriasPlatillos_idCategoriasPlatillos),
+    CONSTRAINT fk_platillos_Categoria
+        FOREIGN KEY (CategoriasPlatillos_idCategoriasPlatillos) 
+        REFERENCES CategoriasPlatillos(idCategoriasPlatillos)
+        ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
 CREATE TABLE Reservaciones (
@@ -62,7 +72,12 @@ CREATE TABLE Reservaciones (
     NoPersonas INT NOT NULL,
     Estado VARCHAR(45) NOT NULL,
     trabajadores_idTrabajador INT NOT NULL,
-    FOREIGN KEY (trabajadores_idTrabajador) REFERENCES trabajadores(idTrabajador)
+
+    INDEX fk_reservaciones_trabajadores_idx (trabajadores_idTrabajador),
+    CONSTRAINT fk_reservaciones_trabajadores
+        FOREIGN KEY (trabajadores_idTrabajador) 
+        REFERENCES trabajadores(idTrabajador)
+        ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
 CREATE TABLE Pedidos (
@@ -72,7 +87,12 @@ CREATE TABLE Pedidos (
     Tipo TINYINT NOT NULL, 
     NoMesa INT,            
     trabajadores_idTrabajador INT NOT NULL,
-    FOREIGN KEY (trabajadores_idTrabajador) REFERENCES trabajadores(idTrabajador)
+    
+    INDEX fk_pedidos_trabajadores_idx (trabajadores_idTrabajador),
+    CONSTRAINT fk_pedidos_trabajadores
+    FOREIGN KEY (trabajadores_idTrabajador) 
+    REFERENCES trabajadores(idTrabajador)
+    ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
 CREATE TABLE Pagos (
@@ -80,8 +100,18 @@ CREATE TABLE Pagos (
     Monto DECIMAL(10,2) NOT NULL,
     Pedidos_idPedido INT NOT NULL,
     TiposPago_idTiposPago INT NOT NULL,
-    FOREIGN KEY (Pedidos_idPedido) REFERENCES pedidos(idPedido),
-    FOREIGN KEY (TiposPago_idTiposPago) REFERENCES TiposPago(idTiposPago)
+
+    INDEX fk_pagos_pedidos_idx (Pedidos_idPedido),
+    CONSTRAINT fk_pagos_pedidos 
+        FOREIGN KEY (Pedidos_idPedido) 
+        REFERENCES pedidos(idPedido)
+        ON DELETE NO ACTION ON UPDATE CASCADE,
+        
+    INDEX fk_pagos_TiposPago_idx (TiposPago_idTiposPago),
+    CONSTRAINT fk_pagos_TiposPago 
+        FOREIGN KEY (TiposPago_idTiposPago) 
+        REFERENCES TiposPago(idTiposPago)
+        ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
 CREATE TABLE DetallesPedido (
@@ -91,8 +121,17 @@ CREATE TABLE DetallesPedido (
     Cantidad INT NOT NULL,
     PrecioUnitario DECIMAL(10,2) NOT NULL,
     Nota VARCHAR(45),
-    FOREIGN KEY (Pedidos_idPedido) REFERENCES pedidos(idPedido),
-    FOREIGN KEY (Platillos_idPlatillo) REFERENCES platillos(idPlatillo)
+    INDEX fk_detallesPedido_pedidos_idx (Pedidos_idPedido),
+    CONSTRAINT fk_detallesPedido_pedidos 
+        FOREIGN KEY (Pedidos_idPedido) 
+        REFERENCES pedidos(idPedido)
+        ON DELETE NO ACTION ON UPDATE CASCADE,
+
+    INDEX fk_detallesPedido_platillos_idx (Platillos_idPlatillo),
+    CONSTRAINT fk_detallesPedido_platillos
+        FOREIGN KEY (Platillos_idPlatillo) 
+        REFERENCES platillos(idPlatillo)
+        ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
 CREATE TABLE Logs (
@@ -104,7 +143,12 @@ CREATE TABLE Logs (
     DatosNv VARCHAR(100),
     Fecha DATETIME NOT NULL DEFAULT GETDATE(),
     Descripcion VARCHAR(45),
-    FOREIGN KEY (trabajadores_idTrabajador) REFERENCES trabajadores(idTrabajador)
+
+    INDEX fk_logs_trabajadores_idx (trabajadores_idTrabajador),
+    CONSTRAINT fk_logs_trabajadores
+    FOREIGN KEY (trabajadores_idTrabajador) 
+    REFERENCES trabajadores(idTrabajador)
+    ON DELETE NO ACTION ON UPDATE CASCADE
 );
 GO
 
@@ -282,7 +326,6 @@ GO
 CREATE ROLE rol_admin; GRANT CONTROL TO rol_admin;
 CREATE ROLE rol_mesero;
 GRANT SELECT ON Platillos TO rol_mesero;
-GRANT SELECT, INSERT ON reservaciones TO rol_mesero;
 GRANT SELECT, INSERT, UPDATE ON pedidos TO rol_mesero;
 GRANT SELECT, INSERT ON detallespedido TO rol_mesero;
 GRANT SELECT, INSERT ON pagos TO rol_mesero;
