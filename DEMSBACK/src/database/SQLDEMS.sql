@@ -2,24 +2,39 @@ CREATE DATABASE DEMS;
 GO
 USE DEMS;
 
--- 1. TABLAS MAESTRAS
+-- 1. TABLAS CATALOGO
 CREATE TABLE RolTrabajadores (
     idRolTrabajadores INT PRIMARY KEY IDENTITY(1,1),
     Nombre VARCHAR(15) NOT NULL
 );
+
+INSERT INTO RolTrabajadores (Nombre) VALUES 
+('Administrador'),
+('Mesero'),
+('Cocina');
 
 CREATE TABLE TiposPago (
     idTiposPago INT PRIMARY KEY IDENTITY(1,1),
     Nombre VARCHAR(20) NOT NULL
 );
 
+INSERT INTO TiposPago (Nombre) VALUES
+('Efectivo'),
+('Transferencia'),
+('Tarjeta');
+
 CREATE TABLE CategoriasPlatillos (
     idCategoriasPlatillos INT PRIMARY KEY IDENTITY(1,1),
     Nombre VARCHAR(15) NOT NULL
 );
 
+INSERT INTO CategoriasPlatillos (Nombre) VALUES
+('Comida'),
+('Bebidas'),
+('Extras');
+
 -- 2. TABLAS PRINCIPALES
-CREATE TABLE trabajadores (
+CREATE TABLE Trabajadores (
     idTrabajador INT PRIMARY KEY IDENTITY(1,1),
     Nombre VARCHAR(45) NOT NULL,
     Contra VARCHAR(100) NOT NULL,
@@ -28,7 +43,7 @@ CREATE TABLE trabajadores (
     FOREIGN KEY (RolTrabajadores_idRolTrabajadores) REFERENCES RolTrabajadores(idRolTrabajadores)
 );
 
-CREATE TABLE platillos (
+CREATE TABLE Platillos (
     idPlatillo INT PRIMARY KEY IDENTITY(1,1),
     Nombre VARCHAR(45) NOT NULL,
     Descripcion VARCHAR(45),
@@ -38,7 +53,7 @@ CREATE TABLE platillos (
     FOREIGN KEY (CategoriasPlatillos_idCategoriasPlatillos) REFERENCES CategoriasPlatillos(idCategoriasPlatillos)
 );
 
-CREATE TABLE reservaciones (
+CREATE TABLE Reservaciones (
     idReservacion INT PRIMARY KEY IDENTITY(1,1),
     NombreCliente VARCHAR(45) NOT NULL,
     Telefono VARCHAR(10),
@@ -50,7 +65,7 @@ CREATE TABLE reservaciones (
     FOREIGN KEY (trabajadores_idTrabajador) REFERENCES trabajadores(idTrabajador)
 );
 
-CREATE TABLE pedidos (
+CREATE TABLE Pedidos (
     idPedido INT PRIMARY KEY IDENTITY(1,1),
     Fecha DATETIME NOT NULL DEFAULT GETDATE(),
     Estado VARCHAR(45) NOT NULL,
@@ -60,7 +75,7 @@ CREATE TABLE pedidos (
     FOREIGN KEY (trabajadores_idTrabajador) REFERENCES trabajadores(idTrabajador)
 );
 
-CREATE TABLE pagos (
+CREATE TABLE Pagos (
     idPago INT PRIMARY KEY IDENTITY(1,1),
     Monto DECIMAL(10,2) NOT NULL,
     Pedidos_idPedido INT NOT NULL,
@@ -69,7 +84,7 @@ CREATE TABLE pagos (
     FOREIGN KEY (TiposPago_idTiposPago) REFERENCES TiposPago(idTiposPago)
 );
 
-CREATE TABLE detallespedido (
+CREATE TABLE DetallesPedido (
     idDetallePedido INT PRIMARY KEY IDENTITY(1,1),
     Pedidos_idPedido INT NOT NULL,
     Platillos_idPlatillo INT NOT NULL,
