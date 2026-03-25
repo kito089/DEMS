@@ -1,0 +1,92 @@
+{
+  "trabajadores": [
+    {
+      "id": "fbd6",
+      "Nombre": "Juan Pérez",
+      "Contra": "123456",
+      "RolTrabajadores_idRolTrabajadores": 1,
+      "Activo": 1
+    }
+  ],
+  "roltrabajadores": [
+    {
+      "id": "4e4a",
+      "NombreRol": "Administrador"
+    }
+  ],
+  "reservaciones": [
+    {
+      "id": "d554",
+      "NombreCliente": "Ana López",
+      "Fecha": "2026-03-10",
+      "Hora": "20:00",
+      "CantidadPersonas": 4,
+      "Telefono": "4491234567",
+      "Estado": "Activa"
+    }
+  ],
+  "platillos": [
+    {
+      "id": "e3ed",
+      "Nombre": "Tacos Dorados",
+      "Precio": 85,
+      "CategoriaPlatillos_idCategoria": 1,
+      "Disponible": 1
+    }
+  ],
+  "categoriasplatillos": [
+    {
+      "id": "8fe1",
+      "NombreCategoria": "Antojitos Mexicanos",
+      "Activo": 1
+    }
+  ],
+  "pedidos": [
+    {
+      "id": "e9f6",
+      "Trabajadores_idTrabajador": 1,
+      "Fecha": "2026-03-02",
+      "Total": 0,
+      "Estado": "Abierto"
+    }
+  ],
+  "detallespedido": [
+    {
+      "id": "140b",
+      "Pedidos_idPedido": 1,
+      "Platillos_idPlatillo": 1,
+      "Cantidad": 2,
+      "PrecioUnitario": 85,
+      "Subtotal": 170
+    }
+  ],
+  "pagos": [
+    {
+      "id": "87d1",
+      "Pedidos_idPedido": 1,
+      "TiposPago_idTipoPago": 1,
+      "Monto": 170,
+      "FechaPago": "2026-03-02",
+      "Estado": "Completado"
+    }
+  ],
+  "tipospago": [
+    {
+      "id": "2ea6",
+      "NombreTipo": "Tarjeta",
+      "Descripcion": "Pago con tarjeta bancaria",
+      "Activo": 1
+    }
+  ],
+  "logs": [
+    {
+      "id": "b215",
+      "Tabla": "pedidos",
+      "Accion": "CREATE",
+      "Descripcion": "Se creó el pedido #1",
+      "Usuario": "admin",
+      "Fecha": "2026-03-02 21:45"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
