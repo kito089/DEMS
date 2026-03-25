@@ -131,8 +131,122 @@ BEGIN
 END;
 GO
 
--- 4. TRIGGERS (Tus triggers están bien, solo asegúrate de que se creen aquí)
--- [Aquí van todos tus triggers de Logs y Reservaciones]
+-- 4. TRIGGERS (Tus triggers estï¿½n bien, solo asegï¿½rate de que se creen aquï¿½)
+--TRIGGERS
+--Trigger que acci n de inserci n o modificaci n en la tabla de platillos
+CREATE TRIGGER trg_LogPlatillos
+ON platillos
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    DECLARE @Accion VARCHAR(20);
+    SET @Accion = CASE 
+        WHEN EXISTS(SELECT * FROM inserted) AND EXISTS(SELECT * FROM deleted) THEN 'UPDATE'
+        WHEN EXISTS(SELECT * FROM inserted) THEN 'INSERT'
+        ELSE 'DELETE'
+    END;
+
+    INSERT INTO Logs (trabajadores_idTrabajador, TablaAfectada, Accion, DatosAnt, DatosNv, Fecha, Descripcion)
+    SELECT 
+        (SELECT TOP 1 idTrabajador FROM trabajadores WHERE RolTrabajadores_idRolTrabajadores = 1), -- Referencia a Admin
+        'platillos',
+        @Accion,
+        (SELECT Nombre FROM deleted),
+        (SELECT Nombre FROM inserted),
+        GETDATE(),
+        'Movimiento autom tico en cat logo de men '
+    FROM inserted;
+END;
+GO
+
+--Trigger que acci n de inserci n o modificaci n en la tabla de trabajadores
+CREATE TRIGGER trg_LogTrabajadores
+ON trabajadores
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @Accion VARCHAR(20) = 
+        CASE 
+            WHEN EXISTS(SELECT * FROM inserted) AND EXISTS(SELECT * FROM deleted) THEN 'UPDATE'
+            WHEN EXISTS(SELECT * FROM inserted) THEN 'INSERT'
+            ELSE 'DELETE'
+        END;
+
+    INSERT INTO Logs (trabajadores_idTrabajador, TablaAfectada, Accion, DatosAnt, DatosNv, Fecha, Descripcion)
+    SELECT 
+        ISNULL((SELECT TOP 1 idTrabajador FROM trabajadores WHERE RolTrabajadores_idRolTrabajadores = 1), 1),
+        'trabajadores',
+        @Accion,
+        (SELECT Nombre FROM deleted),
+        (SELECT Nombre FROM inserted),
+        GETDATE(),
+        'Gesti n de personal/usuarios'
+    FROM inserted;
+END;
+GO
+
+--Trigger que acci n de inserci n o modificaci n en la tabla de pedidos
+CREATE TRIGGER trg_LogPedidos
+ON pedidos
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @Accion VARCHAR(20) = 
+        CASE 
+            WHEN EXISTS(SELECT * FROM deleted) THEN 'UPDATE'
+            ELSE 'INSERT'
+        END;
+
+    INSERT INTO Logs (trabajadores_idTrabajador, TablaAfectada, Accion, DatosAnt, DatosNv, Fecha, Descripcion)
+    SELECT 
+        i.trabajadores_idTrabajador,
+        'pedidos',
+        @Accion,
+        (SELECT Estado FROM deleted),
+        i.Estado,
+        GETDATE(),
+        CONCAT('Pedido No. ', i.idPedido, ' - Mesa: ', i.NoMesa)
+    FROM inserted i;
+END;
+GO
+
+--Trigger que acci n de inserci n o modificaci n en la tabla de pagos
+CREATE TRIGGER trg_LogPagos
+ON pagos
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO Logs (trabajadores_idTrabajador, TablaAfectada, Accion, DatosAnt, DatosNv, Fecha, Descripcion)
+    SELECT 
+        (SELECT trabajadores_idTrabajador FROM pedidos WHERE idPedido = i.Pedidos_idPedido),
+        'pagos',
+        'INSERT',
+        NULL,
+        CAST(i.Monto AS VARCHAR),
+        GETDATE(),
+        CONCAT('Pago registrado para el pedido ID: ', i.Pedidos_idPedido)
+    FROM inserted i;
+END;
+GO
+
+
+--Trigger de validacion de Reservaciones 
+CREATE TRIGGER trg_EstadoReservacion
+ON reservaciones
+AFTER INSERT
+AS
+BEGIN
+    -- Asegura que las reservaciones nuevas entren en estado 'Proceso' por defecto
+    UPDATE r
+    SET Estado = 'Proceso'
+    FROM reservaciones r
+    INNER JOIN inserted i ON r.idReservacion = i.idReservacion
+    WHERE i.Estado IS NULL OR i.Estado = '';
+END;
+GO
 GO
 
 -- 5. SEGURIDAD (AL FINAL)
