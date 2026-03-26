@@ -189,7 +189,7 @@ BEGIN
     INSERT INTO trabajadores (Nombre, Contra, RolTrabajadores_idRolTrabajadores) VALUES (@Nom, @Con, @Rol);
 END;
 GO
-
+--procedimiento para obtener los platillos con su categoria en formato JSON
 CREATE PROCEDURE sp_GetPlatillosEstructura
 AS
 BEGIN
@@ -210,6 +210,91 @@ BEGIN
 END;
 GO
 
+--Procedimiento para obtener los trabajadores con su rol en formato JSON
+CREATE PROCEDURE sp_GetTrabajadoresEstructura
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        t.idTrabajador,
+        t.Nombre,
+        t.Activo,
+        (SELECT 
+            r.idRolTrabajadores AS id, 
+            r.Nombre AS nombre 
+         FROM RolTrabajadores r 
+         WHERE r.idRolTrabajadores = t.RolTrabajadores_idRolTrabajadores
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Rol
+    FROM trabajadores t
+    FOR JSON PATH;
+END;
+GO
+
+--Procedimiento para obtener los pedidos con su mesero en formato JSON
+CREATE PROCEDURE sp_GetPedidosEstructura
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        p.idPedido,
+        p.Fecha,
+        p.Estado,
+        p.NoMesa,
+        p.Tipo, -- 1: Local, 0: Llevar
+        (SELECT 
+            t.idTrabajador AS id, 
+            t.Nombre AS nombre 
+         FROM trabajadores t 
+         WHERE t.idTrabajador = p.trabajadores_idTrabajador
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Mesero
+    FROM pedidos p
+    ORDER BY p.Fecha DESC
+    FOR JSON PATH;
+END;
+GO
+
+--Para obtener los datos para mostrar el detalle de un pedido, incluyendo el platillo con su categoria en formato JSON
+CREATE PROCEDURE sp_GetDetallesPedidoEstructura
+    @idPedido INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        dp.idDetallePedido,
+        dp.Cantidad,
+        dp.PrecioUnitario,
+        dp.Nota,
+        (SELECT 
+            pl.idPlatillo AS id, 
+            pl.Nombre AS nombre 
+         FROM platillos pl 
+         WHERE pl.idPlatillo = dp.Platillos_idPlatillo
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Platillo
+    FROM detallespedido dp
+    WHERE dp.Pedidos_idPedido = @idPedido
+    FOR JSON PATH;
+END;
+GO
+
+--Procedimiento para obtener los pagos con su metodo de pago en formato JSON
+CREATE PROCEDURE sp_GetPagosEstructura
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        pg.idPago,
+        pg.Monto,
+        pg.Pedidos_idPedido AS idPedido,
+        (SELECT 
+            tp.idTiposPago AS id, 
+            tp.Nombre AS nombre 
+         FROM TiposPago tp 
+         WHERE tp.idTiposPago = pg.TiposPago_idTiposPago
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS MetodoPago
+    FROM pagos pg
+    FOR JSON PATH;
+END;
+GO
 
 -- 4. TRIGGERS (Tus triggers est�n bien, solo aseg�rate de que se creen aqu�)
 --TRIGGERS
