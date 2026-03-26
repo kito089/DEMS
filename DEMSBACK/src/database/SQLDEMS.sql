@@ -36,7 +36,7 @@ INSERT INTO CategoriasPlatillos (Nombre) VALUES
 -- 2. TABLAS PRINCIPALES
 CREATE TABLE Trabajadores (
     idTrabajador INT PRIMARY KEY IDENTITY(1,1),
-    Nombre VARCHAR(45) NOT NULL,
+    Nombre VARCHAR(45) UNIQUE NOT NULL,
     Contra VARCHAR(100) NOT NULL,
     RolTrabajadores_idRolTrabajadores INT NOT NULL,
     Activo TINYINT NOT NULL DEFAULT 1,
@@ -189,6 +189,27 @@ BEGIN
     INSERT INTO trabajadores (Nombre, Contra, RolTrabajadores_idRolTrabajadores) VALUES (@Nom, @Con, @Rol);
 END;
 GO
+
+CREATE PROCEDURE sp_GetPlatillosEstructura
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        p.idPlatillo,
+        p.Nombre,
+        p.Precio,
+        (SELECT 
+            c.idCategoriasPlatillos AS id, 
+            c.Nombre AS nombre 
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Categoria,
+        p.Activo
+    FROM platillos p
+    INNER JOIN CategoriasPlatillos c ON p.CategoriasPlatillos_idCategoriasPlatillos = c.idCategoriasPlatillos
+    FOR JSON PATH; -- Esto convierte todo el resultado en un arreglo de objetos JSON
+END;
+GO
+
 
 -- 4. TRIGGERS (Tus triggers est�n bien, solo aseg�rate de que se creen aqu�)
 --TRIGGERS
@@ -344,3 +365,15 @@ GRANT EXECUTE ON sp_LoginTrabajador TO rol_mesero, rol_cocina, rol_admin;
 GRANT EXECUTE ON sp_RegistrarPedido TO rol_mesero, rol_admin;
 GRANT EXECUTE ON sp_CrearTrabajador TO rol_admin;
 GO
+
+--VISTAS
+--Vista de platillos 
+CREATE VIEW vw_MenuDetallado AS
+SELECT 
+    p.idPlatillo,
+    p.Nombre AS Platillo,
+    p.Precio,
+    c.Nombre AS Categoria,
+    p.Activo
+FROM platillos p
+INNER JOIN CategoriasPlatillos c ON p.CategoriasPlatillos_idCategoriasPlatillos = c.idCategoriasPlatillos;
