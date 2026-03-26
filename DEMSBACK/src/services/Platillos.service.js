@@ -1,34 +1,40 @@
-const { getConnection } = require('./config/connection');
+const { getConnection, sql } = require('./config/connection');
 
-// Ejecuta la vista vw_Platillos (devuelve nombre y categoría entre otros campos)
+// GET todos los platillos — vista vw_MenuDetallado
 const getPlatillos = async () => {
     const pool = await getConnection();
-    const result = await pool.request().query(`SELECT * FROM vw_Platillos`);
+    const result = await pool.request()
+        .query(`SELECT * FROM vw_MenuDetallado`);
     return result.recordset;
 };
 
+// GET platillo por ID — vw_MenuDetallado filtrada (no hay SP ni vista específica)
 const getPlatilloById = async (id) => {
     const pool = await getConnection();
     const result = await pool.request()
-        .input('id', id)
-        .query(`SELECT * FROM vw_Platillos WHERE idPlatillo = @id`);
+        .input('id', sql.Int, id)
+        .query(`SELECT * FROM vw_MenuDetallado WHERE idPlatillo = @id`);
     return result.recordset[0] || null;
 };
 
-// Devuelve la estructura de la tabla Platillos (columnas y sus propiedades)
+// GET estructura de platillos con categoría anidada — sp_GetPlatillosEstructura
+// El SP usa FOR JSON PATH, devuelve un string JSON en la primera columna del primer registro
 const getStructure = async () => {
     const pool = await getConnection();
-    const result = await pool.request().query(`SELECT * FROM vw_EstructuraPlatillos`);
-    return result.recordset;
+    const result = await pool.request()
+        .execute('sp_GetPlatillosEstructura');
+    const raw = result.recordset[0][Object.keys(result.recordset[0])[0]];
+    return JSON.parse(raw);
 };
 
+// INSERT — no hay SP, query directo a Platillos
 const createPlatillo = async ({ Nombre, Descripcion, Precio, idCategoria }) => {
     const pool = await getConnection();
     const result = await pool.request()
-        .input('Nombre', Nombre)
-        .input('Descripcion', Descripcion || null)
-        .input('Precio', Precio)
-        .input('idCategoria', idCategoria)
+        .input('Nombre',      sql.VarChar(45),     Nombre)
+        .input('Descripcion', sql.VarChar(45),     Descripcion || null)
+        .input('Precio',      sql.Decimal(10, 2),  Precio)
+        .input('idCategoria', sql.Int,             idCategoria)
         .query(`
             INSERT INTO Platillos (Nombre, Descripcion, Precio, CategoriasPlatillos_idCategoriasPlatillos)
             OUTPUT INSERTED.idPlatillo
@@ -37,14 +43,15 @@ const createPlatillo = async ({ Nombre, Descripcion, Precio, idCategoria }) => {
     return result.recordset[0].idPlatillo;
 };
 
+// UPDATE — no hay SP, query directo a Platillos
 const updatePlatillo = async (id, { Nombre, Descripcion, Precio, idCategoria }) => {
     const pool = await getConnection();
     const result = await pool.request()
-        .input('id', id)
-        .input('Nombre', Nombre)
-        .input('Descripcion', Descripcion || null)
-        .input('Precio', Precio)
-        .input('idCategoria', idCategoria)
+        .input('id',          sql.Int,            id)
+        .input('Nombre',      sql.VarChar(45),    Nombre)
+        .input('Descripcion', sql.VarChar(45),    Descripcion || null)
+        .input('Precio',      sql.Decimal(10, 2), Precio)
+        .input('idCategoria', sql.Int,            idCategoria)
         .query(`
             UPDATE Platillos
             SET Nombre      = @Nombre,
@@ -56,16 +63,16 @@ const updatePlatillo = async (id, { Nombre, Descripcion, Precio, idCategoria }) 
     return result.rowsAffected[0] > 0;
 };
 
-// Soft delete — pone Activo = 0
+// Soft DELETE — no hay SP, query directo a Platillos
 const deletePlatillo = async (id) => {
     const pool = await getConnection();
     const result = await pool.request()
-        .input('id', id)
+        .input('id', sql.Int, id)
         .query(`UPDATE Platillos SET Activo = 0 WHERE idPlatillo = @id`);
     return result.rowsAffected[0] > 0;
 };
 
-// Menú digital agrupado por categoría
+// Menú digital agrupado por categoría — consume vw_MenuDetallado via getPlatillos
 const getMenuDigital = async () => {
     const platillos = await getPlatillos();
     return platillos.reduce((menu, p) => {
@@ -73,8 +80,7 @@ const getMenuDigital = async () => {
         if (!menu[cat]) menu[cat] = [];
         menu[cat].push({
             id:          p.idPlatillo,
-            nombre:      p.Nombre,
-            descripcion: p.Descripcion,
+            nombre:      p.Platillo,       // vw_MenuDetallado expone el campo como "Platillo"
             precio:      p.Precio
         });
         return menu;
