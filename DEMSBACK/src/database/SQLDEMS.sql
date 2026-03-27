@@ -411,8 +411,35 @@ BEGIN
     WHERE i.Estado IS NULL OR i.Estado = '';
 END;
 GO
-GO
 
+--Trigger para finalizar el pedido automáticamente al registrar un pago, actualizando su estado a 'Terminado'
+CREATE TRIGGER trg_FinalizarPedidoTrasPago
+ON pagos
+AFTER INSERT
+AS
+BEGIN
+    -- SET NOCOUNT ON impide que se envíen mensajes de 'filas afectadas' para ahorrar ancho de banda
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Actualizamos la tabla pedidos basándonos en el Pedidos_idPedido del pago recién insertado
+        UPDATE p
+        SET p.Estado = 'Terminado'
+        FROM pedidos p
+        INNER JOIN inserted i ON p.idPedido = i.Pedidos_idPedido
+        WHERE p.Estado <> 'Terminado'; -- Solo actualizamos si no estaba terminado ya
+
+        -- Nota: El trigger de Logs que ya tenemos (trg_LogPedidos) se disparará 
+        -- automáticamente al ocurrir este UPDATE, registrando el movimiento.
+        
+    END TRY
+    BEGIN CATCH
+        -- En caso de error, lanzamos una alerta
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
 -- 5. SEGURIDAD (AL FINAL)
 USE master; 
 GO
