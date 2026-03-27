@@ -8,8 +8,7 @@
 
 
       <span class="subtitle">
-        Dinner Environment Management <br />System
-      </span>
+        Dinner Environment Management <br />System </span>
 
       <!-- Usuario -->
       <app-input placeholder="Usuario"></app-input>
@@ -18,8 +17,8 @@
       <app-input placeholder="Contraseña" type="password"></app-input>
 
       <!-- Botón -->
-      <app-button text="Ingresar"></app-button>
-
+      <app-button [text]="'Ingresar'" (click)="onLogin()"></app-button>
+      
     </div>
   </div>
 </app-auth-layout>
