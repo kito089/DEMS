@@ -1,7 +1,7 @@
 <app-auth-layout>
   <div class="wrapper">
     <div class="card">
-
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
       <img src="../../../assets/cubiertos.png" class="logo" />
 
       <span class="title">DEMS!</span>
@@ -11,14 +11,16 @@
         Dinner Environment Management <br />System </span>
 
       <!-- Usuario -->
-      <app-input placeholder="Usuario"></app-input>
+      <app-input label="Usuario" type="text">
+      </app-input>
 
       <!-- Contraseña -->
-      <app-input placeholder="Contraseña" type="password"></app-input>
+      <app-input label="Contraseña" [isPasswordToggle]="true">
+      </app-input>
 
       <!-- Botón -->
       <app-button [text]="'Ingresar'" (click)="onLogin()"></app-button>
-      
+
     </div>
   </div>
 </app-auth-layout>
