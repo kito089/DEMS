@@ -296,8 +296,7 @@ BEGIN
 END;
 GO
 
--- 4. TRIGGERS (Tus triggers est�n bien, solo aseg�rate de que se creen aqu�)
---TRIGGERS
+-- 4. TRIGGERS 
 --Trigger que acci n de inserci n o modificaci n en la tabla de platillos
 CREATE TRIGGER trg_LogPlatillos
 ON platillos
