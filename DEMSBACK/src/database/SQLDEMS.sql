@@ -296,6 +296,46 @@ BEGIN
 END;
 GO
 
+--Procedimiento para el abisa 
+CREATE PROCEDURE sp_GetReservacionesProximas
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Definimos el rango de búsqueda: desde hoy hasta 3 días después
+    DECLARE @FechaInicio DATETIME = GETDATE();
+    DECLARE @FechaFin DATETIME = DATEADD(DAY, 3, GETDATE());
+
+    BEGIN TRY
+        SELECT 
+            r.idReservacion,
+            r.NombreCliente,
+            r.Telefono,
+            r.Correo,
+            r.Fecha,
+            r.NoPersonas,
+            r.Estado,
+            -- Estructura de objeto anidado para el Trabajador que registró
+            (SELECT 
+                t.idTrabajador AS id, 
+                t.Nombre AS nombre 
+             FROM trabajadores t 
+             WHERE t.idTrabajador = r.trabajadores_idTrabajador
+             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS RegistradoPor
+        FROM reservaciones r
+        WHERE r.Fecha BETWEEN @FechaInicio AND @FechaFin
+          AND r.Estado <> 'Cancelada' -- Opcional: No mostrar las ya canceladas
+        ORDER BY r.Fecha ASC
+        FOR JSON PATH; -- Retorna el arreglo de objetos para el Frontend
+        
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+
 -- 4. TRIGGERS 
 --Trigger que acci n de inserci n o modificaci n en la tabla de platillos
 CREATE TRIGGER trg_LogPlatillos
