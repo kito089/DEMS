@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 export class LoginComponent {
   constructor(private router: Router) {}
 
-  onLogin() {
-    this.router.navigate(['/menu']);
+  onInicio() {
+    this.router.navigate(['/inicio']);
   }
 }
