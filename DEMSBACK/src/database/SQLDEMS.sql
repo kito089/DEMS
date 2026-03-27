@@ -296,8 +296,125 @@ BEGIN
 END;
 GO
 
--- 4. TRIGGERS (Tus triggers est�n bien, solo aseg�rate de que se creen aqu�)
---TRIGGERS
+--Procedimiento para el abisa 
+CREATE PROCEDURE sp_GetReservacionesProximas
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Definimos el rango de búsqueda: desde hoy hasta 3 días después
+    DECLARE @FechaInicio DATETIME = GETDATE();
+    DECLARE @FechaFin DATETIME = DATEADD(DAY, 3, GETDATE());
+
+    BEGIN TRY
+        SELECT 
+            r.idReservacion,
+            r.NombreCliente,
+            r.Telefono,
+            r.Correo,
+            r.Fecha,
+            r.NoPersonas,
+            r.Estado,
+            -- Estructura de objeto anidado para el Trabajador que registró
+            (SELECT 
+                t.idTrabajador AS id, 
+                t.Nombre AS nombre 
+             FROM trabajadores t 
+             WHERE t.idTrabajador = r.trabajadores_idTrabajador
+             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS RegistradoPor
+        FROM reservaciones r
+        WHERE r.Fecha BETWEEN @FechaInicio AND @FechaFin
+          AND r.Estado <> 'Cancelada' -- Opcional: No mostrar las ya canceladas
+        ORDER BY r.Fecha ASC
+        FOR JSON PATH; -- Retorna el arreglo de objetos para el Frontend
+        
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+
+--Procedimientos para las graficas 
+--ventas totales por dia en un rango de fechas, con formato JSON para el frontend
+CREATE PROCEDURE sp_GraficaVentasPorFecha
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        CAST(p.Fecha AS DATE) AS fecha,
+        SUM(pg.Monto) AS totalVentas
+    FROM pagos pg
+    INNER JOIN pedidos p ON pg.Pedidos_idPedido = p.idPedido
+    WHERE p.Fecha BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY CAST(p.Fecha AS DATE)
+    ORDER BY fecha ASC
+    FOR JSON PATH;
+END;
+GO
+--Ventas por metodo de pago 
+CREATE PROCEDURE sp_GraficaMetodosPago
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        tp.Nombre AS metodo,
+        SUM(pg.Monto) AS total
+    FROM pagos pg
+    INNER JOIN TiposPago tp ON pg.TiposPago_idTiposPago = tp.idTiposPago
+    INNER JOIN pedidos p ON pg.Pedidos_idPedido = p.idPedido
+    WHERE p.Fecha BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY tp.Nombre
+    FOR JSON PATH;
+END;
+GO
+--Historial de ventas por platillo
+CREATE PROCEDURE sp_ReporteHistorialVentas
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        p.idPedido,
+        p.Fecha,
+        pg.Monto AS total,
+        tp.Nombre AS metodo,
+        (SELECT t.Nombre FROM trabajadores t WHERE t.idTrabajador = p.trabajadores_idTrabajador) AS mesero
+    FROM pedidos p
+    INNER JOIN pagos pg ON p.idPedido = pg.Pedidos_idPedido
+    INNER JOIN TiposPago tp ON pg.TiposPago_idTiposPago = tp.idTiposPago
+    WHERE p.Fecha BETWEEN @FechaInicio AND @FechaFin
+    ORDER BY p.Fecha DESC
+    FOR JSON PATH;
+END;
+GO
+
+--productos mas vendidos
+CREATE PROCEDURE sp_GraficaTopPlatillos
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT TOP 10
+        pl.Nombre AS platillo,
+        SUM(dp.Cantidad) AS cantidadVendida
+    FROM detallespedido dp
+    INNER JOIN platillos pl ON dp.Platillos_idPlatillo = pl.idPlatillo
+    INNER JOIN pedidos p ON dp.Pedidos_idPedido = p.idPedido
+    WHERE p.Fecha BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY pl.Nombre
+    ORDER BY cantidadVendida DESC
+    FOR JSON PATH;
+END;
+GO
+-- 4. TRIGGERS 
 --Trigger que acci n de inserci n o modificaci n en la tabla de platillos
 CREATE TRIGGER trg_LogPlatillos
 ON platillos
@@ -412,8 +529,35 @@ BEGIN
     WHERE i.Estado IS NULL OR i.Estado = '';
 END;
 GO
-GO
 
+--Trigger para finalizar el pedido automáticamente al registrar un pago, actualizando su estado a 'Terminado'
+CREATE TRIGGER trg_FinalizarPedidoTrasPago
+ON pagos
+AFTER INSERT
+AS
+BEGIN
+    -- SET NOCOUNT ON impide que se envíen mensajes de 'filas afectadas' para ahorrar ancho de banda
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        -- Actualizamos la tabla pedidos basándonos en el Pedidos_idPedido del pago recién insertado
+        UPDATE p
+        SET p.Estado = 'Terminado'
+        FROM pedidos p
+        INNER JOIN inserted i ON p.idPedido = i.Pedidos_idPedido
+        WHERE p.Estado <> 'Terminado'; -- Solo actualizamos si no estaba terminado ya
+
+        -- Nota: El trigger de Logs que ya tenemos (trg_LogPedidos) se disparará 
+        -- automáticamente al ocurrir este UPDATE, registrando el movimiento.
+        
+    END TRY
+    BEGIN CATCH
+        -- En caso de error, lanzamos una alerta
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
 -- 5. SEGURIDAD (AL FINAL)
 USE master; 
 GO
