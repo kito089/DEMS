@@ -336,6 +336,84 @@ BEGIN
 END;
 GO
 
+--Procedimientos para las graficas 
+--ventas totales por dia en un rango de fechas, con formato JSON para el frontend
+CREATE PROCEDURE sp_GraficaVentasPorFecha
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        CAST(p.Fecha AS DATE) AS fecha,
+        SUM(pg.Monto) AS totalVentas
+    FROM pagos pg
+    INNER JOIN pedidos p ON pg.Pedidos_idPedido = p.idPedido
+    WHERE p.Fecha BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY CAST(p.Fecha AS DATE)
+    ORDER BY fecha ASC
+    FOR JSON PATH;
+END;
+GO
+--Ventas por metodo de pago 
+CREATE PROCEDURE sp_GraficaMetodosPago
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        tp.Nombre AS metodo,
+        SUM(pg.Monto) AS total
+    FROM pagos pg
+    INNER JOIN TiposPago tp ON pg.TiposPago_idTiposPago = tp.idTiposPago
+    INNER JOIN pedidos p ON pg.Pedidos_idPedido = p.idPedido
+    WHERE p.Fecha BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY tp.Nombre
+    FOR JSON PATH;
+END;
+GO
+--Historial de ventas por platillo
+CREATE PROCEDURE sp_ReporteHistorialVentas
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT 
+        p.idPedido,
+        p.Fecha,
+        pg.Monto AS total,
+        tp.Nombre AS metodo,
+        (SELECT t.Nombre FROM trabajadores t WHERE t.idTrabajador = p.trabajadores_idTrabajador) AS mesero
+    FROM pedidos p
+    INNER JOIN pagos pg ON p.idPedido = pg.Pedidos_idPedido
+    INNER JOIN TiposPago tp ON pg.TiposPago_idTiposPago = tp.idTiposPago
+    WHERE p.Fecha BETWEEN @FechaInicio AND @FechaFin
+    ORDER BY p.Fecha DESC
+    FOR JSON PATH;
+END;
+GO
+
+--productos mas vendidos
+CREATE PROCEDURE sp_GraficaTopPlatillos
+    @FechaInicio DATETIME,
+    @FechaFin DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT TOP 10
+        pl.Nombre AS platillo,
+        SUM(dp.Cantidad) AS cantidadVendida
+    FROM detallespedido dp
+    INNER JOIN platillos pl ON dp.Platillos_idPlatillo = pl.idPlatillo
+    INNER JOIN pedidos p ON dp.Pedidos_idPedido = p.idPedido
+    WHERE p.Fecha BETWEEN @FechaInicio AND @FechaFin
+    GROUP BY pl.Nombre
+    ORDER BY cantidadVendida DESC
+    FOR JSON PATH;
+END;
+GO
 -- 4. TRIGGERS 
 --Trigger que acci n de inserci n o modificaci n en la tabla de platillos
 CREATE TRIGGER trg_LogPlatillos
