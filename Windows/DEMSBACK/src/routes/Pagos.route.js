@@ -1,13 +1,13 @@
-const { Router } = require('express');
-const ctrl = require('./controllers/pagos.controller');
- 
+import { Router } from 'express';
+import ctrl from '../controllers/Pagos.controller.js';
+
 const router = Router();
- 
-// Rutas estáticas primero para evitar conflicto con /:id
+
+// Rutas
 router.get('/pedido/:idPedido', ctrl.getByPedido);
- 
-router.get('/',    ctrl.getAll);
+
+router.get('/', ctrl.getAll);
 router.get('/:id', ctrl.getById);
-router.post('/',   ctrl.create);
- 
-module.exports = router;
+router.post('/', ctrl.create);
+
+export default router;
