@@ -11,6 +11,9 @@ import { ToolbarIconButtonComponent } from '../../components/toolbar-icon-button
 import { DishEditRowComponent } from '../../components/dish-edit-row/dish-edit-row.component';
 import { DividerLineComponent } from '../../components/divider-line/divider-line.component';
 import { PrimaryButtonComponent } from '../../components/primary-button/primary-button.component';
+import { ModalController } from '@ionic/angular/standalone';
+import { IonicModule } from '@ionic/angular';
+import { SeleccionarPlatilloComponent } from '../../layout/agr-prod/agr-prod.component';
 
 @Component({
   selector: 'app-agr-ed-pedido',
@@ -18,6 +21,7 @@ import { PrimaryButtonComponent } from '../../components/primary-button/primary-
   styleUrls: ['./agr-ed-pedido.page.scss'],
   standalone: true,
   imports: [
+    IonicModule,
     IonContent,
     CommonModule,
     PageBodyComponent,
@@ -41,11 +45,26 @@ export class AgrEdPedidoPage implements OnInit {
     { name: 'Agua de jamaica', quantity: 3 },
   ];
 
-  constructor() {}
+  constructor(private modalCtrl: ModalController) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
-  noop(): void {}
+  async noop() {
+    console.log('CLICK OK'); // 👈 agrega esto
+
+    const modal = await this.modalCtrl.create({
+      component: SeleccionarPlatilloComponent,
+      breakpoints: [0, 0.5, 0.9],
+      initialBreakpoint: 0.5,
+      handle: true
+    });
+
+    console.log('MODAL CREADO'); // 👈
+
+    await modal.present();
+
+    console.log('MODAL PRESENTADO'); // 👈
+  }
 
   onOrderTypeChange(type: 'local' | 'pickup'): void {
     this.orderType = type;
