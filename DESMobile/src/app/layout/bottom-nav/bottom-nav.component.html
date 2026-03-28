@@ -1,0 +1,17 @@
+<div class="bottom-nav">
+  <a
+    class="nav-item"
+    [routerLink]="pedidosLink"
+    routerLinkActive="nav-item--active"
+    [routerLinkActiveOptions]="{ exact: pedidosLink === '/home' }"
+  >
+    <div class="nav-item__icon-wrap">
+      <img [src]="pedidosIconSrc" alt="" class="nav-item__icon nav-item__icon--lg" />
+      <span class="nav-item__label nav-item__label--badge">Pedidos</span>
+    </div>
+  </a>
+  <a class="nav-item" [routerLink]="reservacionesLink" routerLinkActive="nav-item--active">
+    <img [src]="reservacionesIconSrc" alt="" class="nav-item__icon" />
+    <span class="nav-item__label">Reservaciones</span>
+  </a>
+</div>

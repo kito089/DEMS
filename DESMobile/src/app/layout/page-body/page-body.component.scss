@@ -1,0 +1,51 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.contain {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  max-width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.scroll-view {
+  flex: 1 1 auto;
+  align-self: stretch;
+  background: #f5efe6;
+  border-radius: 10px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  /* Si el % aún no resuelve (slot de ion-content), cubrir al menos el viewport */
+  min-height: max(100%, 100dvh);
+}
+.scroll-view--default {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-bottom: clamp(16px, 5vh, 32px);
+}
+
+.scroll-view--home {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-bottom: clamp(48px, 15vh, 130px);
+}
+
+.scroll-view--reservaciones {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-bottom: clamp(24px, 8vh, 48px);
+}

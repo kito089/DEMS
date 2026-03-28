@@ -1,460 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>MeseroReservaciones</title>
-	<style>
-		body {
-			font-family: system-ui;
-		}
-		.absolute-text {
-			position: absolute;
-			bottom: -12px;
-			right: -6px;
-			left: -6px;
-			color: #B2224B;
-			font-size: 15px;
-		}
-		.box {
-			flex: 1;
-			align-self: stretch;
-		}
-		.column {
-			flex-shrink: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 10px;
-		}
-		.column2 {
-			flex-shrink: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			margin-top: 14px;
-			margin-right: 21px;
-			gap: 10px;
-		}
-		.column3 {
-			flex-shrink: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			margin-top: 14px;
-			margin-right: 15px;
-			gap: 10px;
-		}
-		.column4 {
-			flex-shrink: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			margin-left: 68px;
-			position: relative;
-		}
-		.column5 {
-			flex-shrink: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			margin-right: 34px;
-			gap: 2px;
-		}
-		.contain {
-			display: flex;
-			flex-direction: column;
-			background: #FFFFFF;
-		}
-		.image {
-			border-radius: 10px;
-			width: 64px;
-			height: 50px;
-			object-fit: fill;
-		}
-		.image2 {
-			width: 17px;
-			height: 17px;
-			object-fit: fill;
-		}
-		.image3 {
-			width: 17px;
-			height: 17px;
-			margin-top: 25px;
-			object-fit: fill;
-		}
-		.image4 {
-			border-radius: 10px;
-			width: 45px;
-			height: 47px;
-			object-fit: fill;
-		}
-		.image5 {
-			border-radius: 10px;
-			width: 37px;
-			height: 39px;
-			object-fit: fill;
-		}
-		.row-view {
-			align-self: stretch;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			background: #FFFCF8E3;
-			padding: 20px;
-			margin-bottom: 19px;
-		}
-		.row-view2 {
-			align-self: stretch;
-			display: flex;
-			align-items: center;
-			background: #FAFAFA;
-			border-radius: 16px;
-			border: 1px solid #EDE0CCC4;
-			padding: 14px 13px;
-			margin-bottom: 19px;
-			margin-left: 15px;
-			margin-right: 15px;
-			box-shadow: 1px 4px 4px #00000040;
-		}
-		.row-view3 {
-			display: flex;
-			align-items: center;
-			gap: 64px;
-		}
-		.row-view4 {
-			align-self: stretch;
-			display: flex;
-			align-items: flex-start;
-			background: #FAFAFA;
-			border-radius: 16px;
-			border: 1px solid #EDE0CCC4;
-			padding-left: 13px;
-			padding-right: 13px;
-			margin-bottom: 20px;
-			margin-left: 15px;
-			margin-right: 15px;
-			box-shadow: 1px 4px 4px #00000040;
-		}
-		.row-view5 {
-			align-self: stretch;
-			display: flex;
-			align-items: flex-start;
-			background: #FAFAFA;
-			border-radius: 16px;
-			border: 1px solid #EDE0CCC4;
-			padding-left: 13px;
-			padding-right: 13px;
-			margin-bottom: 27px;
-			margin-left: 15px;
-			margin-right: 15px;
-			box-shadow: 1px 4px 4px #00000040;
-		}
-		.row-view6 {
-			align-self: stretch;
-			display: flex;
-			align-items: center;
-			background: #FAFAFA;
-			border-radius: 16px;
-			border: 1px solid #EDE0CCC4;
-			padding: 14px 13px;
-			margin-bottom: 27px;
-			margin-left: 15px;
-			margin-right: 15px;
-			box-shadow: 1px 4px 4px #00000040;
-		}
-		.row-view7 {
-			align-self: stretch;
-			display: flex;
-			align-items: center;
-			background: #FAFAFA;
-			border-radius: 16px;
-			border: 1px solid #EDE0CCC4;
-			padding: 14px 13px;
-			margin-bottom: 231px;
-			margin-left: 16px;
-			margin-right: 16px;
-			box-shadow: 1px 4px 4px #00000040;
-		}
-		.row-view8 {
-			display: flex;
-			align-items: center;
-			gap: 58px;
-		}
-		.row-view9 {
-			align-self: stretch;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			background: #FFFCF8;
-			padding-top: 21px;
-			padding-bottom: 21px;
-		}
-		.scroll-view {
-			align-self: stretch;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			background: #F5EFE6;
-			border-radius: 10px;
-		}
-		.text {
-			color: #7A5C42;
-			font-size: 30px;
-			font-weight: bold;
-		}
-		.text2 {
-			color: #7A5C42;
-			font-size: 13px;
-		}
-		.text3 {
-			color: #8B1A1A;
-			font-size: 17px;
-			font-weight: bold;
-			width: 37px;
-		}
-		.text4 {
-			color: #4A2C1A;
-			font-size: 17px;
-			margin-right: 69px;
-		}
-		.text5 {
-			color: #946B42;
-			font-size: 12px;
-		}
-		.text6 {
-			color: #4A2C1A;
-			font-size: 17px;
-		}
-		.text7 {
-			color: #946B42;
-			font-size: 12px;
-			margin-right: 37px;
-		}
-		.text8 {
-			color: #946B42;
-			font-size: 12px;
-			margin-top: 45px;
-			margin-bottom: 13px;
-		}
-		.text9 {
-			color: #946B42;
-			font-size: 12px;
-			margin-right: 49px;
-		}
-		.text10 {
-			color: #4A2C1A;
-			font-size: 17px;
-			margin-right: 81px;
-		}
-		.text11 {
-			color: #4A2C1A;
-			font-size: 17px;
-			margin-right: 71px;
-		}
-		.text12 {
-			color: #B2224B;
-			font-size: 15px;
-		}
-		.view {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			padding-bottom: 1px;
-			margin-bottom: 31px;
-			margin-left: 16px;
-		}
-		.view2 {
-			flex-shrink: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			background: #D9C4A0;
-			border-radius: 10px;
-			border: 1px solid #D9C4A0;
-			padding-left: 6px;
-			padding-right: 6px;
-			margin-right: 12px;
-		}
-		.view3 {
-			flex-shrink: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			background: #D9C4A0;
-			border-radius: 10px;
-			border: 1px solid #D9C4A0;
-			padding-left: 6px;
-			padding-right: 6px;
-			margin-top: 15px;
-			margin-right: 12px;
-		}
-	</style>
-</head>
-<body>
-		<div class="contain">
-		<div class="scroll-view">
-			<div class="row-view">
-				<span class="text" >
-					Reservaciones
-				</span>
-				<img
-					src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/7o7i60ed_expires_30_days.png" 
-					class="image"
-				/>
-			</div>
-			<div class="view">
-				<span class="text2" >
-					Se muestran las reservaciones próximas en esta semana
-				</span>
-			</div>
-			<div class="row-view2">
-				<div class="view2">
-					<span class="text3" >
-						MAR<br/>  05
-					</span>
-				</div>
-				<div class="column">
-					<span class="text4" >
-						Familia Rodriguez
-					</span>
-					<div class="row-view3">
-						<span class="text5" >
-							6 personas
-						</span>
-						<span class="text5" >
-							449-123-3454
-						</span>
-					</div>
-				</div>
-				<div class="box">
-				</div>
-				<img
-					src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/vjktmwvw_expires_30_days.png" 
-					class="image2"
-				/>
-			</div>
-			<div class="row-view4">
-				<div class="view3">
-					<span class="text3" >
-						MAR<br/>  07
-					</span>
-				</div>
-				<div class="column2">
-					<span class="text6" >
-						Familia Pérez
-					</span>
-					<span class="text7" >
-						10 personas
-					</span>
-				</div>
-				<span class="text8" >
-					449-231-5674
-				</span>
-				<div class="box">
-				</div>
-				<img
-					src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/59flpcl2_expires_30_days.png" 
-					class="image3"
-				/>
-			</div>
-			<div class="row-view5">
-				<div class="view3">
-					<span class="text3" >
-						MAR<br/>  10
-					</span>
-				</div>
-				<div class="column3">
-					<span class="text6" >
-						Familia Torres
-					</span>
-					<span class="text9" >
-						4 personas
-					</span>
-				</div>
-				<span class="text8" >
-					449-333-9876
-				</span>
-				<div class="box">
-				</div>
-				<img
-					src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/5ghwwtv6_expires_30_days.png" 
-					class="image3"
-				/>
-			</div>
-			<div class="row-view6">
-				<div class="view2">
-					<span class="text3" >
-						MAR<br/>  25
-					</span>
-				</div>
-				<div class="column">
-					<span class="text10" >
-						Familia Sánchez
-					</span>
-					<div class="row-view3">
-						<span class="text5" >
-							7 personas
-						</span>
-						<span class="text5" >
-							449-765-6754
-						</span>
-					</div>
-				</div>
-				<div class="box">
-				</div>
-				<img
-					src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/bwce8v29_expires_30_days.png" 
-					class="image2"
-				/>
-			</div>
-			<div class="row-view7">
-				<div class="view2">
-					<span class="text3" >
-						MAR<br/>  28
-					</span>
-				</div>
-				<div class="column">
-					<span class="text11" >
-						Familia Escobedo
-					</span>
-					<div class="row-view8">
-						<span class="text5" >
-							12 personas
-						</span>
-						<span class="text5" >
-							449-654-7643
-						</span>
-					</div>
-				</div>
-				<div class="box">
-				</div>
-				<img
-					src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/nb4k7map_expires_30_days.png" 
-					class="image2"
-				/>
-			</div>
-			<div class="row-view9">
-				<div class="column4">
-					<img
-						src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/n35lrhn3_expires_30_days.png" 
-						class="image4"
-					/>
-					<span class="absolute-text" >
-						Pedidos
-					</span>
-				</div>
-				<div class="column5">
-					<img
-						src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/nl035q1v_expires_30_days.png" 
-						class="image5"
-					/>
-					<span class="text12" >
-						Reservaciones
-					</span>
-				</div>
-			</div>
-		</div>
-	</div>
-</body>
-</html>
+<ion-content [fullscreen]="true" class="reservaciones-page-content">
+  <app-page-body scrollVariant="reservaciones">
+    <app-page-header-cream
+      title="Reservaciones"
+      imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/7o7i60ed_expires_30_days.png"
+    />
+
+    <app-section-intro text="Se muestran las reservaciones próximas en esta semana" />
+
+    <app-reservation-row
+      variant="inline-meta"
+      spacing="tight"
+      datePrimary="MAR"
+      dateSecondary="05"
+      title="Familia Rodriguez"
+      metaLine1="6 personas"
+      metaLine2="449-123-3454"
+      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/vjktmwvw_expires_30_days.png"
+    />
+
+    <app-reservation-row
+      variant="stacked-phone"
+      spacing="medium"
+      datePrimary="MAR"
+      dateSecondary="07"
+      title="Familia Pérez"
+      personSummary="10 personas"
+      phone="449-231-5674"
+      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/59flpcl2_expires_30_days.png"
+    />
+
+    <app-reservation-row
+      variant="stacked-phone"
+      spacing="relaxed"
+      datePrimary="MAR"
+      dateSecondary="10"
+      title="Familia Torres"
+      personSummary="4 personas"
+      phone="449-333-9876"
+      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/5ghwwtv6_expires_30_days.png"
+    />
+
+    <app-reservation-row
+      variant="inline-meta"
+      spacing="tight"
+      datePrimary="MAR"
+      dateSecondary="25"
+      title="Familia Sánchez"
+      metaLine1="7 personas"
+      metaLine2="449-765-6754"
+      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/bwce8v29_expires_30_days.png"
+    />
+
+    <app-reservation-row
+      variant="inline-meta"
+      spacing="before-footer"
+      datePrimary="MAR"
+      dateSecondary="28"
+      title="Familia Escobedo"
+      metaLine1="12 personas"
+      metaLine2="449-654-7643"
+      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/nb4k7map_expires_30_days.png"
+    />
+
+    <app-bottom-nav
+      pedidosIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/n35lrhn3_expires_30_days.png"
+      reservacionesIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/nl035q1v_expires_30_days.png"
+    />
+  </app-page-body>
+</ion-content>
