@@ -6,18 +6,15 @@ import { ConfigService } from '../../services/config.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { ContentHeadingComponent } from '../../components/content-heading/content-heading.component';
 
 @Component({
   standalone: true,
   selector: 'app-setup',
   templateUrl: './setup.page.html',
-  imports: [
-    IonContent,
-    IonButton,
-    CommonModule
-  ]
-})
-export class SetupPage {
+  styleUrls: ['./setup.page.scss'],
+  imports: [IonContent, IonButton, CommonModule, ContentHeadingComponent],
+})export class SetupPage {
 
   constructor(
     private config: ConfigService,

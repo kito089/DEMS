@@ -13,9 +13,10 @@ export const routes: Routes = [
   {
     path: 'setup',
     loadComponent: () => import('./pages/setup/setup.page').then(m => m.SetupPage),
-  },  {
+  },
+  {
     path: 'new-pedido',
-    loadComponent: () => import('./pages/new-pedido/new-pedido.page').then( m => m.NewPedidoPage)
+    loadComponent: () => import('./pages/agr-ed-pedido/agr-ed-pedido.page').then((m) => m.AgrEdPedidoPage),
   },
   {
     path: 'agr-ed-pedido',
