@@ -1,4 +1,4 @@
-const svc = require('./services/platillos.service');
+import svc from '../services/Platillos.service.js';
 
 // GET /platillos
 const getAll = async (_req, res) => {
@@ -64,21 +64,31 @@ const update = async (req, res) => {
 
         const ok = await svc.updatePlatillo(req.params.id, { Nombre, Descripcion, Precio, idCategoria });
         if (!ok) return res.status(404).json({ error: 'Platillo no encontrado' });
+
         res.json({ message: 'Platillo actualizado' });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 };
 
-// DELETE /platillos/:id  (soft delete)
+// DELETE /platillos/:id
 const remove = async (req, res) => {
     try {
         const ok = await svc.deletePlatillo(req.params.id);
         if (!ok) return res.status(404).json({ error: 'Platillo no encontrado' });
+
         res.json({ message: 'Platillo desactivado' });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 };
 
-module.exports = { getAll, getStructure, getMenu, getById, create, update, remove };
+export default {
+    getAll,
+    getStructure,
+    getMenu,
+    getById,
+    create,
+    update,
+    remove
+};
