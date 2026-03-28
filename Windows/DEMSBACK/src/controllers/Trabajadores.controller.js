@@ -1,5 +1,5 @@
-const bcrypt = require('bcrypt');
-const service = require('./services/trabajadores.service');
+import bcrypt from 'bcrypt';
+import service from '../services/Trabajadores.service.js';
 
 const SALT_ROUNDS = 10;
 
@@ -49,7 +49,7 @@ const create = async (req, res) => {
     }
 };
 
-// PUT /trabajadores/:id  (Contra opcional)
+// PUT /trabajadores/:id
 const update = async (req, res) => {
     try {
         const { Nombre, Contra, idRol } = req.body;
@@ -58,6 +58,7 @@ const update = async (req, res) => {
 
         const hash = Contra ? await bcrypt.hash(Contra, SALT_ROUNDS) : null;
         const affected = await service.updateOne(req.params.id, Nombre, idRol, hash);
+
         if (!affected) return res.status(404).json({ error: 'Trabajador no encontrado' });
         res.json({ message: 'Trabajador actualizado' });
     } catch (e) {
@@ -65,7 +66,7 @@ const update = async (req, res) => {
     }
 };
 
-// DELETE /trabajadores/:id  (soft delete)
+// DELETE /trabajadores/:id
 const remove = async (req, res) => {
     try {
         const affected = await service.deactivateOne(req.params.id);
@@ -96,4 +97,12 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { getAll, getStructure, getById, create, update, remove, login };
+export default {
+    getAll,
+    getStructure,
+    getById,
+    create,
+    update,
+    remove,
+    login
+};

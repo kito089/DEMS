@@ -1,31 +1,29 @@
 import sql from 'mssql';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ path: '../.env' });
 
 const dbSettings = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     server: process.env.DB_SERVER,
     database: process.env.DB_DATABASE,
-    port: process.env.DB_PORT,
+    port: parseInt(process.env.DB_PORT),
     options: {
-        encrypt: false, // Cambiar a true si usas Azure
-        trustServerCertificate: true, // Importante para conexiones locales
+        encrypt: false,
+        trustServerCertificate: true,
     },
 };
 
-const getConnection = async () => {
+export const getConnection = async () => {
     try {
         const pool = await sql.connect(dbSettings);
         console.log("Conexión a SQL Server establecida");
         return pool;
     } catch (error) {
         console.error("Error de conexión a SQL Server:", error);
+        throw error; //IMPORTANTE Y CHAMAGOSO
     }
 };
 
-module.exports = {
-    getConnection,
-    sql
-};
+export { sql };
