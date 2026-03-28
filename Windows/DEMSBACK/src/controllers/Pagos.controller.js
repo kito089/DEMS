@@ -1,4 +1,4 @@
-const service = require('./services/pagos.service');
+import service from '../services/Pagos.service.js';
 
 // GET /pagos
 const getAll = async (_req, res) => {
@@ -45,4 +45,4 @@ const create = async (req, res) => {
     }
 };
 
-module.exports = { getAll, getById, getByPedido, create };
+export default { getAll, getById, getByPedido, create };
