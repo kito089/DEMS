@@ -1,1 +1,23 @@
 <app-header title="Menú"></app-header>
+
+<main class="pagina-menu">
+
+  <!-- Botón nuevo platillo -->
+  <div class="menu-acciones">
+    <button class="btn-nuevo-platillo">+ Nuevo platillo</button>
+  </div>
+
+  <!-- Grid de platillos -->
+  <div class="platillos-grid">
+    <app-card
+      *ngFor="let platillo of platillos"
+      [imagen]="platillo.imagen"
+      [nombre]="platillo.nombre"
+      [precio]="platillo.precio"
+      [descripcion]="platillo.descripcion"
+      (editar)="onEditar(platillo)"
+      (eliminar)="onEliminar(platillo)">
+    </app-card>
+  </div>
+
+</main>
