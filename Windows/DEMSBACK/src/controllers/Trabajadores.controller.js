@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
-import service from '../services/Trabajadores.service.js';
+import { Router } from 'express';
+import ctrl from '../controllers/Platillos.controller.js';
 
 const SALT_ROUNDS = 10;
 
