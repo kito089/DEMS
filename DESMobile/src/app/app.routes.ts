@@ -13,5 +13,25 @@ export const routes: Routes = [
   {
     path: 'setup',
     loadComponent: () => import('./pages/setup/setup.page').then(m => m.SetupPage),
+  },  {
+    path: 'new-pedido',
+    loadComponent: () => import('./pages/new-pedido/new-pedido.page').then( m => m.NewPedidoPage)
+  },
+  {
+    path: 'agr-ed-pedido',
+    loadComponent: () => import('./pages/agr-ed-pedido/agr-ed-pedido.page').then( m => m.AgrEdPedidoPage)
+  },
+  {
+    path: 'cobrar-pedido',
+    loadComponent: () => import('./pages/cobrar-pedido/cobrar-pedido.page').then( m => m.CobrarPedidoPage)
+  },
+  {
+    path: 'reservaciones',
+    loadComponent: () => import('./pages/reservaciones/reservaciones.page').then( m => m.ReservacionesPage)
+  },
+  {
+    path: 'editar-pedidos',
+    loadComponent: () => import('./pages/editar-pedidos/editar-pedidos.page').then( m => m.EditarPedidosPage)
   }
+
 ];
