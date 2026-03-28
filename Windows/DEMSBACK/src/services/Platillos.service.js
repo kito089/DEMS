@@ -30,19 +30,22 @@ const getStructure = async () => {
 // INSERT
 const createPlatillo = async ({ Nombre, Descripcion, Precio, idCategoria }) => {
     const pool = await getConnection();
+
     const result = await pool.request()
-        .input('Nombre', sql.VarChar(45), Nombre)
-        .input('Descripcion', sql.VarChar(45), Descripcion || null)
-        .input('Precio', sql.Decimal(10, 2), Precio)
-        .input('idCategoria', sql.Int, idCategoria)
+        .input('Nombre', Nombre)
+        .input('Descripcion', Descripcion)
+        .input('Precio', Precio)
+        .input('Categoria', idCategoria)
         .query(`
             INSERT INTO Platillos (Nombre, Descripcion, Precio, CategoriasPlatillos_idCategoriasPlatillos)
-            OUTPUT INSERTED.idPlatillo
-            VALUES (@Nombre, @Descripcion, @Precio, @idCategoria)
+            VALUES (@Nombre, @Descripcion, @Precio, @Categoria);
+
+            SELECT SCOPE_IDENTITY() AS idPlatillo;
         `);
 
     return result.recordset[0].idPlatillo;
 };
+
 
 // UPDATE
 const updatePlatillo = async (id, { Nombre, Descripcion, Precio, idCategoria }) => {
