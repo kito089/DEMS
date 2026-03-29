@@ -10,6 +10,17 @@ const getAll = async (_req, res) => {
     }
 };
 
+// GET /platillos/completo
+const getCompleto = async (_req, res) => {
+    try {
+        const data = await svc.getPlatillosCompletos();
+        console.log("Enviando platillos completos: ", data);
+        res.json(data);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 // GET /platillos/structure
 const getStructure = async (_req, res) => {
     try {
@@ -85,6 +96,7 @@ const remove = async (req, res) => {
 
 export default {
     getAll,
+    getCompleto,
     getStructure,
     getMenu,
     getById,

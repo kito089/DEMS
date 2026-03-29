@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { ConfigService } from './config.service';
-import { Observable, Subject } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { first, Observable, Subject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Pedido } from '../models/pedido.model';
 
@@ -40,10 +41,15 @@ export class ApiService {
     return this.http.post(`${baseUrl}${endpoint}`, body);
   }
 
+  get(endpoint: string) {
+    console.log('Realizando GET a:', `${this.config.getApiUrl()}${endpoint}`);
+    return firstValueFrom(this.http.get(`${this.config.getApiUrl()}${endpoint}`));
+  }
+
   obtenerPedidos(): Promise<Pedido[]> {
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve([...this.pedidos]); // 🔥 copiar array
+        resolve([...this.pedidos]);
       }, 1000);
     });
   }
