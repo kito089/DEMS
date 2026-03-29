@@ -42,7 +42,9 @@ export class ApiService {
     return from(this.config.getApiUrl()).pipe(
       switchMap(baseUrl => {
         console.log('Realizando POST a:', `${baseUrl}${endpoint}`, 'con body:', body);
-        return this.http.post(`${baseUrl}${endpoint}`, body);
+        return this.http.post(`${baseUrl}${endpoint}`, body, {
+          observe: 'response'
+        });
       })
     );
   }
