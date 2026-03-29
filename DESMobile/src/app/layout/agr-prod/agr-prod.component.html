@@ -6,7 +6,7 @@
 	<div class="list">
 
 		@for (item of platillos; track item) {
-			<div class="item">
+			<div class="item" (click)="seleccionar(item)">
 				<img [src]="item.img" />
 
 				<div class="info">
@@ -18,10 +18,7 @@
 			</div>
 		}
 	</div>
-</ion-content>
-
-<ion-footer class="ion-no-border">
 	<ion-button expand="block" (click)="cerrar()">
 		Cerrar
 	</ion-button>
-</ion-footer>
+</ion-content>
