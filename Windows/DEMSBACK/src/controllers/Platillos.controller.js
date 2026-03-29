@@ -1,4 +1,5 @@
 import svc from '../services/Platillos.service.js';
+import { sendEventToAll } from '../routes/sse.route.js';
 
 // GET /platillos
 const getAll = async (_req, res) => {
@@ -60,6 +61,9 @@ const create = async (req, res) => {
             return res.status(400).json({ error: 'Nombre, Precio e idCategoria son requeridos' });
 
         const id = await svc.createPlatillo({ Nombre, Descripcion, Precio, idCategoria });
+
+        sendEventToAll('nuevo_platillo', { Nombre, Descripcion, Precio, idCategoria, idPlatillo: id });
+
         res.status(201).json({ message: 'Platillo creado', idPlatillo: id });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -76,6 +80,8 @@ const update = async (req, res) => {
         const ok = await svc.updatePlatillo(req.params.id, { Nombre, Descripcion, Precio, idCategoria });
         if (!ok) return res.status(404).json({ error: 'Platillo no encontrado' });
 
+        sendEventToAll('platillo_actualizado', { id: req.params.id, Nombre, Descripcion, Precio, idCategoria });
+
         res.json({ message: 'Platillo actualizado' });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -87,6 +93,8 @@ const remove = async (req, res) => {
     try {
         const ok = await svc.deletePlatillo(req.params.id);
         if (!ok) return res.status(404).json({ error: 'Platillo no encontrado' });
+
+        sendEventToAll('platillo_eliminado', { id: req.params.id });
 
         res.json({ message: 'Platillo desactivado' });
     } catch (e) {
