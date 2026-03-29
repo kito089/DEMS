@@ -14,6 +14,14 @@ import { PrimaryButtonComponent } from '../../components/primary-button/primary-
 import { ModalController } from '@ionic/angular/standalone';
 import { IonicModule } from '@ionic/angular';
 import { SeleccionarPlatilloComponent } from '../../layout/agr-prod/agr-prod.component';
+import { NotaModalComponent } from '../../layout/nota/nota.component';
+
+interface Dish {
+  id?: number;
+  name: string;
+  quantity: number;
+  note: string;
+}
 
 @Component({
   selector: 'app-agr-ed-pedido',
@@ -36,47 +44,93 @@ import { SeleccionarPlatilloComponent } from '../../layout/agr-prod/agr-prod.com
     PrimaryButtonComponent,
   ],
 })
+
 export class AgrEdPedidoPage implements OnInit {
   orderType: 'local' | 'pickup' = 'local';
 
-  dishes = [
-    { name: 'Enchiladas verdes', quantity: 2 },
-    { name: 'Pozole rojo', quantity: 2 },
-    { name: 'Agua de jamaica', quantity: 3 },
-  ];
+  dishes: Dish[] = [];
 
   constructor(private modalCtrl: ModalController) { }
 
   ngOnInit() { }
 
-  async noop() {
-    console.log('CLICK OK'); // 👈 agrega esto
-
+  async abrirPlatillos() {
     const modal = await this.modalCtrl.create({
       component: SeleccionarPlatilloComponent,
       breakpoints: [0, 0.5, 0.9],
       initialBreakpoint: 0.5,
       handle: true
     });
+    await modal.present();
 
-    console.log('MODAL CREADO'); // 👈
+    const { data } = await modal.onDidDismiss();
+
+    if (data) {
+      console.log('Platillo seleccionado:', data);
+      this.agregarPlatillo(data);
+    }
+  }
+
+  agregarPlatillo(platillo: any) {
+    const existingDish = this.dishes.find(
+      (d) => d.id === platillo.id
+    );
+
+    if (existingDish) {
+      existingDish.quantity++;
+    } else {
+      this.dishes.push({
+        id: platillo.id,
+        name: platillo.nombre,
+        quantity: 1,
+        note: ''
+      });
+    }
+  }
+
+  async abrirNota(index: number) {
+    const dish = this.dishes[index];
+    if (!dish) return;
+    const modal = await this.modalCtrl.create({
+      component: NotaModalComponent,
+      componentProps: {
+        notaActual: dish.note
+      },
+      breakpoints: [0.2, 0.5, 0.9],
+      initialBreakpoint: 0.5,
+      handle: true,
+      backdropDismiss: true,
+      cssClass: 'nota-modal'
+    });
 
     await modal.present();
 
-    console.log('MODAL PRESENTADO'); // 👈
+    const { data } = await modal.onDidDismiss();
+
+    if (data !== undefined) {
+      dish.note = data;
+    }
   }
+
+  guardarPedido(): void { console.log(this.dishes); }
 
   onOrderTypeChange(type: 'local' | 'pickup'): void {
     this.orderType = type;
   }
 
   onDishMinus(index: number): void {
-    if (this.dishes[index].quantity > 0) {
+    const dish = this.dishes[index];
+    if (!dish) return;
+    if (this.dishes[index].quantity > 1) {
       this.dishes[index].quantity--;
+    } else {
+      this.dishes.splice(index, 1);
     }
   }
 
   onDishPlus(index: number): void {
+    const dish = this.dishes[index];
+    if (!dish) return;
     this.dishes[index].quantity++;
   }
 }

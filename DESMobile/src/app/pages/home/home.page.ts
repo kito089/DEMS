@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { PageBodyComponent } from '../../layout/page-body/page-body.component';
 import { PageHeaderHomeComponent } from '../../layout/page-header-home/page-header-home.component';
@@ -7,8 +7,10 @@ import { OrderActiveCardComponent } from '../../components/order-active-card/ord
 
 @Component({
   selector: 'app-home',
+  standalone: true,
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     IonContent,
     PageBodyComponent,

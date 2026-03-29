@@ -4,21 +4,21 @@
   box-sizing: border-box;
 }
 
-.header {
-  align-self: stretch;
+.header-toolbar {
+  --background: #3d2316e3;
+  --padding-start: var(--page-pad, 12px);
+  --padding-end: var(--page-pad, 12px);
+  --min-height: auto;
+
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  background: #3d2316e3;
-  margin-bottom: clamp(24px, 6vw, 41px);
-  padding: 8px var(--page-pad, 12px);
-  box-sizing: border-box;
+
+  //margin-bottom: clamp(24px, 6vw, 41px);
 }
 
 .titles {
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -39,14 +39,11 @@
 .subtitle {
   color: #ffffff;
   font-size: max(10px, 2.8vw);
-  margin-right: clamp(8px, 3vw, 21px);
 }
 
 .badge {
-  flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   background: #a93833;
   border-radius: 13px;
   padding: 3px 15px;
