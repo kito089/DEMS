@@ -246,7 +246,15 @@ BEGIN
             t.Nombre AS nombre 
          FROM trabajadores t 
          WHERE t.idTrabajador = p.trabajadores_idTrabajador
-         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Mesero
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Mesero,
+         (SELECT 
+            pl.idPlatillo AS id, 
+            pl.Nombre AS nombre ,
+            pl.Descripcion,
+            pl.Precio
+         FROM platillos pl 
+         WHERE pl.idPlatillo = dp.Platillos_idPlatillo
+         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Platillo
     FROM pedidos p
     ORDER BY p.Fecha DESC
     FOR JSON PATH;
@@ -266,7 +274,9 @@ BEGIN
         dp.Nota,
         (SELECT 
             pl.idPlatillo AS id, 
-            pl.Nombre AS nombre 
+            pl.Nombre AS nombre ,
+            pl.Descripcion,
+            pl.Precio
          FROM platillos pl 
          WHERE pl.idPlatillo = dp.Platillos_idPlatillo
          FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Platillo
