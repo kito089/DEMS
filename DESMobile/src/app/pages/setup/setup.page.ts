@@ -54,7 +54,7 @@ import { ApiService } from '../../services/api.service';
 
       // Ir a home
       console.log('navegando...');
-      this.router.navigate(['/home']).then(res => {
+      this.router.navigate(['/login']).then(res => {
         console.log('resultado navegación:', res);
       });
     }
