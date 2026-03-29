@@ -15,11 +15,13 @@ import { ModalController } from '@ionic/angular/standalone';
 import { IonicModule } from '@ionic/angular';
 import { SeleccionarPlatilloComponent } from '../../layout/agr-prod/agr-prod.component';
 import { NotaModalComponent } from '../../layout/nota/nota.component';
+import { ApiService } from 'src/app/services/api.service';
 
 interface Dish {
   id?: number;
   name: string;
   quantity: number;
+  price: number;
   note: string;
 }
 
@@ -47,13 +49,24 @@ interface Dish {
 
 export class AgrEdPedidoPage implements OnInit {
   orderType: 'local' | 'pickup' = 'local';
-
+  noMesa: number | null = 1;
   dishes: Dish[] = [];
 
-  constructor(private modalCtrl: ModalController) { }
+  constructor(private modalCtrl: ModalController, private api: ApiService) { }
 
   ngOnInit() { }
 
+  onMesaChange(value: number) {
+    this.noMesa = value;
+  }
+
+  onOrderTypeChange(type: 'local' | 'pickup'): void {
+    this.orderType = type;
+
+    if (type === 'pickup') {
+      this.noMesa = null;
+    }
+  }
   async abrirPlatillos() {
     const modal = await this.modalCtrl.create({
       component: SeleccionarPlatilloComponent,
@@ -83,6 +96,7 @@ export class AgrEdPedidoPage implements OnInit {
         id: platillo.id,
         name: platillo.nombre,
         quantity: 1,
+        price: platillo.precio,
         note: ''
       });
     }
@@ -112,10 +126,31 @@ export class AgrEdPedidoPage implements OnInit {
     }
   }
 
-  guardarPedido(): void { console.log(this.dishes); }
-
-  onOrderTypeChange(type: 'local' | 'pickup'): void {
-    this.orderType = type;
+  guardarPedido(): void {
+    console.log(this.dishes);
+    if (this.dishes.length === 0) {
+      console.warn('No hay platillos en el pedido');
+      alert('No hay platillos en el pedido');
+      return;
+    }
+    if (this.orderType === 'local' && !this.noMesa) {
+      alert('Debes ingresar número de mesa');
+      return;
+    }
+    const payload = {
+      TrabajadorId: 1, // cambiar cuando tenga login
+      Tipo: this.orderType === 'local' ? 0 : 1,
+      NoMesa: this.noMesa,
+      Detalles: this.dishes.map(d => ({
+        idPlatillo: d.id,
+        cantidad: d.quantity,
+        precio: d.price,
+        nota: d.note || ''
+      }))
+    };
+    console.log('Enviando pedido:', JSON.stringify(payload));
+    this.api.post('/Pedidos', payload);
+    alert('Pedido guardado correctamente');
   }
 
   onDishMinus(index: number): void {

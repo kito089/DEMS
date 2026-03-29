@@ -38,6 +38,7 @@ export class ApiService {
 
   async post(endpoint: string, body: any) {
     const baseUrl = await this.config.getApiUrl();
+    console.log('Realizando POST a:', `${baseUrl}${endpoint}`, 'con body:', body);
     return this.http.post(`${baseUrl}${endpoint}`, body);
   }
 
