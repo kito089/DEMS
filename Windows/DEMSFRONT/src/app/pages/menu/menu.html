@@ -7,17 +7,30 @@
     <button class="btn-nuevo-platillo">+ Nuevo platillo</button>
   </div>
 
-  <!-- Grid de platillos -->
-  <div class="platillos-grid">
-    <app-card
-      *ngFor="let platillo of platillos"
-      [imagen]="platillo.imagen"
-      [nombre]="platillo.nombre"
-      [precio]="platillo.precio"
-      [descripcion]="platillo.descripcion"
-      (editar)="onEditar(platillo)"
-      (eliminar)="onEliminar(platillo)">
-    </app-card>
-  </div>
+  <div *ngIf="isLoading" class="loading">Cargando menú...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <ng-container *ngIf="!isLoading && !errorMessage">
+    <ng-container *ngIf="categories.length > 0; else emptyTemplate">
+      <section *ngFor="let categoria of categories" class="categoria-section">
+        <h2 class="categoria-titulo">{{ categoria.nombre }}</h2>
+        <div class="platillos-grid">
+          <app-card
+            *ngFor="let platillo of categoria.platillos"
+            [imagen]="'assets/default-food.png'"
+            [nombre]="platillo.nombre"
+            [precio]="platillo.precio"
+            [descripcion]="platillo.descripcion || ''"
+            (editar)="onEditar(platillo)"
+            (eliminar)="onEliminar(platillo)">
+          </app-card>
+        </div>
+      </section>
+    </ng-container>
+
+    <ng-template #emptyTemplate>
+      <p class="texto-vacio">No hay platillos disponibles.</p>
+    </ng-template>
+  </ng-container>
 
 </main>
