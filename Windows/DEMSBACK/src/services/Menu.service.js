@@ -242,7 +242,9 @@ export const generarMenuPDF = async (res) => {
     const H = doc.page.height;
 
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', 'inline; filename="menu-loma-bonita.pdf"');
+
+//  res.setHeader('Content-Disposition', 'inline; filename="menu-loma-bonita.pdf"'); descomentar si quieren solo VISUALIZAR el pdf
+    res.setHeader('Content-Disposition', 'attachment; filename="menu-loma-bonita.pdf"');
     doc.pipe(res);
 
     // Fondo blanco
