@@ -1,0 +1,78 @@
+import svc from '../services/Reservaciones.service.js';
+
+// GET /Reservaciones
+const getAll = async (_req, res) => {
+    try {
+        const data = await svc.getReservaciones();
+        res.json(data);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+// GET /Reservaciones/proximas
+const getProximas = async (_req, res) => {
+    try {
+        const data = await svc.getReservacionesProximas();
+        res.json(data);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+// GET /Reservaciones/:id
+const getById = async (req, res) => {
+    try {
+        const reservacion = await svc.getReservacionById(req.params.id);
+        if (!reservacion) return res.status(404).json({ error: 'Reservación no encontrada' });
+        res.json(reservacion);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+// POST /Reservaciones
+const create = async (req, res) => {
+    try {
+        const { NombreCliente, Telefono, Correo, Fecha, NoPersonas, idTrabajador } = req.body;
+
+        if (!NombreCliente || !Fecha || !NoPersonas || !idTrabajador)
+            return res.status(400).json({ error: 'NombreCliente, Fecha, NoPersonas e idTrabajador son requeridos' });
+
+        const id = await svc.createReservacion({ NombreCliente, Telefono, Correo, Fecha, NoPersonas, idTrabajador });
+        res.status(201).json({ message: 'Reservación creada', idReservacion: id });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+// PUT /Reservaciones/:id
+const update = async (req, res) => {
+    try {
+        const { NombreCliente, Telefono, Correo, Fecha, NoPersonas, Estado } = req.body;
+
+        if (!NombreCliente || !Fecha || !NoPersonas || !Estado)
+            return res.status(400).json({ error: 'NombreCliente, Fecha, NoPersonas y Estado son requeridos' });
+
+        const ok = await svc.updateReservacion(req.params.id, { NombreCliente, Telefono, Correo, Fecha, NoPersonas, Estado });
+        if (!ok) return res.status(404).json({ error: 'Reservación no encontrada' });
+
+        res.json({ message: 'Reservación actualizada' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+// DELETE /Reservaciones/:id
+const remove = async (req, res) => {
+    try {
+        const ok = await svc.deleteReservacion(req.params.id);
+        if (!ok) return res.status(404).json({ error: 'Reservación no encontrada' });
+
+        res.json({ message: 'Reservación eliminada' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+export default { getAll, getProximas, getById, create, update, remove };

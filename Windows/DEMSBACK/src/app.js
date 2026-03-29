@@ -5,6 +5,7 @@ import cors from 'cors';
 import TrabajadoresRoutes from './routes/Trabajadores.route.js';
 import platillosRoutes from './routes/Platillos.route.js';
 import PagosRoutes from './routes/Pagos.route.js';
+import ReservacionesRoutes from './routes/Reservaciones.route.js';
 import recordatorioRoutes from './routes/Recordatorio.route.js';
 
 // Jobs (cron)
@@ -20,9 +21,10 @@ app.use(express.json());
 app.use('/Trabajadores', TrabajadoresRoutes);
 app.use('/Platillos', platillosRoutes);
 app.use('/Pagos', PagosRoutes);
+app.use('/Reservaciones', ReservacionesRoutes);
 app.use('/recordatorios', recordatorioRoutes);
 
-// 👇 iniciar tareas automáticas
+// iniciar tareas automáticas
 iniciarRecordatorios();
 
 // Servidor
