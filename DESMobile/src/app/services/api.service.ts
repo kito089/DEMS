@@ -17,27 +17,6 @@ export class ApiService {
     private config: ConfigService
   ) { }
 
-  private eventos$ = new Subject<any>();
-
-  private pedidos: Pedido[] = [
-    {
-      id: 1,
-      folio: '012',
-      mesa: '3',
-      total: 330,
-      items: ['Tacos', 'Refresco', 'Sopa', 'Postre'],
-      estado: 'pending'
-    },
-    {
-      id: 2,
-      folio: '013',
-      mesa: '4',
-      total: 240,
-      items: ['Pizza', 'Refresco'],
-      estado: 'ready'
-    }
-  ];
-
   post(endpoint: string, body: any) {
     return from(this.config.getApiUrl()).pipe(
       switchMap(baseUrl => {
@@ -58,28 +37,30 @@ export class ApiService {
     );
   }
 
-  obtenerPedidos(): Promise<Pedido[]> {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve([...this.pedidos]);
-      }, 1000);
-    });
-  }
-
   escucharEventos(): Observable<any> {
-    return this.eventos$.asObservable();
-  }
+    return new Observable(observer => {
+      this.config.getApiUrl().then(baseUrl => {
+        const evtSource = new EventSource(`${baseUrl}/sse/events`);
 
-  simularEvento() {
-    setInterval(() => {
-      const evento = {
-        pedidoId: 1,
-        estado: Math.random() > 0.5 ? 'ready' : 'pending'
-      };
+        evtSource.onmessage = (event: MessageEvent) => {
+          try {
+            const data = JSON.parse(event.data);
+            observer.next(data);
+          } catch (err) {
+            console.error('Error parseando evento SSE:', err, event.data);
+          }
+        };
 
-      console.log('🔥 Evento simulado:', evento);
+        evtSource.onerror = (err) => {
+          console.error('SSE error:', err);
+          observer.error(err);
+          evtSource.close(); // opcional: cerrar al error grave
+        };
 
-      this.eventos$.next(evento);
-    }, 5000); // 🔥 ahora es continuo
+        return () => {
+          evtSource.close(); // cleanup cuando se unsubscribe
+        };
+      });
+    });
   }
 }
