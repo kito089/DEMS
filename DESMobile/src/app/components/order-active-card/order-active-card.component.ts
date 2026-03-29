@@ -13,6 +13,6 @@ export class OrderActiveCardComponent {
   @Input({ required: true }) deskLabel!: string;
   @Input({ required: true }) amount!: string;
   @Input({ required: true }) detail!: string;
-  @Input() status: 'pending' | 'ready' = 'pending';
+  @Input() status: 'Proceso' | 'Listo' = 'Proceso';
   @Input() last = false;
 }
