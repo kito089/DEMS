@@ -1,60 +1,31 @@
-<ion-content [fullscreen]="true" class="home-page-content">
-  <app-page-body scrollVariant="home">
-    <app-page-header-home
-      title="Pedidos"
-      subtitle="Mesero: Juan López"
-      badgeText="3 Activos"
-    />
+<ion-page>
+  <app-page-header-home title="Pedidos" subtitle="Mesero: Juan López" badgeText="3 Activos" />
 
-    <div class="home-actions">
-      <div class="home-actions__tiles">
-        <app-quick-action-tile
-          kind="hero"
-          imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/fiw065hp_expires_30_days.png"
-          label="Nuevo pedido"
-          route="/agr-ed-pedido"
-        />
-        <app-quick-action-tile
-          kind="standard"
-          imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/fsx4u2bq_expires_30_days.png"
-          label="Editar pedido"
-          route="/editar-pedidos"
-        />
-        <app-quick-action-tile
-          kind="compact"
-          imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/8ocalxr2_expires_30_days.png"
-          label="Cobrar pedido"
-          route="/cobrar-pedido"
-        />
-        <app-quick-action-tile
-          kind="compact"
-          imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/6znvnmjr_expires_30_days.png"
-          label="Reservaciones"
-          route="/reservaciones"
-        />
+  <ion-content [fullscreen]="true" class="home-page-content">
+    <app-page-body>
+      <div class="home-actions">
+        <div class="home-actions__tiles">
+          <app-quick-action-tile kind="hero"
+            imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/fiw065hp_expires_30_days.png"
+            label="Nuevo pedido" route="/agr-ed-pedido" />
+          <app-quick-action-tile kind="standard"
+            imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/fsx4u2bq_expires_30_days.png"
+            label="Editar pedido" route="/editar-pedidos" />
+          <app-quick-action-tile kind="compact"
+            imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/8ocalxr2_expires_30_days.png"
+            label="Cobrar pedido" route="/cobrar-pedido" />
+          <app-quick-action-tile kind="compact"
+            imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/6znvnmjr_expires_30_days.png"
+            label="Reservaciones" route="/reservaciones" />
+        </div>
       </div>
-    </div>
 
-    <h2 class="home-section-title">Pedidos activos</h2>
+      <h2 class="home-section-title">Pedidos activos</h2>
 
-    <app-order-active-card
-      deskLabel="P-012 Mesa 3"
-      amount="$330"
-      detail="4 platillos"
-      status="pending"
-    />
-    <app-order-active-card
-      deskLabel="P-013 Mesa 4"
-      amount="$240"
-      detail="2 platillos"
-      status="ready"
-    />
-    <app-order-active-card
-      deskLabel="P-014 Mesa 8"
-      amount="$210"
-      detail="3 platillos"
-      status="pending"
-      [last]="true"
-    />
-  </app-page-body>
-</ion-content>
+      <app-order-active-card deskLabel="P-012 Mesa 3" amount="$330" detail="4 platillos" status="pending" />
+      <app-order-active-card deskLabel="P-013 Mesa 4" amount="$240" detail="2 platillos" status="ready" />
+      <app-order-active-card deskLabel="P-014 Mesa 8" amount="$210" detail="3 platillos" status="pending"
+        [last]="true" />
+    </app-page-body>
+  </ion-content>
+</ion-page>
