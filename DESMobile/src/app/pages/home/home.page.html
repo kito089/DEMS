@@ -1,5 +1,5 @@
 <ion-page>
-  <app-page-header-home title="Pedidos" subtitle="Mesero: Juan López" badgeText="3 Activos" />
+  <app-page-header-home title="Pedidos" [subtitle]="'Mesero: ' + trabajador" badgeText="3 Activos" />
 
   <ion-content [fullscreen]="true" class="home-page-content">
     <app-page-body>

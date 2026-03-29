@@ -1,4 +1,4 @@
 <div class="field">
-  <input type="number" [placeholder]="placeholder" class="input-field" />
+  <input type="number" [placeholder]="placeholder" class="input-field" (input)="onInputChange($event)"/>
   <img [src]="trailingIconSrc" alt="" class="ico" />
 </div>

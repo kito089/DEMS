@@ -1,4 +1,5 @@
 import service from '../services/Pagos.service.js';
+import { sendEventToAll } from '../routes/sse.route.js';
 
 // GET /pagos
 const getAll = async (_req, res) => {
@@ -39,6 +40,9 @@ const create = async (req, res) => {
             return res.status(400).json({ error: 'Monto, idPedido e idTipoPago son requeridos' });
 
         const idPago = await service.createPago({ Monto, idPedido, idTipoPago });
+
+        sendEventToAll('nuevo_pago', { Monto, idPedido, idTipoPago, idPago });
+
         res.status(201).json({ message: 'Pago registrado', idPago });
     } catch (e) {
         res.status(500).json({ error: e.message });

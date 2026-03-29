@@ -29,8 +29,9 @@ router.get('/events', (req, res) => {
     });
 });
 
-export const sendEventToAll = (data) => {
+export const sendEventToAll = (event, data) => {
     clients.forEach(client => {
+        client.res.write(`event: ${event}\n`);
         client.res.write(`data: ${JSON.stringify(data)}\n\n`);
     });
 };
