@@ -1,4 +1,6 @@
 import sql from 'mssql';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const dbSettings = {
     user:     process.env.DB_USER,
@@ -13,6 +15,7 @@ const dbSettings = {
 };
 
 export const getConnection = async () => {
+    console.log('Dotenv: ', process.env.DB_USER, process.env.DB_PASSWORD, process.env.DB_DATABASE, process.env.DB_SERVER, process.env.DB_PORT);
     try {
         const pool = await sql.connect(dbSettings);
         return pool;

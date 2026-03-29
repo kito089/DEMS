@@ -235,30 +235,36 @@ CREATE PROCEDURE sp_GetPedidosEstructura
 AS
 BEGIN
     SET NOCOUNT ON;
+
     SELECT 
         p.idPedido,
         p.Fecha,
         p.Estado,
         p.NoMesa,
         p.Tipo, -- 1: Local, 0: Llevar
+        -- Información del mesero
         (SELECT 
             t.idTrabajador AS id, 
             t.Nombre AS nombre 
          FROM trabajadores t 
          WHERE t.idTrabajador = p.trabajadores_idTrabajador
          FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Mesero,
-         (SELECT 
+        -- Lista de platillos del pedido
+        (SELECT 
             pl.idPlatillo AS id, 
-            pl.Nombre AS nombre ,
+            pl.Nombre AS nombre,
             pl.Descripcion,
             pl.Precio
          FROM platillos pl 
-         WHERE pl.idPlatillo = dp.Platillos_idPlatillo
-         FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Platillo
+         WHERE pl.idPlatillo IN 
+            (SELECT dp.Platillos_idPlatillo 
+             FROM DetallesPedido dp 
+             WHERE dp.Pedidos_idPedido = p.idPedido)
+         FOR JSON PATH) AS Platillos
     FROM pedidos p
     ORDER BY p.Fecha DESC
     FOR JSON PATH;
-END;
+END
 GO
 
 --Para obtener los datos para mostrar el detalle de un pedido, incluyendo el platillo con su categoria en formato JSON
