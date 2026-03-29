@@ -11,7 +11,7 @@ const findAll = async () => {
     return result.recordset;
 };
 
-// GET trabajadores con estructura
+// GET trabajadores con estructura — sp_GetTrabajadoresEstructura
 const findStructure = async () => {
     const pool = await getConnection();
     const result = await pool.request()
@@ -35,13 +35,13 @@ const findById = async (id) => {
     return result.recordset[0] ?? null;
 };
 
-// INSERT
+// INSERT — sp_CrearTrabajador
 const insertOne = async (Nombre, hash, idRol) => {
     const pool = await getConnection();
     await pool.request()
-        .input('Nom', sql.VarChar(45), Nombre)
+        .input('Nom', sql.VarChar(45),  Nombre)
         .input('Con', sql.VarChar(100), hash)
-        .input('Rol', sql.Int, idRol)
+        .input('Rol', sql.Int,          idRol)
         .execute('sp_CrearTrabajador');
 };
 
@@ -49,9 +49,9 @@ const insertOne = async (Nombre, hash, idRol) => {
 const updateOne = async (id, Nombre, idRol, hash = null) => {
     const pool = await getConnection();
     const req = pool.request()
-        .input('id', sql.Int, id)
+        .input('id',     sql.Int,         id)
         .input('Nombre', sql.VarChar(45), Nombre)
-        .input('idRol', sql.Int, idRol);
+        .input('idRol',  sql.Int,         idRol);
 
     let setContra = '';
     if (hash) {
@@ -70,7 +70,7 @@ const updateOne = async (id, Nombre, idRol, hash = null) => {
     return result.rowsAffected[0];
 };
 
-// DELETE (soft)
+// Soft DELETE
 const deactivateOne = async (id) => {
     const pool = await getConnection();
     const result = await pool.request()
@@ -84,7 +84,7 @@ const deactivateOne = async (id) => {
     return result.rowsAffected[0];
 };
 
-// LOGIN
+// LOGIN — sp_LoginTrabajador (devuelve Contra para comparar en el controller)
 const findForLogin = async (Nombre) => {
     const pool = await getConnection();
     const result = await pool.request()
