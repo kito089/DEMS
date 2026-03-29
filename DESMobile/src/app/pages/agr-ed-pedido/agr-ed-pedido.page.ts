@@ -51,10 +51,17 @@ export class AgrEdPedidoPage implements OnInit {
   orderType: 'local' | 'pickup' = 'local';
   noMesa: number | null = 1;
   dishes: Dish[] = [];
+  idtrabajador: number = 0;
 
   constructor(private modalCtrl: ModalController, private api: ApiService) { }
 
-  ngOnInit() { }
+  ngOnInit() { 
+    const trabajadorData = localStorage.getItem('trabajador');
+    if (trabajadorData) {
+      const trabajadorObj = JSON.parse(trabajadorData);
+      this.idtrabajador = trabajadorObj.id || 0;
+    }
+  }
 
   onMesaChange(value: number) {
     this.noMesa = value;
@@ -138,7 +145,7 @@ export class AgrEdPedidoPage implements OnInit {
       return;
     }
     const payload = {
-      TrabajadorId: 1, // cambiar cuando tenga login
+      TrabajadorId: this.idtrabajador,
       Tipo: this.orderType === 'local' ? 0 : 1,
       NoMesa: this.noMesa,
       Detalles: this.dishes.map(d => ({

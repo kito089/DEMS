@@ -4,6 +4,8 @@ import { firstValueFrom } from 'rxjs';
 import { first, Observable, Subject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { Pedido } from '../models/pedido.model';
+import { from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -36,16 +38,22 @@ export class ApiService {
     }
   ];
 
-  async post(endpoint: string, body: any) {
-    const baseUrl = await this.config.getApiUrl();
-    console.log('Realizando POST a:', `${baseUrl}${endpoint}`, 'con body:', body);
-    return this.http.post(`${baseUrl}${endpoint}`, body);
+  post(endpoint: string, body: any) {
+    return from(this.config.getApiUrl()).pipe(
+      switchMap(baseUrl => {
+        console.log('Realizando POST a:', `${baseUrl}${endpoint}`, 'con body:', body);
+        return this.http.post(`${baseUrl}${endpoint}`, body);
+      })
+    );
   }
 
-  async get(endpoint: string) {
-    const baseUrl = await this.config.getApiUrl();
-    console.log('Realizando GET a:', `${baseUrl}${endpoint}`);
-    return firstValueFrom(this.http.get(`${baseUrl}${endpoint}`));
+  get(endpoint: string) {
+    return from(this.config.getApiUrl()).pipe(
+      switchMap(baseUrl => {
+        console.log('Realizando GET a:', `${baseUrl}${endpoint}`);
+        return this.http.get(`${baseUrl}${endpoint}`);
+      })
+    );
   }
 
   obtenerPedidos(): Promise<Pedido[]> {
