@@ -1,40 +1,40 @@
 :host {
-  display: block;
+  display: flex;
   width: 100%;
   box-sizing: border-box;
 }
 
-.bottom-nav {
-  width: 100%;
-  align-self: stretch;
+.bottom-toolbar {
+  --background: #fffcf8;
+  --padding-start: var(--page-pad, 12px);
+  --padding-end: var(--page-pad, 12px);
+  --min-height: auto;
+
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
   gap: 16px;
-  background: #fffcf8;
-  padding: clamp(16px, 4vw, 21px) var(--page-pad, 12px);
-  box-sizing: border-box;
+
+  padding: clamp(16px, 4vw, 21px) 0;
 }
 
+/* item */
 .nav-item {
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   text-decoration: none;
   color: inherit;
-  margin-right: clamp(16px, 5vw, 34px);
 }
 
+/* primer item (pedidos) */
 .nav-item:first-child {
   align-items: flex-start;
-  margin-left: clamp(24px, 12vw, 68px);
-  margin-right: 0;
   position: relative;
 }
 
+/* icon wrap */
 .nav-item__icon-wrap {
   position: relative;
   display: flex;
@@ -42,10 +42,10 @@
   align-items: flex-start;
 }
 
+/* iconos */
 .nav-item__icon {
   border-radius: 10px;
   width: min(37px, 10vw);
-  height: auto;
   aspect-ratio: 37 / 39;
   object-fit: contain;
 }
@@ -55,11 +55,13 @@
   aspect-ratio: 45 / 47;
 }
 
+/* label */
 .nav-item__label {
   color: #b2224b;
   font-size: clamp(0.8rem, 3.5vw, 0.9375rem);
 }
 
+/* badge estilo */
 .nav-item__label--badge {
   position: absolute;
   bottom: -12px;
@@ -68,6 +70,7 @@
   text-align: center;
 }
 
+/* activo */
 .nav-item--active .nav-item__label {
   font-weight: 600;
 }

@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ContentHeadingComponent } from '../../components/content-heading/content-heading.component';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   standalone: true,
