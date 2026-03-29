@@ -27,13 +27,15 @@ export class SeleccionarPlatilloComponent implements OnInit {
   async cargarPlatillos() {
     try {
       const data = await this.api.get('/Platillos/completo') as any[];
+      console.log('Platillos obtenidos:', JSON.stringify(data));
       this.platillos = data.map((item: any) => ({
-        id: item.id,
-        name: item.nombre,
-        tipo: item.tipo,
-        precio: item.precio,
+        id: item.idPlatillo,
+        nombre: item.Nombre,
+        tipo: item.Categoria.nombre,
+        precio: item.Precio,
         img: 'assets/pedidosAssets/platillo.png'
       }));
+      console.log('Platillos parseados:', JSON.stringify(this.platillos));
     } catch (error) {
       console.error('Error al cargar platillos:', error);
     }
