@@ -30,13 +30,28 @@ const create = async (req, res) => {
 
         await svc.createPedido({ TrabajadorId, Tipo, NoMesa, Detalles });
 
-            sendEventToAll('nuevo_pedido', { TrabajadorId, Tipo, NoMesa, Detalles });
+        sendEventToAll('nuevo_pedido', { TrabajadorId, Tipo, NoMesa, Detalles });
 
         res.status(201).json({ message: 'Pedido registrado' });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 };
+
+// PUT /pedidos/:id/ready
+const ready = async (req, res) => {
+    try {
+        await svc.marcarReady(req.params.id);
+        sendEventToAll('pedidoListo', {
+            pedidoId: req.params.id,
+            estado: 'Listo'
+        });
+        res.json({ message: 'Pedido marcado como listo' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 
 // PUT /pedidos/:id/finalizar
 const finalizar = async (req, res) => {

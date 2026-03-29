@@ -4,5 +4,5 @@ export interface Pedido {
   mesa: string;
   total: number;
   items: string[];
-  estado: 'pending' | 'ready';
+  estado: 'Proceso' | 'Listo';
 }
