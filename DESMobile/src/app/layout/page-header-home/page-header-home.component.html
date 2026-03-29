@@ -1,9 +1,16 @@
-<div class="header">
-  <div class="titles">
-    <span class="title">{{ title }}</span>
-    <span class="subtitle">{{ subtitle }}</span>
-  </div>
-  <div class="badge">
-    <span class="badge-text">{{ badgeText }}</span>
-  </div>
-</div>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="header-toolbar">
+
+    <div class="titles">
+      <span class="title">{{ title }}</span>
+      <span class="subtitle">{{ subtitle }}</span>
+    </div>
+
+    <ion-buttons slot="end">
+      <div class="badge">
+        <span class="badge-text">{{ badgeText }}</span>
+      </div>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>

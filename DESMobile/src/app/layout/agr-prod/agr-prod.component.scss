@@ -44,3 +44,19 @@
   font-weight: bold;
   color: #8b1a1a;
 }
+
+ion-textarea {
+  width: 100%;
+  min-height: 80px;
+  color: #000;
+}
+
+.input-box {
+  background: #F5EFE6;
+  border: 1px solid #D9C4A0;
+  border-radius: 10px;
+  padding: 10px;
+
+  position: relative;
+  z-index: 1; // 👈 clave
+}

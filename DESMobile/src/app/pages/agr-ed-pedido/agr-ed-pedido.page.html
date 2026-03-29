@@ -1,11 +1,11 @@
+<app-page-header-cream
+  title="Nuevo pedido"
+  imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/swq88tag_expires_30_days.png"
+/>
+
 <ion-content [fullscreen]="true" class="agr-ed-pedido-page-content">
   <app-page-body>
     <div class="page-column">
-      <app-page-header-cream
-        title="Nuevo pedido"
-        imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/swq88tag_expires_30_days.png"
-      />
-
       <app-elevated-panel preset="agr-order-type">
         <span class="field-label">Tipo de pedido</span>
         <div class="centered-buttons">
@@ -31,7 +31,7 @@
             shape="square"
             iconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/hn3kyqre_expires_30_days.png"
             label="Agregar"
-            (pressed)="noop()"
+            (pressed)="abrirPlatillos()"
           />
         </div>
 
@@ -45,7 +45,7 @@
           minusIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/{{ i === 0 ? '8zdzl7jb' : i === 1 ? 'apikmqg9' : 'iiyu2i4j' }}_expires_30_days.png"
           plusIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/{{ i === 0 ? 'w8qswv7a' : i === 1 ? 'g2syc8z1' : 'c5k6aeka' }}_expires_30_days.png"
           noteIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/{{ i === 0 ? 'dexz6kwj' : i === 1 ? 'ytmjuf7m' : 'xcozat2x' }}_expires_30_days.png"
-          (noteClick)="noop()"
+          (noteClick)="abrirNota(i)"
           (minusClick)="onDishMinus(i)"
           (plusClick)="onDishPlus(i)"
         />
@@ -53,12 +53,12 @@
 
       <app-divider-line tone="section" />
 
-      <app-primary-button label="Guardar pedido" widthMode="centered" (pressed)="noop()" />
-
-      <app-bottom-nav
-        pedidosIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/ckb0ty6i_expires_30_days.png"
-        reservacionesIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/cwh83t4f_expires_30_days.png"
-      />
+      <app-primary-button label="Guardar pedido" widthMode="centered" (pressed)="guardarPedido()" />
     </div>
   </app-page-body>
 </ion-content>
+
+<app-bottom-nav
+  pedidosIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/ckb0ty6i_expires_30_days.png"
+  reservacionesIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/cwh83t4f_expires_30_days.png"
+/>

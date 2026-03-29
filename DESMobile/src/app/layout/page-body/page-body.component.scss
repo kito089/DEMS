@@ -1,34 +1,21 @@
 :host {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 100%;
+  display: block;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .contain {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-  max-width: 100%;
-  min-height: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
+  display: block;
+  width: 100%;
 }
 
 .scroll-view {
-  flex: 1 1 auto;
-  align-self: stretch;
+  display: block;
+  width: 100%;
   background: #f5efe6;
   border-radius: 10px;
-  width: 100%;
-  min-width: 0;
   box-sizing: border-box;
-  /* Si el % aún no resuelve (slot de ion-content), cubrir al menos el viewport */
-  min-height: max(100%, 100dvh);
 }
+
 .scroll-view--default {
   display: flex;
   flex-direction: column;
