@@ -7,7 +7,17 @@ const getPedidos = async () => {
         .execute('sp_GetPedidosEstructura');
 
     const raw = result.recordset[0][Object.keys(result.recordset[0])[0]];
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+
+    const pedidos = JSON.parse(raw);
+
+    const pedidosCompJSON = pedidos.map(p => ({
+        ...p,
+        Mesero: p.Mesero ? JSON.parse(p.Mesero) : null,
+        Platillo: p.Platillo ? JSON.parse(p.Platillo) : null
+    }));
+
+    return pedidosCompJSON;
 };
 
 // GET detalles
