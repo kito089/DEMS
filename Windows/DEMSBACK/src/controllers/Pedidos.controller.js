@@ -1,5 +1,5 @@
 import svc from '../services/Pedidos.service.js';
-
+import { sendEventToAll } from '../routes/sse.route.js';
 // GET /pedidos
 const getAll = async (_req, res) => {
     try {
@@ -30,6 +30,8 @@ const create = async (req, res) => {
 
         await svc.createPedido({ TrabajadorId, Tipo, NoMesa, Detalles });
 
+            sendEventToAll('nuevo_pedido', { TrabajadorId, Tipo, NoMesa, Detalles });
+
         res.status(201).json({ message: 'Pedido registrado' });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -40,6 +42,9 @@ const create = async (req, res) => {
 const finalizar = async (req, res) => {
     try {
         await svc.finalizarPedido(req.params.id);
+
+        sendEventToAll('pedido_finalizado', { id: req.params.id });
+
         res.json({ message: 'Pedido finalizado' });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -55,6 +60,8 @@ const cancelar = async (req, res) => {
                 error: 'No se pudo cancelar (pedido no existe o ya está terminado)'
             });
         }
+
+        sendEventToAll('pedido_cancelado', { id: req.params.id });
 
         res.json({ message: 'Pedido cancelado' });
     } catch (e) {
