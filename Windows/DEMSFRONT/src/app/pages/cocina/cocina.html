@@ -1,0 +1,20 @@
+<app-header title="Cocina"></app-header>
+
+<main class="pagina-cocina">
+  <section class="saludo">
+    <h1 class="saludo-titulo">Bienvenido a Cocina, {{ userName }}</h1>
+    <p class="saludo-subtitulo">Aquí verás los pedidos activos para preparar</p>
+  </section>
+
+  <div class="pedidos-container">
+    <div class="pedido-card">
+      <h3>Pedido #001</h3>
+      <p>Mesa 3</p>
+      <p>2x Enchiladas verdes</p>
+      <p>1x Pozole rojo</p>
+      <button class="btn-completar">Marcar como completado</button>
+    </div>
+  </div>
+
+  <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+</main>
