@@ -37,22 +37,23 @@ export class LoginPage implements OnInit {
 
     this.api.post('/trabajadores/login', payload).subscribe({
       next: (res: any) => {
-        console.log('Login exitoso:', res);
+        console.log('Login exitoso:', JSON.stringify(res));
 
-        localStorage.setItem('trabajador', JSON.stringify(res.trabajador));
-        console.log('Trabajador guardado en localStorage:', localStorage.getItem('trabajador'));
-        alert('Login exitoso');
+        const trabajador = res.body?.trabajador;
+        if (trabajador) {
+          localStorage.setItem('trabajador', JSON.stringify(trabajador));
+          console.log('Trabajador guardado en localStorage:', localStorage.getItem('trabajador'));
+          alert('Login exitoso');
 
-        this.router.navigate(['/home']);
-      },
-      error: (err: any) => {
-        console.error('Error login:', err);
-
-        if (err.status === 401) {
-          alert('Usuario o contraseña incorrectos');
+          this.router.navigate(['/home']);
         } else {
-          alert('Error del servidor');
+          alert('Error: no se recibió información del trabajador');
+          console.warn('Respuesta inesperada:', res);
         }
+      },
+      error: (err) => {
+        console.error('Error en login:', err);
+        alert(err.error?.error || 'Error en login');
       }
     });
   }
