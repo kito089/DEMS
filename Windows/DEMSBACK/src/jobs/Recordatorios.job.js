@@ -5,10 +5,10 @@ import { sendReminderEmail } from '../services/Email.service.js';
 // PROGRAMAR TAREA
 export const iniciarRecordatorios = () => {
 
-  // ⏰ Se ejecuta todos los días a las 9:00 AM
+  // Se ejecuta todos los días a las 9:00 AM
  // cron.schedule('0 9 * * *', async () => {
      cron.schedule('* * * * *', async () => {
-    console.log('⏰ Ejecutando envío de recordatorios...');
+    console.log('Ejecutando envío de recordatorios...');
 
     try {
       const reservaciones = await getReservacionesProximas();
@@ -21,10 +21,10 @@ export const iniciarRecordatorios = () => {
         );
       }
 
-      console.log(`✅ Correos enviados: ${reservaciones.length}`);
+      console.log(`Correos enviados: ${reservaciones.length}`);
 
     } catch (error) {
-      console.error('❌ Error en cron:', error);
+      console.error('Error en cron:', error);
     }
   });
 
