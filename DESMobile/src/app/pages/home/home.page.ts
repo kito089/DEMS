@@ -6,7 +6,7 @@ import { QuickActionTileComponent } from '../../components/quick-action-tile/qui
 import { OrderActiveCardComponent } from '../../components/order-active-card/order-active-card.component';
 import { ApiService } from '../../services/api.service';
 import { Pedido } from 'src/app/models/pedido.model';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -35,30 +35,44 @@ export class HomePage implements OnInit, OnDestroy {
   constructor(private pedidoService: ApiService) { }
 
   actualizarListas() {
-    this.pedidosReady = this.pedidos.filter(p => p.estado === 'ready');
-    this.pedidosPending = this.pedidos.filter(p => p.estado === 'pending');
+    this.pedidosReady = this.pedidos.filter(p => p.estado === 'Listo');
+    this.pedidosPending = this.pedidos.filter(p => p.estado === 'Proceso');
   }
 
   async ngOnInit() {
-    const data = await this.pedidoService.obtenerPedidos();
     const trabajadorData = localStorage.getItem('trabajador');
     if (trabajadorData) {
       const trabajadorObj = JSON.parse(trabajadorData);
       this.trabajador = trabajadorObj.Nombre || '';
     }
 
-    this.pedidos = [...data];
-    this.actualizarListas();
+    try {
+      const pedidos: any = await firstValueFrom(this.pedidoService.get('/Pedidos/'));
+      console.log('Pedidos recibidos:', JSON.stringify(pedidos));
+      this.pedidos = pedidos.map((p: any) => ({
+        id: p.idPedido,
+        folio: p.idPedido.toString(),
+        mesa: p.NoMesa?.toString(),
+        total: p.Total,
+        items: p.items || [],
+        estado: p.Estado || 'Proceso'
+      }));
+      console.log('Pedidos mapeados:', JSON.stringify(this.pedidos));
+      this.actualizarListas();
+    } catch (err) {
+      console.error('Error cargando pedidos:', err);
+    }
 
-    this.sub = this.pedidoService.escucharEventos().subscribe(evento => {
-      this.actualizarPedido(evento);
+    this.sub = this.pedidoService.escucharEventos().subscribe({
+      next: (evento: any) => {
+        console.log('Evento SSE recibido:', evento);
+        this.actualizarPedido(evento);
+      },
+      error: (err) => console.error('Error SSE:', err)
     });
-
-    this.pedidoService.simularEvento();
   }
 
   actualizarPedido(evento: any) {
-    // 🔥 NO mutar → crear nuevo array
     this.pedidos = this.pedidos.map(p =>
       p.id === evento.pedidoId
         ? { ...p, estado: evento.estado }
