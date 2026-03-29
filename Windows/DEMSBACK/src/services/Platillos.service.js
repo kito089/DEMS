@@ -8,6 +8,23 @@ const getPlatillos = async () => {
     return result.recordset;
 };
 
+// GET todos los platillos activos con informacion completa
+const getPlatillosCompletos = async () => {
+    const pool = await getConnection();
+    const result = await pool.request()
+        .execute(`sp_GetAllPlatillos`);
+
+    const raw = result.recordset[0][Object.keys(result.recordset[0])[0]];
+    const data = JSON.parse(raw);
+
+    const parsedData = data.map(item => ({
+        ...item,
+        Categoria: item.Categoria ? JSON.parse(item.Categoria) : null
+    }));
+
+    return parsedData;
+}
+
 // GET platillo por ID
 const getPlatilloById = async (id) => {
     const pool = await getConnection();
@@ -99,6 +116,7 @@ const getMenuDigital = async () => {
 
 export default {
     getPlatillos,
+    getPlatillosCompletos,
     getPlatilloById,
     getStructure,
     createPlatillo,
