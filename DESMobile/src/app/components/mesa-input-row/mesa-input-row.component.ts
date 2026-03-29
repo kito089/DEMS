@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,4 +11,10 @@ import { CommonModule } from '@angular/common';
 export class MesaInputRowComponent {
   @Input({ required: true }) placeholder!: string;
   @Input({ required: true }) trailingIconSrc!: string;
+  @Output() mesaChange = new EventEmitter<number>();
+
+  onInputChange(event: any) {
+    const value = Number(event.target.value);
+    this.mesaChange.emit(value);
+  }
 }
