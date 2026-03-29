@@ -1,57 +1,51 @@
-<div class="cocina-container">
-  <h2>Pedidos - Cocina</h2>
+<app-header title="Cocina"></app-header>
+<main class="pagina-cocina">
+  <div *ngIf="isLoading" class="loading">Cargando pedidos...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  <ng-container *ngIf="!isLoading && !errorMessage">
+    <ng-container *ngIf="pedidos.length > 0; else emptyTemplate">
+      <section
+        *ngFor="let pedido of pedidos"
+        class="pedido-card"
+        [ngClass]="pedido.estado.toLowerCase()"
+      >
+        <div class="pedido-header">
+          <span class="mesa">Mesa {{ pedido.mesa }}</span>
+          <span class="numero">#{{ pedido.numero | number: '3.0-0' }}</span>
+          <span class="badge" [ngClass]="pedido.estado.toLowerCase()">
+            {{ pedido.estado }}
+          </span>
+        </div>
 
-  <div class="pedido-card pendiente">
-    <div class="pedido-header">
-      <span>Mesa 1</span>
-      <span>#003</span>
-      <span class="estado">Pendiente</span>
-    </div>
-    <ul class="pedido-items">
-      <li>2 Enchiladas verdes</li>
-      <li>1 Pozole rojo</li>
-      <li>2 Agua de sabor</li>
-    </ul>
-    <div class="pedido-footer">
-      <span>14:05</span>
-      <span>Total: $210</span>
-      <button class="btn-lista">Marcar como Lista</button>
-    </div>
-  </div>
+       <ul class="pedido-items">
+  <li *ngFor="let item of pedido.items">
+    <span class="item-qty">{{ item.split(' ')[0] }}</span>
+    {{ item.split(' ').slice(1).join(' ') }}
+  </li>
+</ul>
 
-  <div class="pedido-card pendiente">
-    <div class="pedido-header">
-      <span>Mesa 5</span>
-      <span>#004</span>
-      <span class="estado">Pendiente</span>
-    </div>
-    <ul class="pedido-items">
-      <li>2 Enchiladas rojas</li>
-      <li>1 Tacos dorados</li>
-      <li>2 Tostadas Mixtas</li>
-    </ul>
-    <div class="pedido-footer">
-      <span>14:02</span>
-      <span>Total: $210</span>
-      <button class="btn-lista">Marcar como Lista</button>
-    </div>
-  </div>
-
-  <div class="pedido-card listo">
-    <div class="pedido-header">
-      <span>Mesa 4</span>
-      <span>#005</span>
-      <span class="estado">Listo</span>
-    </div>
-    <ul class="pedido-items">
-      <li>2 Flautas</li>
-      <li>1 Pozole verde</li>
-      <li>2 Coca Cola</li>
-    </ul>
-    <div class="pedido-footer">
-      <span>15:05</span>
-      <span>Total: $180</span>
-      <button class="btn-entregado">Entregado</button>
-    </div>
-  </div>
-</div>
+        <div class="pedido-footer">
+          <span class="hora">{{ pedido.hora }}</span>
+          <span class="total">Total: ${{ pedido.total }}</span>
+          <button
+            *ngIf="pedido.estado === 'Pendiente'"
+            (click)="marcarLista(pedido)"
+            class="btn-lista"
+          >
+            Marcar como Lista
+          </button>
+          <button
+            *ngIf="pedido.estado === 'Listo'"
+            (click)="entregar(pedido)"
+            class="btn-entregado"
+          >
+            Entregado
+          </button>
+        </div>
+      </section>
+    </ng-container>
+    <ng-template #emptyTemplate>
+      <p class="texto-vacio">No hay pedidos activos.</p>
+    </ng-template>
+  </ng-container>
+</main>
