@@ -49,16 +49,26 @@ export class HomePage implements OnInit, OnDestroy {
     try {
       const pedidos: any = await firstValueFrom(this.pedidoService.get('/Pedidos/'));
       console.log('Pedidos recibidos:', JSON.stringify(pedidos));
-      this.pedidos = pedidos.map((p: any) => ({
-        id: p.idPedido,
-        folio: p.idPedido.toString(),
-        mesa: p.NoMesa?.toString(),
-        total: p.Total,
-        items: p.items || [],
-        estado: p.Estado || 'Proceso'
-      }));
+
+      this.pedidos = pedidos.map((p: any) => {
+        // tomamos directamente los platillos
+        const items = p.Platillos || [];
+        // calculamos subtotal sumando los precios
+        const subtotal = items.reduce((acc: number, item: any) => acc + (item.Precio || 0), 0);
+
+        return {
+          id: p.idPedido,
+          folio: p.idPedido.toString(),
+          mesa: p.NoMesa?.toString(),
+          total: subtotal,   // subtotal calculado
+          items: items,      // array de platillos
+          estado: p.Estado || 'Proceso'
+        };
+      });
+
       console.log('Pedidos mapeados:', JSON.stringify(this.pedidos));
       this.actualizarListas();
+
     } catch (err) {
       console.error('Error cargando pedidos:', err);
     }
