@@ -30,7 +30,7 @@
           <span class="field-label field-label--plain">PLATILLOS</span>
           <app-toolbar-icon-button
             shape="square"
-            iconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/hn3kyqre_expires_30_days.png"
+            iconSrc="assets/pedidosAssets/agregar.png"
             label="Agregar"
             (pressed)="abrirPlatillos()"
           />
@@ -43,9 +43,9 @@
           [nameWidth]="i === 0 ? 'full' : i === 1 ? 'natural' : 'wide'"
           [noteShape]="i === 0 || i === 2 ? 'pill-wide' : 'pill'"
           [leadingFlexSpacer]="i === 1"
-          minusIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/{{ i === 0 ? '8zdzl7jb' : i === 1 ? 'apikmqg9' : 'iiyu2i4j' }}_expires_30_days.png"
-          plusIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/{{ i === 0 ? 'w8qswv7a' : i === 1 ? 'g2syc8z1' : 'c5k6aeka' }}_expires_30_days.png"
-          noteIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/{{ i === 0 ? 'dexz6kwj' : i === 1 ? 'ytmjuf7m' : 'xcozat2x' }}_expires_30_days.png"
+          minusIconSrc="assets/pedidosAssets/minus.png"
+          plusIconSrc="assets/pedidosAssets/plus.png"
+          noteIconSrc="assets/pedidosAssets/agregar.png"
           (noteClick)="abrirNota(i)"
           (minusClick)="onDishMinus(i)"
           (plusClick)="onDishPlus(i)"
@@ -60,6 +60,6 @@
 </ion-content>
 
 <app-bottom-nav
-  pedidosIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/ckb0ty6i_expires_30_days.png"
-  reservacionesIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/cwh83t4f_expires_30_days.png"
+  pedidosIconSrc="assets/NewPedidos.png"
+  reservacionesIconSrc="assets/Reserva.png"
 />
