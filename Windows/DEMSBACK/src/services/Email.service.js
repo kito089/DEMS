@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
+import { generarTicket } from '../utils/generarTicket.js';
 
 // CONFIGURACIÓN DEL CORREO
 const transporter = nodemailer.createTransport({
@@ -39,4 +40,21 @@ export const sendReminderEmail = async (correo, fecha, nombre) => {
   } catch (error) {
     console.error('Error enviando correo:', error);
   }
+};
+
+export const sendTicketEmail = async (pedido) => {
+  const pdfPath = generarTicket(pedido);
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: pedido.correo,
+    subject: 'Tu ticket de compra 🧾',
+    text: 'Gracias por tu compra, aquí está tu ticket.',
+    attachments: [
+      {
+        filename: 'ticket.pdf',
+        path: pdfPath
+      }
+    ]
+  });
 };

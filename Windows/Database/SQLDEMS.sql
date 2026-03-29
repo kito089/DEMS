@@ -414,6 +414,392 @@ BEGIN
     FOR JSON PATH;
 END;
 GO
+
+--PROCEDIMIENTOS PARA EL CRUD DE TRABAJADORES
+
+--Procedimiento de lsitar trabajadores
+CREATE PROCEDURE sp_GetAllTrabajadores
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        SELECT 
+            t.idTrabajador,
+            t.Nombre,
+            t.Activo,
+            (SELECT 
+                r.idRolTrabajadores AS id, 
+                r.Nombre AS nombre 
+             FROM RolTrabajadores r 
+             WHERE r.idRolTrabajadores = t.RolTrabajadores_idRolTrabajadores
+             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Rol
+        FROM trabajadores t
+        WHERE t.Activo = 1 -- Solo los que no han sido "eliminados"
+        FOR JSON PATH;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+--Procedimeinto para obtenr un trabajador por su id
+CREATE PROCEDURE sp_GetTrabajadorById
+    @idTrabajador INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        SELECT 
+            t.idTrabajador,
+            t.Nombre,
+            t.RolTrabajadores_idRolTrabajadores AS idRol,
+            t.Activo
+        FROM trabajadores t
+        WHERE t.idTrabajador = @idTrabajador
+        FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+--Procedimiento para actualizar un trabajador
+CREATE PROCEDURE sp_UpdateTrabajador
+    @idTrabajador INT,
+    @Nombre VARCHAR(45),
+    @Contra VARCHAR(100), -- Hash enviado desde Node.js
+    @idRol INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            UPDATE trabajadores
+            SET Nombre = @Nombre,
+                Contra = ISNULL(@Contra, Contra), -- Si mandas NULL no cambia la contraseña actual
+                RolTrabajadores_idRolTrabajadores = @idRol
+            WHERE idTrabajador = @idTrabajador;
+
+            IF @@ROWCOUNT = 0
+                RAISERROR('El trabajador no existe.', 16, 1);
+
+            SELECT 'Trabajador actualizado con éxito' AS Mensaje;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+--procedimiento para eliminar un trabajador (marcar como inactivo)
+CREATE PROCEDURE sp_DeleteTrabajador
+    @idTrabajador INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            UPDATE trabajadores
+            SET Activo = 0
+            WHERE idTrabajador = @idTrabajador;
+
+            IF @@ROWCOUNT = 0
+                RAISERROR('No se pudo encontrar al trabajador.', 16, 1);
+
+            SELECT 'Trabajador desactivado correctamente' AS Mensaje;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+--PROCEDIMENTOS PARA EL CRUD DE PLATILLOS
+--Procedimiento para listar platillos
+CREATE PROCEDURE sp_GetAllPlatillos
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        SELECT 
+            p.idPlatillo,
+            p.Nombre,
+            p.Descripcion,
+            p.Precio,
+            p.Activo,
+            -- Estructura de objeto para la Categoría
+            (SELECT 
+                c.idCategoriasPlatillos AS id, 
+                c.Nombre AS nombre 
+             FROM CategoriasPlatillos c 
+             WHERE c.idCategoriasPlatillos = p.CategoriasPlatillos_idCategoriasPlatillos
+             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Categoria
+        FROM platillos p
+        WHERE p.Activo = 1 -- Solo mostrar platillos vigentes en el menú
+        FOR JSON PATH;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+--Procedimiento para obtener un platillo por su id
+CREATE PROCEDURE sp_GetPlatilloById
+    @idPlatillo INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        SELECT 
+            p.idPlatillo,
+            p.Nombre,
+            p.Descripcion,
+            p.Precio,
+            p.CategoriasPlatillos_idCategoriasPlatillos AS idCategoria,
+            p.Activo
+        FROM platillos p
+        WHERE p.idPlatillo = @idPlatillo
+        FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+--Procedimiento para actualizar un platillo
+CREATE PROCEDURE sp_UpdatePlatillo
+    @idPlatillo INT,
+    @Nombre VARCHAR(45),
+    @Descripcion VARCHAR(45),
+    @Precio DECIMAL(10,2),
+    @idCategoria INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            UPDATE platillos
+            SET Nombre = @Nombre,
+                Descripcion = @Descripcion,
+                Precio = @Precio,
+                CategoriasPlatillos_idCategoriasPlatillos = @idCategoria
+            WHERE idPlatillo = @idPlatillo;
+
+            IF @@ROWCOUNT = 0
+                RAISERROR('El platillo especificado no existe.', 16, 1);
+
+            SELECT 'Platillo actualizado correctamente' AS Mensaje;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+--Procedimiento para eliminar un platillo 
+CREATE PROCEDURE sp_DeletePlatillo
+    @idPlatillo INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            UPDATE platillos
+            SET Activo = 0
+            WHERE idPlatillo = @idPlatillo;
+
+            IF @@ROWCOUNT = 0
+                RAISERROR('No se encontró el platillo para desactivar.', 16, 1);
+
+            SELECT 'Platillo retirado del menú (Desactivado)' AS Mensaje;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+--Procedimientos almacenados para el crud de pagos 
+--Procedimiento para registrar un pago
+CREATE PROCEDURE sp_InsertarPago
+    @Monto DECIMAL(10,2),
+    @idPedido INT,
+    @idTipoPago INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            -- Validar que el pedido no esté ya pagado o terminado
+            IF EXISTS (SELECT 1 FROM pedidos WHERE idPedido = @idPedido AND Estado = 'Terminado')
+            BEGIN
+                RAISERROR('Este pedido ya ha sido finalizado o pagado anteriormente.', 16, 1);
+            END
+
+            INSERT INTO pagos (Monto, Pedidos_idPedido, TiposPago_idTiposPago)
+            VALUES (@Monto, @idPedido, @idTipoPago);
+
+            SELECT 'Pago registrado y pedido finalizado con éxito' AS Mensaje, SCOPE_IDENTITY() AS idPago;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+--Procedimiento para listar todos los pagos 
+CREATE PROCEDURE sp_GetAllPagos
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        SELECT 
+            p.idPago,
+            p.Monto,
+            p.Pedidos_idPedido AS idPedido,
+            (SELECT 
+                tp.idTiposPago AS id, 
+                tp.Nombre AS nombre 
+             FROM TiposPago tp 
+             WHERE tp.idTiposPago = p.TiposPago_idTiposPago
+             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS MetodoPago
+        FROM pagos p
+        ORDER BY p.idPago DESC
+        FOR JSON PATH;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+--Procedimiento para obtener un pago por su id 
+CREATE PROCEDURE sp_GetPagoByPedido
+    @idPedido INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        SELECT 
+            p.idPago,
+            p.Monto,
+            tp.Nombre AS MetodoPago
+        FROM pagos p
+        INNER JOIN TiposPago tp ON p.TiposPago_idTiposPago = tp.idTiposPago
+        WHERE p.Pedidos_idPedido = @idPedido
+        FOR JSON PATH, WITHOUT_ARRAY_WRAPPER;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH
+END;
+GO
+
+--Procedimeinto para corregir un pago(update)
+CREATE PROCEDURE sp_UpdatePago
+    @idPago INT,
+    @Monto DECIMAL(10,2),
+    @idTipoPago INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            UPDATE pagos
+            SET Monto = @Monto,
+                TiposPago_idTiposPago = @idTipoPago
+            WHERE idPago = @idPago;
+
+            IF @@ROWCOUNT = 0
+                RAISERROR('No se encontró el registro de pago.', 16, 1);
+
+            SELECT 'Información de pago actualizada' AS Mensaje;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+--Procedimiento para eliminar un pago (marcar como error o corregirlo)
+CREATE PROCEDURE sp_AnularPago
+    @idPago INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+            DECLARE @idPedido INT;
+            SELECT @idPedido = Pedidos_idPedido FROM pagos WHERE idPago = @idPago;
+
+            -- 1. Regresar el pedido a estado 'Proceso'
+            UPDATE pedidos SET Estado = 'Proceso' WHERE idPedido = @idPedido;
+
+            -- 2. Eliminar el registro del pago
+            DELETE FROM pagos WHERE idPago = @idPago;
+
+            IF @@ROWCOUNT = 0
+                RAISERROR('No se pudo anular el pago.', 16, 1);
+
+            SELECT 'Pago anulado y pedido reabierto' AS Mensaje;
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+GO
+
+--PROCEDIMIENTO PARA OBTNER LOS PAGOS POR PEDIDO
+CREATE PROCEDURE sp_GetPagosPorPedido
+    @idPedido INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        -- Verificamos si el pedido tiene pagos asociados
+        IF NOT EXISTS (SELECT 1 FROM pagos WHERE Pedidos_idPedido = @idPedido)
+        BEGIN
+            SELECT '[]' AS Resultado; -- Retorna un arreglo vacío si no hay pagos
+            RETURN;
+        END
+
+        SELECT 
+            pg.idPago,
+            pg.Monto,
+            (SELECT 
+                tp.idTiposPago AS id, 
+                tp.Nombre AS nombre 
+             FROM TiposPago tp 
+             WHERE tp.idTiposPago = pg.TiposPago_idTiposPago
+             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS MetodoPago,
+            p.Fecha AS FechaTransaccion
+        FROM pagos pg
+        INNER JOIN pedidos p ON pg.Pedidos_idPedido = p.idPedido
+        WHERE pg.Pedidos_idPedido = @idPedido
+        FOR JSON PATH;
+        
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage, 16, 1);
+    END CATCH
+END;
+GO
+--
 -- 4. TRIGGERS 
 --Trigger que acci n de inserci n o modificaci n en la tabla de platillos
 CREATE TRIGGER trg_LogPlatillos
