@@ -21,11 +21,12 @@
       </div>
 
       <h2 class="home-section-title">Pedidos activos</h2>
-
-      <app-order-active-card deskLabel="P-012 Mesa 3" amount="$330" detail="4 platillos" status="pending" />
-      <app-order-active-card deskLabel="P-013 Mesa 4" amount="$240" detail="2 platillos" status="ready" />
-      <app-order-active-card deskLabel="P-014 Mesa 8" amount="$210" detail="3 platillos" status="pending"
-        [last]="true" />
+      <app-order-active-card *ngFor="let pedido of pedidosReady"
+        [deskLabel]="'P-' + pedido.folio + ' Mesa ' + pedido.mesa" [amount]="'$' + pedido.total"
+        [detail]="pedido.items.length + ' platillos'" [status]="pedido.estado" />
+      <app-order-active-card *ngFor="let pedido of pedidosPending"
+        [deskLabel]="'P-' + pedido.folio + ' Mesa ' + pedido.mesa" [amount]="'$' + pedido.total"
+        [detail]="pedido.items.length + ' platillos'" [status]="pedido.estado" />
     </app-page-body>
   </ion-content>
 </ion-page>
