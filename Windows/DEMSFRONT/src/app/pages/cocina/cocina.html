@@ -1,20 +1,57 @@
-<app-header title="Cocina"></app-header>
+<div class="cocina-container">
+  <h2>Pedidos - Cocina</h2>
 
-<main class="pagina-cocina">
-  <section class="saludo">
-    <h1 class="saludo-titulo">Bienvenido a Cocina, {{ userName }}</h1>
-    <p class="saludo-subtitulo">Aquí verás los pedidos activos para preparar</p>
-  </section>
-
-  <div class="pedidos-container">
-    <div class="pedido-card">
-      <h3>Pedido #001</h3>
-      <p>Mesa 3</p>
-      <p>2x Enchiladas verdes</p>
-      <p>1x Pozole rojo</p>
-      <button class="btn-completar">Marcar como completado</button>
+  <div class="pedido-card pendiente">
+    <div class="pedido-header">
+      <span>Mesa 1</span>
+      <span>#003</span>
+      <span class="estado">Pendiente</span>
+    </div>
+    <ul class="pedido-items">
+      <li>2 Enchiladas verdes</li>
+      <li>1 Pozole rojo</li>
+      <li>2 Agua de sabor</li>
+    </ul>
+    <div class="pedido-footer">
+      <span>14:05</span>
+      <span>Total: $210</span>
+      <button class="btn-lista">Marcar como Lista</button>
     </div>
   </div>
 
-  <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
-</main>
+  <div class="pedido-card pendiente">
+    <div class="pedido-header">
+      <span>Mesa 5</span>
+      <span>#004</span>
+      <span class="estado">Pendiente</span>
+    </div>
+    <ul class="pedido-items">
+      <li>2 Enchiladas rojas</li>
+      <li>1 Tacos dorados</li>
+      <li>2 Tostadas Mixtas</li>
+    </ul>
+    <div class="pedido-footer">
+      <span>14:02</span>
+      <span>Total: $210</span>
+      <button class="btn-lista">Marcar como Lista</button>
+    </div>
+  </div>
+
+  <div class="pedido-card listo">
+    <div class="pedido-header">
+      <span>Mesa 4</span>
+      <span>#005</span>
+      <span class="estado">Listo</span>
+    </div>
+    <ul class="pedido-items">
+      <li>2 Flautas</li>
+      <li>1 Pozole verde</li>
+      <li>2 Coca Cola</li>
+    </ul>
+    <div class="pedido-footer">
+      <span>15:05</span>
+      <span>Total: $180</span>
+      <button class="btn-entregado">Entregado</button>
+    </div>
+  </div>
+</div>
