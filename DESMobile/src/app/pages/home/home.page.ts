@@ -30,6 +30,7 @@ export class HomePage implements OnInit, OnDestroy {
   pedidosReady: Pedido[] = [];
   pedidosPending: Pedido[] = [];
   sub!: Subscription;
+  trabajador: string = '';
 
   constructor(private pedidoService: ApiService) { }
 
@@ -40,6 +41,11 @@ export class HomePage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     const data = await this.pedidoService.obtenerPedidos();
+    const trabajadorData = localStorage.getItem('trabajador');
+    if (trabajadorData) {
+      const trabajadorObj = JSON.parse(trabajadorData);
+      this.trabajador = trabajadorObj.Nombre || '';
+    }
 
     this.pedidos = [...data];
     this.actualizarListas();

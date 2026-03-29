@@ -8,6 +8,7 @@ router.get('/structure', ctrl.getStructure);
 router.get('/menu', ctrl.getMenu);
 
 router.get('/', ctrl.getAll);
+router.get('/completo', ctrl.getCompleto);
 router.get('/:id', ctrl.getById);
 router.post('/', ctrl.create);
 router.put('/:id', ctrl.update);

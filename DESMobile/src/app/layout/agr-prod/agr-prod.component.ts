@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
 import { IonicModule } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
+import { ApiService } from 'src/app/services/api.service';
 
 @Component({
   selector: 'app-seleccionar-platillo',
@@ -13,17 +14,36 @@ import { CommonModule } from '@angular/common';
     IonicModule
   ],
 })
-export class SeleccionarPlatilloComponent {
+export class SeleccionarPlatilloComponent implements OnInit {
 
-  constructor(private modalCtrl: ModalController) {}
+  constructor(private modalCtrl: ModalController, private api: ApiService) { }
 
-  platillos = [
-    { id: 1, nombre: 'Enchiladas verdes', tipo: 'Alimento', precio: 105, img: 'https://via.placeholder.com/40' },
-    { id: 2, nombre: 'Pozole rojo', tipo: 'Alimento', precio: 120, img: 'https://via.placeholder.com/40' },
-    { id: 3, nombre: 'Agua de Jamaica', tipo: 'Bebida', precio: 30, img: 'https://via.placeholder.com/40' },
-    { id: 4, nombre: 'Tacos dorados', tipo: 'Alimento', precio: 80, img: 'https://via.placeholder.com/40' },
-    { id: 5, nombre: 'Coca Cola', tipo: 'Bebida', precio: 40, img: 'https://via.placeholder.com/40' },
-  ];
+  platillos: any[] = [];
+
+  async ngOnInit() {
+    await this.cargarPlatillos();
+  }
+
+  cargarPlatillos() {
+  this.api.get('/Platillos/completo').subscribe({
+    next: (data: any) => {
+      console.log('Platillos obtenidos:', JSON.stringify(data));
+
+      this.platillos = data.map((item: any) => ({
+        id: item.idPlatillo,
+        nombre: item.Nombre,
+        tipo: item.Categoria?.nombre,
+        precio: item.Precio,
+        img: 'assets/pedidosAssets/platillo.png'
+      }));
+
+      console.log('Platillos parseados:', JSON.stringify(this.platillos));
+    },
+    error: (error) => {
+      console.error('Error al cargar platillos:', error);
+    }
+  });
+}
 
   cerrar() {
     this.modalCtrl.dismiss();
