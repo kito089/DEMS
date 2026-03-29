@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import ctrl from '../controllers/Platillos.controller.js';
+import bcrypt from 'bcrypt';
+import service from '../services/Trabajadores.service.js';
 
 const SALT_ROUNDS = 10;
 
@@ -27,7 +27,9 @@ const getStructure = async (_req, res) => {
 const getById = async (req, res) => {
     try {
         const trabajador = await service.findById(req.params.id);
-        if (!trabajador) return res.status(404).json({ error: 'Trabajador no encontrado' });
+        if (!trabajador) {
+            return res.status(404).json({ error: 'Trabajador no encontrado' });
+        }
         res.json(trabajador);
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -38,12 +40,21 @@ const getById = async (req, res) => {
 const create = async (req, res) => {
     try {
         const { Nombre, Contra, idRol } = req.body;
-        if (!Nombre || !Contra || !idRol)
-            return res.status(400).json({ error: 'Nombre, Contra e idRol son requeridos' });
+
+        if (!Nombre || !Contra || idRol == null) {
+            return res.status(400).json({
+                error: 'Nombre, Contra e idRol son requeridos'
+            });
+        }
 
         const hash = await bcrypt.hash(Contra, SALT_ROUNDS);
-        const idTrabajador = await service.insertOne(Nombre, hash, idRol);
-        res.status(201).json({ message: 'Trabajador creado', idTrabajador });
+
+        await service.insertOne(Nombre, hash, idRol);
+
+        res.status(201).json({
+            message: 'Trabajador creado'
+        });
+
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -53,25 +64,50 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         const { Nombre, Contra, idRol } = req.body;
-        if (!Nombre || !idRol)
-            return res.status(400).json({ error: 'Nombre e idRol son requeridos' });
 
-        const hash = Contra ? await bcrypt.hash(Contra, SALT_ROUNDS) : null;
-        const affected = await service.updateOne(req.params.id, Nombre, idRol, hash);
+        if (!Nombre || idRol == null) {
+            return res.status(400).json({
+                error: 'Nombre e idRol son requeridos'
+            });
+        }
 
-        if (!affected) return res.status(404).json({ error: 'Trabajador no encontrado' });
+        const hash = Contra
+            ? await bcrypt.hash(Contra, SALT_ROUNDS)
+            : null;
+
+        const affected = await service.updateOne(
+            req.params.id,
+            Nombre,
+            idRol,
+            hash
+        );
+
+        if (!affected) {
+            return res.status(404).json({
+                error: 'Trabajador no encontrado'
+            });
+        }
+
         res.json({ message: 'Trabajador actualizado' });
+
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 };
 
-// DELETE /trabajadores/:id
+// DELETE /trabajadores/:id (soft delete)
 const remove = async (req, res) => {
     try {
         const affected = await service.deactivateOne(req.params.id);
-        if (!affected) return res.status(404).json({ error: 'Trabajador no encontrado' });
+
+        if (!affected) {
+            return res.status(404).json({
+                error: 'Trabajador no encontrado'
+            });
+        }
+
         res.json({ message: 'Trabajador desactivado' });
+
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -81,17 +117,37 @@ const remove = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { Nombre, Contra } = req.body;
-        if (!Nombre || !Contra)
-            return res.status(400).json({ error: 'Nombre y Contra son requeridos' });
+
+        if (!Nombre || !Contra) {
+            return res.status(400).json({
+                error: 'Nombre y Contra son requeridos'
+            });
+        }
 
         const trabajador = await service.findForLogin(Nombre);
-        if (!trabajador) return res.status(401).json({ error: 'Credenciales incorrectas' });
+
+        if (!trabajador) {
+            return res.status(401).json({
+                error: 'Credenciales incorrectas'
+            });
+        }
 
         const match = await bcrypt.compare(Contra, trabajador.Contra);
-        if (!match) return res.status(401).json({ error: 'Credenciales incorrectas' });
 
+        if (!match) {
+            return res.status(401).json({
+                error: 'Credenciales incorrectas'
+            });
+        }
+
+        // quitar contraseña del response
         const { Contra: _, ...datos } = trabajador;
-        res.json({ message: 'Login exitoso', trabajador: datos });
+
+        res.json({
+            message: 'Login exitoso',
+            trabajador: datos
+        });
+
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
