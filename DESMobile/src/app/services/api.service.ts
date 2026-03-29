@@ -41,9 +41,10 @@ export class ApiService {
     return this.http.post(`${baseUrl}${endpoint}`, body);
   }
 
-  get(endpoint: string) {
-    console.log('Realizando GET a:', `${this.config.getApiUrl()}${endpoint}`);
-    return firstValueFrom(this.http.get(`${this.config.getApiUrl()}${endpoint}`));
+  async get(endpoint: string) {
+    const baseUrl = await this.config.getApiUrl();
+    console.log('Realizando GET a:', `${baseUrl}${endpoint}`);
+    return firstValueFrom(this.http.get(`${baseUrl}${endpoint}`));
   }
 
   obtenerPedidos(): Promise<Pedido[]> {
