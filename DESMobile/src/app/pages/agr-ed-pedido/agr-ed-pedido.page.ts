@@ -55,11 +55,12 @@ export class AgrEdPedidoPage implements OnInit {
 
   constructor(private modalCtrl: ModalController, private api: ApiService) { }
 
-  ngOnInit() { 
+  ngOnInit() {
     const trabajadorData = localStorage.getItem('trabajador');
     if (trabajadorData) {
       const trabajadorObj = JSON.parse(trabajadorData);
-      this.idtrabajador = trabajadorObj.id || 0;
+      console.log('Trabajador cargado desde localStorage:', JSON.stringify(trabajadorObj));
+      this.idtrabajador = trabajadorObj.idTrabajador || 0;
     }
   }
 
@@ -156,8 +157,21 @@ export class AgrEdPedidoPage implements OnInit {
       }))
     };
     console.log('Enviando pedido:', JSON.stringify(payload));
-    this.api.post('/Pedidos', payload);
-    alert('Pedido guardado correctamente');
+    this.api.post('/Pedidos', payload).subscribe({
+      next: (response) => {
+        console.log('Respuesta completa:', response);
+
+        if (response.status === 201) {
+          alert('Pedido guardado correctamente');
+        } else {
+          console.warn('Respuesta inesperada:', response.status);
+        }
+      },
+      error: (err) => {
+        console.error('Error al guardar pedido:', JSON.stringify(err));
+        alert('Error al guardar el pedido');
+      }
+    });
   }
 
   onDishMinus(index: number): void {
