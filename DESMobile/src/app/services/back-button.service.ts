@@ -36,20 +36,8 @@ export class BackButtonService {
 
       // Regresar a la página anterior con reconstrucción completa
       if (this.navigationHistory.length > 1) {
-        // Eliminar la ruta actual
-        this.navigationHistory.pop();
 
-        // Obtener la anterior válida (no login)
-        let previousUrl = this.navigationHistory.pop() ?? '/home';
-        while (previousUrl.includes('login') && this.navigationHistory.length > 0) {
-          previousUrl = this.navigationHistory.pop() ?? '/home';
-        }
-
-        if (previousUrl.includes('login')) {
-          previousUrl = '/home';
-        }
-
-        await this.router.navigateByUrl(previousUrl, {
+        await this.router.navigateByUrl('/home', {
           replaceUrl: true,
           state: { reload: Date.now() }
         });

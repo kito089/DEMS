@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,10 +9,9 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./choice-split-buttons.component.scss'],
 })
 export class ChoiceSplitButtonsComponent {
+  @Input() selected: 'local' | 'pickup' = 'local';
   @Output() primaryClick = new EventEmitter<'local' | 'pickup'>();
   @Output() secondaryClick = new EventEmitter<'local' | 'pickup'>();
-
-  selected: 'local' | 'pickup' = 'local';
 
   selectLocal(): void {
     this.selected = 'local';

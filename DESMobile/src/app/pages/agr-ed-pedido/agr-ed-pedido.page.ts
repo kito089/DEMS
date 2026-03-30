@@ -73,10 +73,11 @@ export class AgrEdPedidoPage implements OnInit {
   }
 
   cargarPedido(pedido: any) {
+    console.log('Cargando pedido para edición:', JSON.stringify(pedido));
     this.idPedido = pedido.idPedido;
     this.orderType = pedido.tipo === 0 ? 'local' : 'pickup';
     this.noMesa = pedido.mesa ? Number(pedido.mesa) : null;
-    this.idtrabajador = pedido.Mesero?.id || 0;
+    this.idtrabajador = pedido.TrabajadorId || 0;
 
     this.dishes = (pedido.items || []).map((d: any) => ({
       id: d.id,
