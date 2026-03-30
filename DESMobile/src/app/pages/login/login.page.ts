@@ -4,6 +4,7 @@ import { InputComponent } from '../../components/input/inputComponent';
 import { AuthLayoutComponent } from '../../layout/auth-layout/auth-layoutComponent';
 import { ApiService } from 'src/app/services/api.service';
 import { Router } from '@angular/router';
+import { ToastController } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-login',
@@ -16,14 +17,23 @@ export class LoginPage {
   @ViewChild('inputUsuario') inputUsuario!: InputComponent;
   @ViewChild('inputContraseña') inputContraseña!: InputComponent;
 
-  constructor(private api: ApiService, private router: Router) { }
+  constructor(private api: ApiService, private router: Router, private toastController: ToastController) { }
+
+  async presentToast(message: string, color: string = 'primary') {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color
+    });
+    toast.present();
+  }
 
   onLogin() {
     const usuario = this.inputUsuario.getValue().trim();
     const contraseña = this.inputContraseña.getValue().trim();
 
     if (!usuario || !contraseña) {
-      alert('Por favor ingresa usuario y contraseña.');
+      this.presentToast('Por favor ingresa usuario y contraseña.', 'warning');
       return;
     }
 
@@ -37,15 +47,15 @@ export class LoginPage {
         const trabajador = res.body?.trabajador;
         if (trabajador) {
           localStorage.setItem('trabajador', JSON.stringify(trabajador));
-          alert('Login exitoso');
+          this.presentToast('Login exitoso', 'success');
 
           this.router.navigate(['/home']);
         } else {
-          alert('Error: no se recibió información del trabajador');
+          this.presentToast('Error: no se recibió información del trabajador', 'danger');
         }
       },
       error: (err) => {
-        alert(err.error?.error || 'Error en login');
+        this.presentToast(err.error?.error || 'Error en login', 'danger');
       }
     });
   }
