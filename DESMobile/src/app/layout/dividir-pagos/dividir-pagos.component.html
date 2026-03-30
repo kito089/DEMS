@@ -1,0 +1,48 @@
+<ion-content [fullscreen]="true" class="dividir-pagos-page-content">
+  <app-page-body>
+    <div class="page-stack">
+      <div class="header-row">
+        <span class="title">Dividir por pagos</span>
+      </div>
+
+      <div class="total-row">
+        <span class="total-label">Total del pedido</span>
+        <span class="total-value">$210</span>
+      </div>
+
+      <div class="payment-panel">
+        <div class="payment-entry">
+          <ion-item lines="none" class="payment-method-item">
+            <ion-label>Pago</ion-label>
+            <ion-select [(ngModel)]="selectedMethod" interface="popover" placeholder="Tarjeta">
+              <ion-select-option value="tarjeta">Tarjeta</ion-select-option>
+              <ion-select-option value="transferencia">Transferencia</ion-select-option>
+              <ion-select-option value="efectivo">Efectivo</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item lines="none" class="payment-amount-item">
+            <ion-input type="number" placeholder="Monto $" [(ngModel)]="amount"></ion-input>
+          </ion-item>
+        </div>
+
+        <button type="button" class="add-payment" (click)="onAddPayment()">
+          <img
+            src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/6hm1uhud_expires_30_days.png"
+            alt="Agregar forma de pago"
+            class="add-payment-icon"
+          />
+          <span>Agregar forma de pago</span>
+        </button>
+
+        <div class="remaining">
+          <span>Falta: $210</span>
+        </div>
+      </div>
+
+      <ion-button expand="block" class="confirm-button" (click)="onConfirmPayments()">
+        Confirmar pagos
+      </ion-button>
+    </div>
+  </app-page-body>
+</ion-content>
