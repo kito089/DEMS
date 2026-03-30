@@ -104,8 +104,19 @@
 
       <div class="modal-acciones">
         <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
-        <button class="btn-guardar"  (click)="guardar()">Guardar</button>
-      </div>
+
+        <!-- Botón dinámico -->
+        <button class="btn-guardar" (click)="guardar()" [disabled]="isSaving">
+          <ng-container *ngIf="!isSaving; else guardando">
+          Guardar
+         </ng-container>
+         <ng-template #guardando>
+          Guardando...
+          <span class="spinner"></span>
+       </ng-template>
+       </button>
+    </div>
+
     </div>
   </div>
 
