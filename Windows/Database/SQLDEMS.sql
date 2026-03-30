@@ -1008,3 +1008,4 @@ SELECT
     p.Activo
 FROM platillos p
 INNER JOIN CategoriasPlatillos c ON p.CategoriasPlatillos_idCategoriasPlatillos = c.idCategoriasPlatillos;
+
