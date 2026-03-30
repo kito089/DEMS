@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class PedidoCobroRowComponent {
   @Input({ required: true }) code!: string;
-  @Input({ required: true }) location!: string;
+  @Input({ required: true }) location: string = '';
   @Input({ required: true }) dishes!: number;
   @Input({ required: true }) price!: number;
   @Input({ required: true }) iconSrc!: string;

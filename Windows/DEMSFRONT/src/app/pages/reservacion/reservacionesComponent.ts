@@ -77,24 +77,47 @@ export class ReservacionesComponent implements OnInit {
     this.mostrarModal = true;
   }
 
-  guardar(): void {
-    if (this.modoEdicion && this.editandoId !== null) {
-      this.svc.update(this.editandoId, this.form).subscribe({
-        next: () => { this.cargarDatos(); this.cerrarModal(); },
-        error: (e) => { this.errorMessage = 'Error al actualizar.'; console.error(e); },
-      });
-    } else {
-      const payload: Reservacion = {
-        ...this.form,
-        idTrabajador: this.ID_TRABAJADOR,
-      };
-      this.svc.create(payload).subscribe({
-        next: () => { this.cargarDatos(); this.cerrarModal(); },
-        error: (e) => { this.errorMessage = 'Error al crear.'; console.error(e); },
-      });
-    }
-  }
+ isSaving = false;
 
+guardar(): void {
+  if (this.isSaving) return; // evita múltiples clics
+  this.isSaving = true;
+
+  if (this.modoEdicion && this.editandoId !== null) {
+    // Modo edición
+    this.svc.update(this.editandoId, this.form).subscribe({
+      next: () => {
+        this.cargarDatos();
+        this.cerrarModal();
+        this.isSaving = false; // reactivar botón
+      },
+      error: (e) => {
+        this.errorMessage = 'Error al actualizar.';
+        console.error(e);
+        this.isSaving = false;
+      },
+    });
+  } else {
+    // Modo creación
+    const payload: Reservacion = {
+      ...this.form,
+      idTrabajador: this.ID_TRABAJADOR,
+    };
+
+    this.svc.create(payload).subscribe({
+      next: () => {
+        this.cargarDatos();
+        this.cerrarModal();
+        this.isSaving = false;
+      },
+      error: (e) => {
+        this.errorMessage = 'Error al crear.';
+        console.error(e);
+        this.isSaving = false;
+      },
+    });
+  }
+}
   eliminar(r: Reservacion): void {
     if (!confirm(`¿Eliminar reservación de ${r.NombreCliente}?`)) return;
     this.svc.delete(r.idReservacion!).subscribe({

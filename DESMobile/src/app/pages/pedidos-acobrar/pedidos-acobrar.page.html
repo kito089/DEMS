@@ -10,35 +10,13 @@
         <span class="hint">Seleccionar un pedido para cobrar</span>
         
         <app-pedido-cobro-row
-          code="P-012"
-          location="Mesa 3"
-          [dishes]="4"
-          [price]="370"
-          iconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/xxvpk7hh_expires_30_days.png"
-        />
-        <app-pedido-cobro-row
-          code="P-015"
-          location="Mesa 5"
-          [dishes]="3"
-          [price]="210"
-          iconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/ufrpxn78_expires_30_days.png"
-        />
-      </section>
-
-      <section class="block">
-        <app-pedido-cobro-row
-          code="P-014"
-          location="Mostrador"
-          [dishes]="2"
-          [price]="150"
-          iconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/zbcyfkcl_expires_30_days.png"
-        />
-        <app-pedido-cobro-row
-          code="P-016"
-          location="Mostrador"
-          [dishes]="4"
-          [price]="350"
-          iconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/1972pnme_expires_30_days.png"
+          *ngFor="let pedido of pedidosE"
+          [code]="pedido.folio"
+          [location]="pedido.mesa ?? ''"
+          [dishes]="pedido.items.length"
+          [price]="getTotal(pedido)"
+          iconSrc="assets/flecha.png"
+          (click)="cobrarPedido(pedido)"
         />
       </section>
     </div>
