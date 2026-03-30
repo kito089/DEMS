@@ -1,33 +1,22 @@
-<ion-content fullscreen class="login-content">
-  <div class="login-container">
-    <div class="login-card">
-      <img
-        src="assets/DinnerIcon.png"
-        alt="DESM Logo"
-        class="logo"
-      />
+<app-auth-layout>
+  <div class="wrapper">
+    <div class="card">
       <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <img src="assets/DinnerIcon.png" class="logo" />
 
+      <span class="title">DESM!</span>
 
-      <h1 class="title">DESM!</h1>
-      <p class="subtitle">Dinner Environment Management System</p>
+      <span class="subtitle">
+        Dinner Environment Management <br />System </span>
 
-      <ion-item class="input-item">
-        <ion-label position="floating">Usuario</ion-label>
-        <ion-input [(ngModel)]="username" type="text" autocomplete="username" required></ion-input>
-      </ion-item>
+      <app-input #inputUsuario label="Usuario" type="text">
+      </app-input>
 
-      <ion-item class="input-item">
-        <ion-label position="floating">Contraseña</ion-label>
-        <ion-input [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password" required></ion-input>
-        <ion-button fill="clear" slot="end" size="small" (click)="togglePassword()" tabindex="-1" class="password-toggle-button">
-          <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
-        </ion-button>
-      </ion-item>
+      <app-input #inputContraseña label="Contraseña" [isPasswordToggle]="true">
+      </app-input>
 
-      <ion-button expand="block" color="danger" class="login-button" (click)="login()">
-        Ingresar
-      </ion-button>
+      <app-button [text]="'Ingresar'" (click)="onLogin()"></app-button>
+
     </div>
   </div>
-</ion-content>
+</app-auth-layout>
