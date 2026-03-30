@@ -34,9 +34,30 @@ interface Reservation {
   ],
 })
 export class ReservacionesPage implements OnInit {
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) { }
 
-reservations: Reservation[] = [];
+  reservations: Reservation[] = [];
 
-  ngOnInit() {}
+  async ngOnInit() { 
+    await this.loadReservations();
+  }
+
+  async loadReservations() {
+    try {
+      const response = await firstValueFrom(this.apiService.get('/Reservaciones/proximas')) as Reservation[];
+      this.reservations = response;
+      console.log('Reservaciones cargadas:', JSON.stringify(this.reservations));
+    } catch (error) {
+      console.error('Error al cargar reservaciones:', error);
+    }
+  }
+
+  getMes(fecha: string): string {
+    const meses = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+    return meses[new Date(fecha).getMonth()];
+  }
+
+  getDia(fecha: string): string {
+    return new Date(fecha).getDate().toString().padStart(2, '0');
+  }
 }

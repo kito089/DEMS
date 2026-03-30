@@ -1,69 +1,18 @@
-<app-page-header-cream
-  title="Reservaciones"
-  imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/7o7i60ed_expires_30_days.png"
-/>
+<app-page-header-cream title="Reservaciones"
+  imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/7o7i60ed_expires_30_days.png" />
 
 <ion-content [fullscreen]="true" class="reservaciones-page-content">
   <app-page-body scrollVariant="reservaciones">
     <app-section-intro text="Se muestran las reservaciones próximas en esta semana" />
 
-    <app-reservation-row
-      variant="inline-meta"
-      spacing="tight"
-      datePrimary="MAR"
-      dateSecondary="05"
-      title="Familia Rodriguez"
-      metaLine1="6 personas"
-      metaLine2="449-123-3454"
-      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/vjktmwvw_expires_30_days.png"
-    />
+    <app-reservation-row *ngFor="let reservation of reservations" variant="inline-meta" spacing="tight"
+      [datePrimary]="getMes(reservation.Fecha)" [dateSecondary]="getDia(reservation.Fecha)"
+      [title]="reservation.NombreCliente" [metaLine1]="reservation.NoPersonas + ' personas'"
+      [metaLine2]="reservation.Telefono"
+      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/vjktmwvw_expires_30_days.png" />
 
-    <app-reservation-row
-      variant="stacked-phone"
-      spacing="medium"
-      datePrimary="MAR"
-      dateSecondary="07"
-      title="Familia Pérez"
-      personSummary="10 personas"
-      phone="449-231-5674"
-      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/59flpcl2_expires_30_days.png"
-    />
-
-    <app-reservation-row
-      variant="stacked-phone"
-      spacing="relaxed"
-      datePrimary="MAR"
-      dateSecondary="10"
-      title="Familia Torres"
-      personSummary="4 personas"
-      phone="449-333-9876"
-      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/5ghwwtv6_expires_30_days.png"
-    />
-
-    <app-reservation-row
-      variant="inline-meta"
-      spacing="tight"
-      datePrimary="MAR"
-      dateSecondary="25"
-      title="Familia Sánchez"
-      metaLine1="7 personas"
-      metaLine2="449-765-6754"
-      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/bwce8v29_expires_30_days.png"
-    />
-
-    <app-reservation-row
-      variant="inline-meta"
-      spacing="before-footer"
-      datePrimary="MAR"
-      dateSecondary="28"
-      title="Familia Escobedo"
-      metaLine1="12 personas"
-      metaLine2="449-654-7643"
-      actionIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/nb4k7map_expires_30_days.png"
-    />
   </app-page-body>
 </ion-content>
 <app-bottom-nav
   pedidosIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/n35lrhn3_expires_30_days.png"
-  reservacionesIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/nl035q1v_expires_30_days.png"
-/>
+  reservacionesIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/nl035q1v_expires_30_days.png" />
