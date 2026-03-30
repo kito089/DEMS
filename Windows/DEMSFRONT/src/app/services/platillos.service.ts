@@ -46,6 +46,10 @@ export class PlatillosService {
     return this.http.put(`${this.apiUrl}/${id}`, platillo);
   }
 
+  deletePlatillo(id: number): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
   listenSSE(): Observable<{ type: string; data: any }> {
     return new Observable(observer => {
       const eventSource = new EventSource(this.sseUrl);
