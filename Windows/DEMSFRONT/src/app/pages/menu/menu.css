@@ -23,6 +23,9 @@
   border: none;
   border-radius: 20px;
   cursor: pointer;
+  margin-left: auto; 
+  margin-top: 16px;
+   margin-right: 20px;
 }
 
 .btn-nuevo-platillo:hover {
