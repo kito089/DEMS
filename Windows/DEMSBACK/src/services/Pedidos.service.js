@@ -14,7 +14,6 @@ const getPedidos = async () => {
     const pedidosCompJSON = pedidos.map(p => ({
         ...p,
         Mesero: p.Mesero ? JSON.parse(p.Mesero) : null,
-        Platillo: p.Platillo ? JSON.parse(p.Platillo) : null
     }));
 
     return pedidosCompJSON;
@@ -51,6 +50,7 @@ const createPedido = async ({ TrabajadorId, Tipo, NoMesa, Detalles }) => {
 
 // UPDATE
 const updatePedido = async (idPedido, { TrabajadorId, Tipo, NoMesa, Detalles }) => {
+    console.log('Actualizar pedido:', { idPedido, TrabajadorId, Tipo, NoMesa, Detalles });
     if (!Detalles || !Array.isArray(Detalles) || Detalles.length === 0) {
         throw new Error('Datos inválidos');
     }
