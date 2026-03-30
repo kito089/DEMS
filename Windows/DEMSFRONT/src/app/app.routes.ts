@@ -12,6 +12,7 @@ export const routes: Routes = [
   { path: 'inicio', component: InicioComponent },
   { path: 'menu', component: MenuComponent },
   { path: 'registro-platillo', component: RegistroPlatilloComponent },
+  { path: 'registro-platillo/:id', component: RegistroPlatilloComponent },
   { path: 'cocina', component: CocinaComponent },
   { path: 'mesero', component: MeseroComponent },
 ];
