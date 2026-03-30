@@ -6,6 +6,8 @@
         alt="DESM Logo"
         class="logo"
       />
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 
       <h1 class="title">DESM!</h1>
       <p class="subtitle">Dinner Environment Management System</p>
@@ -16,9 +18,11 @@
       </ion-item>
 
       <ion-item class="input-item">
-        <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
         <ion-label position="floating">Contraseña</ion-label>
-        <ion-input [(ngModel)]="password" type="password" autocomplete="current-password" required></ion-input>
+        <ion-input [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password" required></ion-input>
+        <ion-button fill="clear" slot="end" size="small" (click)="togglePassword()" tabindex="-1" class="password-toggle-button">
+          <span class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+        </ion-button>
       </ion-item>
 
       <ion-button expand="block" color="danger" class="login-button" (click)="login()">

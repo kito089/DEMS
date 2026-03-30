@@ -55,6 +55,7 @@
   --border-color: #d9c4a0;
   --border-radius: 20px;
   margin-bottom: 16px;
+  color: #000000;
 }
 
 .login-button {
@@ -62,3 +63,15 @@
   border-radius: 15px;
   font-weight: 700;
 }
+
+.password-toggle-button {
+  color: #4a2c1a; /* tono similar a FRONTPAGE */
+}
+
+.password-toggle-button .material-icons {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+}
+
