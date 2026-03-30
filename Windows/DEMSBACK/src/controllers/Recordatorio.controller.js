@@ -1,17 +1,13 @@
 import { getReservacionesProximas } from '../services/Recordatorios.service.js';
-import { sendReminderEmail } from '../services/Email.service.js';
-import { sendTicketEmail } from '../services/Email.service.js';
+import { sendReminderEmail, sendTicketEmail, getPedidoById } from '../services/Email.service.js';
+// 👆 quita el import de PedidoService, ya no lo necesitas
 
 export const enviarRecordatorios = async (req, res) => {
   try {
     const reservaciones = await getReservacionesProximas();
 
     for (const r of reservaciones) {
-      await sendReminderEmail(
-        r.Correo,
-        r.Fecha,
-        r.NombreCliente
-      );
+      await sendReminderEmail(r.Correo, r.Fecha, r.NombreCliente);
     }
 
     res.status(200).json({
@@ -27,23 +23,26 @@ export const enviarRecordatorios = async (req, res) => {
   }
 };
 
-export const pruebaTicket = async (req, res) => {
+export const enviarTicket = async (req, res) => {
   try {
-    const pedido = {
-      id: 1,
-      nombre: 'Angel',
-      correo: 'erushg66@gmail.com', // 👈 pon tu correo real
-      fecha: new Date(),
-      productos: [
-        { nombre: 'Tacos', precio: 50 },
-        { nombre: 'Refresco', precio: 20 }
-      ],
-      total: 70
-    };
+    const { id } = req.params;
+    const { correo } = req.query;
+
+    if (!correo) {
+      return res.status(400).json({ error: 'El correo es requerido' });
+    }
+
+    const pedido = await getPedidoById(id); // 👈 directo, sin PedidoService
+
+    if (!pedido) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+
+    pedido.correo = correo;
 
     await sendTicketEmail(pedido);
 
-    res.json({ mensaje: 'Ticket enviado' });
+    res.json({ mensaje: 'Ticket enviado', destinatario: correo });
 
   } catch (error) {
     console.error(error);
