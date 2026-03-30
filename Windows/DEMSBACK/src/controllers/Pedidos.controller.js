@@ -38,6 +38,21 @@ const create = async (req, res) => {
     }
 };
 
+// PUT /pedidos/:id
+const update = async (req, res) => {
+    try {
+        const { TrabajadorId, Tipo, NoMesa, Detalles } = req.body;
+        if (!Detalles || !Array.isArray(Detalles) || Detalles.length === 0) {
+            return res.status(400).json({ error: 'Detalles inválidos' });
+        }
+
+        await svc.updatePedido(req.params.id, { TrabajadorId, Tipo, NoMesa, Detalles });
+        res.json({ message: 'Pedido actualizado' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 // PUT /pedidos/:id/ready
 const ready = async (req, res) => {
     try {
@@ -88,6 +103,8 @@ export default {
     getAll,
     getDetalles,
     create,
+    update,
+    ready,
     finalizar,
     cancelar
 };

@@ -16,6 +16,8 @@ import { IonicModule } from '@ionic/angular';
 import { SeleccionarPlatilloComponent } from '../../layout/agr-prod/agr-prod.component';
 import { NotaModalComponent } from '../../layout/nota/nota.component';
 import { ApiService } from 'src/app/services/api.service';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 interface Dish {
   id?: number;
@@ -52,8 +54,9 @@ export class AgrEdPedidoPage implements OnInit {
   noMesa: number | null = 1;
   dishes: Dish[] = [];
   idtrabajador: number = 0;
+  idPedido?: number;
 
-  constructor(private modalCtrl: ModalController, private api: ApiService) { }
+  constructor(private modalCtrl: ModalController, private api: ApiService, private router: Router) { }
 
   ngOnInit() {
     const trabajadorData = localStorage.getItem('trabajador');
@@ -62,6 +65,26 @@ export class AgrEdPedidoPage implements OnInit {
       console.log('Trabajador cargado desde localStorage:', JSON.stringify(trabajadorObj));
       this.idtrabajador = trabajadorObj.idTrabajador || 0;
     }
+    // Revisar si se recibió un pedido para editar
+    const state = history.state;
+    if (state?.pedido) {
+      this.cargarPedido(state.pedido);
+    }
+  }
+
+  cargarPedido(pedido: any) {
+    this.idPedido = pedido.idPedido;
+    this.orderType = pedido.tipo === 0 ? 'local' : 'pickup';
+    this.noMesa = pedido.mesa ? Number(pedido.mesa) : null;
+    this.idtrabajador = pedido.Mesero?.id || 0;
+
+    this.dishes = (pedido.items || []).map((d: any) => ({
+      id: d.id,
+      name: d.nombre,
+      quantity: d.Cantidad || 1,
+      price: d.PrecioUnitario || d.Precio || 0,
+      note: d.Nota || '',
+    }));
   }
 
   onMesaChange(value: number) {
@@ -134,7 +157,7 @@ export class AgrEdPedidoPage implements OnInit {
     }
   }
 
-  guardarPedido(): void {
+  async guardarPedido() {
     console.log(this.dishes);
     if (this.dishes.length === 0) {
       console.warn('No hay platillos en el pedido');
@@ -145,33 +168,31 @@ export class AgrEdPedidoPage implements OnInit {
       alert('Debes ingresar número de mesa');
       return;
     }
-    const payload = {
-      TrabajadorId: this.idtrabajador,
-      Tipo: this.orderType === 'local' ? 0 : 1,
-      NoMesa: this.noMesa,
-      Detalles: this.dishes.map(d => ({
-        idPlatillo: d.id,
-        cantidad: d.quantity,
-        precio: d.price,
-        nota: d.note || ''
-      }))
-    };
-    console.log('Enviando pedido:', JSON.stringify(payload));
-    this.api.post('/Pedidos', payload).subscribe({
-      next: (response) => {
-        console.log('Respuesta completa:', response);
-
-        if (response.status === 201) {
-          alert('Pedido guardado correctamente');
-        } else {
-          console.warn('Respuesta inesperada:', response.status);
-        }
-      },
-      error: (err) => {
-        console.error('Error al guardar pedido:', JSON.stringify(err));
-        alert('Error al guardar el pedido');
+    try {
+      const body = {
+        TrabajadorId: this.idtrabajador,
+        Tipo: this.orderType === 'local' ? 0 : 1,
+        NoMesa: this.orderType === 'local' ? this.noMesa : null,
+        Detalles: this.dishes.map(d => ({
+          idPlatillo: d.id,
+          cantidad: d.quantity,
+          precio: d.price,
+          nota: d.note,
+        })),
+      };
+      console.log('Enviando pedido:', JSON.stringify(body));
+      if (this.idPedido) {
+        // Editar pedido existente
+        await firstValueFrom(this.api.put(`/pedidos/${this.idPedido}`, body));
+        this.router.navigate(['/editar-pedidos']);
+      } else {
+        // Crear nuevo pedido
+        await firstValueFrom(this.api.post('/pedidos', body));
+        this.router.navigate(['/home']);
       }
-    });
+    } catch (err) {
+      console.error('Error guardando pedido:', err);
+    }
   }
 
   onDishMinus(index: number): void {

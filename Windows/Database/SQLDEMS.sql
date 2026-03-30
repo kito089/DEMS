@@ -184,6 +184,28 @@ BEGIN
 END;
 GO
 
+CREATE PROCEDURE sp_ActualizarPedido @idPedido INT, @TrabajadorId INT, @Tipo TINYINT, @NoMesa INT, @DetallesPedido NVARCHAR(MAX) AS
+BEGIN
+    BEGIN TRANSACTION;
+    BEGIN TRY
+        UPDATE pedidos
+        SET Tipo = @Tipo,
+            NoMesa = @NoMesa,
+            trabajadores_idTrabajador = @TrabajadorId,
+            Fecha = GETDATE()
+        WHERE idPedido = @idPedido;
+
+        DELETE FROM detallespedido WHERE Pedidos_idPedido = @idPedido;
+
+        INSERT INTO detallespedido (Pedidos_idPedido, Platillos_idPlatillo, Cantidad, PrecioUnitario, Nota)
+        SELECT @idPedido, idPlatillo, cantidad, precio, nota FROM OPENJSON(@DetallesPedido)
+        WITH (idPlatillo INT, cantidad INT, precio DECIMAL(10,2), nota VARCHAR(45));
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH ROLLBACK TRANSACTION; THROW; END CATCH
+END;
+GO
+
 CREATE PROCEDURE sp_CrearTrabajador @Nom VARCHAR(45), @Con VARCHAR(100), @Rol INT AS
 BEGIN
     INSERT INTO trabajadores (Nombre, Contra, RolTrabajadores_idRolTrabajadores) VALUES (@Nom, @Con, @Rol);
@@ -251,16 +273,15 @@ BEGIN
          FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS Mesero,
         -- Lista de platillos del pedido
         (SELECT 
-            pl.idPlatillo AS id, 
+            dp.Platillos_idPlatillo AS id, 
             pl.Nombre AS nombre,
-            pl.Descripcion,
-            pl.Precio
-         FROM platillos pl 
-         WHERE pl.idPlatillo IN 
-            (SELECT dp.Platillos_idPlatillo 
-             FROM DetallesPedido dp 
-             WHERE dp.Pedidos_idPedido = p.idPedido)
-         FOR JSON PATH) AS Platillos
+            dp.Cantidad,
+            dp.PrecioUnitario,
+            dp.Nota
+         FROM DetallesPedido dp
+            JOIN Platillos pl ON pl.idPlatillo = dp.Platillos_idPlatillo
+            WHERE dp.Pedidos_idPedido = p.idPedido
+            FOR JSON PATH) AS Platillos
     FROM pedidos p
     ORDER BY p.Fecha DESC
     FOR JSON PATH;

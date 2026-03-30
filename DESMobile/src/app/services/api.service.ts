@@ -37,6 +37,17 @@ export class ApiService {
     );
   }
 
+  put(endpoint: string, body: any) {
+    return from(this.config.getApiUrl()).pipe(
+      switchMap(baseUrl => {
+        console.log('Realizando PUT a:', `${baseUrl}${endpoint}`, 'con body:', body);
+        return this.http.put(`${baseUrl}${endpoint}`, body, {
+          observe: 'response'
+        });
+      })
+    );
+  }
+
   escucharEventos(): Observable<any> {
     return new Observable(observer => {
       this.config.getApiUrl().then(baseUrl => {
