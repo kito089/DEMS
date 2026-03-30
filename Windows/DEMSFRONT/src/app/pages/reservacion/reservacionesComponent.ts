@@ -80,40 +80,42 @@ export class ReservacionesComponent implements OnInit {
  isSaving = false;
 
 guardar(): void {
-  if (this.isSaving) return; // evita múltiples clics
   this.isSaving = true;
 
   if (this.modoEdicion && this.editandoId !== null) {
-    // Modo edición
     this.svc.update(this.editandoId, this.form).subscribe({
       next: () => {
-        this.cargarDatos();
+        // ✅ Actualiza solo el registro en memoria, sin recargar
+        this.reservaciones = this.reservaciones.map(r =>
+          r.idReservacion === this.editandoId
+            ? { ...r, ...this.form }
+            : r
+        );
+        this.isSaving = false;
         this.cerrarModal();
-        this.isSaving = false; // reactivar botón
       },
       error: (e) => {
         this.errorMessage = 'Error al actualizar.';
-        console.error(e);
         this.isSaving = false;
+        console.error(e);
       },
     });
-  } else {
-    // Modo creación
-    const payload: Reservacion = {
-      ...this.form,
-      idTrabajador: this.ID_TRABAJADOR,
-    };
 
-    this.svc.create(payload).subscribe({
-      next: () => {
-        this.cargarDatos();
-        this.cerrarModal();
+  } else {
+    this.svc.create({ ...this.form, idTrabajador: this.ID_TRABAJADOR }).subscribe({
+      next: (res) => {
+        // ✅ Agrega solo el nuevo registro en memoria, sin recargar
+        this.reservaciones.push({
+          ...this.form,
+          idReservacion: res.idReservacion
+        });
         this.isSaving = false;
+        this.cerrarModal();
       },
       error: (e) => {
         this.errorMessage = 'Error al crear.';
-        console.error(e);
         this.isSaving = false;
+        console.error(e);
       },
     });
   }
