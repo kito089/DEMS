@@ -8,21 +8,19 @@
   <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
 
   <ng-container *ngIf="!isLoading && !errorMessage">
-    <ng-container *ngIf="categories.length > 0; else emptyTemplate">
-      <section *ngFor="let categoria of categories" class="categoria-section">
-        <div class="platillos-grid">
-          <app-card
-            *ngFor="let platillo of categoria.platillos"
-            [imagen]="getImagenCategoria(categoria.nombre)"
-            [nombre]="platillo.nombre"
-            [precio]="platillo.precio"
-            [descripcion]="platillo.descripcion"
-            (editar)="onEditar(platillo)"
-            (eliminar)="onEliminar(platillo)">
-          </app-card>
-        </div>
-      </section>
-    </ng-container>
+    <div class="platillos-grid" *ngIf="categories.length > 0; else emptyTemplate">
+      <ng-container *ngFor="let categoria of categories">
+        <app-card
+          *ngFor="let platillo of categoria.platillos"
+          [imagen]="getImagenCategoria(categoria.nombre)"
+          [nombre]="platillo.nombre"
+          [precio]="platillo.precio"
+          [descripcion]="platillo.descripcion"
+          (editar)="onEditar(platillo)"
+          (eliminar)="onEliminar(platillo)">
+        </app-card>
+      </ng-container>
+    </div>
 
     <ng-template #emptyTemplate>
       <p class="texto-vacio">No hay platillos disponibles.</p>
