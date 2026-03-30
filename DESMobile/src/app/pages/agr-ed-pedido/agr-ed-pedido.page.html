@@ -10,6 +10,7 @@
         <span class="field-label">Tipo de pedido</span>
         <div class="centered-buttons">
           <app-choice-split-buttons
+            [selected]="orderType"
             (primaryClick)="onOrderTypeChange('local')"
             (secondaryClick)="onOrderTypeChange('pickup')"
           />
@@ -19,6 +20,7 @@
       <app-elevated-panel preset="agr-mesa" *ngIf="orderType === 'local'">
         <span class="field-label field-label--mesa">NÚMERO DE MESA</span>
         <app-mesa-input-row
+          [value]="noMesa"
           placeholder="Ej. Mesa 3"
           trailingIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/oebt75zs_expires_30_days.png"
           (mesaChange)="onMesaChange($event)"

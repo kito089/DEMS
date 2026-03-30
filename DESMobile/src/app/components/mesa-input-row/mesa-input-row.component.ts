@@ -9,12 +9,14 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./mesa-input-row.component.scss'],
 })
 export class MesaInputRowComponent {
+  @Input() value: number | null = null;
   @Input({ required: true }) placeholder!: string;
   @Input({ required: true }) trailingIconSrc!: string;
   @Output() mesaChange = new EventEmitter<number>();
 
   onInputChange(event: any) {
     const value = Number(event.target.value);
+    this.value = value;
     this.mesaChange.emit(value);
   }
 }

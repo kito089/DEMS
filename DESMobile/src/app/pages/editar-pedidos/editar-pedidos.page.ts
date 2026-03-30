@@ -27,6 +27,7 @@ interface PedidoE {
   items: any[];
   estado: string;
   tipo: number;
+  TrabajadorId: number;
 }
 
 @Component({
@@ -82,6 +83,7 @@ export class EditarPedidosPage implements OnInit {
         items: p.Platillos || [],
         estado: p.Estado,
         tipo: p.Tipo,
+        TrabajadorId: p.Mesero?.id || 0,
       }));
 
       // Separar mesas y mostrador
