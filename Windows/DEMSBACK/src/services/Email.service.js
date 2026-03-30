@@ -7,8 +7,8 @@ import { getConnection, sql } from '../config/connection.js'; // 👈 agregar
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'erushg66@gmail.com',
-    pass: 'rjbthvrolosmlgxz'
+    user: 'demslomabonita@gmail.com',
+    pass: 'drgnwsaiqgnqnirq'
   }
 });
 
@@ -24,7 +24,7 @@ export const sendReminderEmail = async (correo, fecha, nombre) => {
   try {
     const html = generarHTML(fecha, nombre);
     await transporter.sendMail({
-      from: '"Reservaciones" <erushg66@gmail.com>',
+      from: '"Reservaciones" <demslomabonita@gmail.com>',
       to: correo,
       subject: 'Recordatorio de tu reservación',
       html: html
@@ -39,7 +39,7 @@ export const sendTicketEmail = async (pedido) => {
   try {
     const pdfBuffer = await generarTicket(pedido);
     await transporter.sendMail({
-      from: '"Tickets" <erushg66@gmail.com>',
+      from: '"Tickets" <demslomabonita@gmail.com>',
       to: pedido.correo,
       subject: 'Tu ticket de compra 🧾',
       text: 'Gracias por tu compra, aquí está tu ticket.',
