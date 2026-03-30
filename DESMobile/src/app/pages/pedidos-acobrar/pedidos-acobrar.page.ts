@@ -1,14 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { IonContent } from '@ionic/angular/standalone';
+import { PageHeaderCreamComponent } from '../../layout/page-header-cream/page-header-cream.component';
+import { PageBodyComponent } from '../../layout/page-body/page-body.component';
+import { BottomNavComponent } from '../../layout/bottom-nav/bottom-nav.component';
+import { PedidoCobroRowComponent } from '../../components/pedido-cobro-row/pedido-cobro-row.component';
 
 @Component({
   selector: 'app-pedidos-acobrar',
   templateUrl: './pedidos-acobrar.page.html',
   styleUrls: ['./pedidos-acobrar.page.scss'],
   standalone: true,
-  imports: [IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonContent,
+    PageHeaderCreamComponent,
+    PageBodyComponent,
+    BottomNavComponent,
+    PedidoCobroRowComponent
+  ]
 })
 export class PedidosACobrarPage implements OnInit {
 
