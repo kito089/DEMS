@@ -5,6 +5,8 @@ import { RegistroPlatilloComponent } from './components/registro-platillo-compon
 import { InicioComponent } from './pages/inicio/inicioComponent';
 import { CocinaComponent } from './pages/cocina/cocinaComponent';
 import { MeseroComponent } from './pages/mesero/meseroComponent';
+import { ReservacionesComponent } from './pages/reservacion/reservacionesComponent';
+
 
 export const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -14,4 +16,5 @@ export const routes: Routes = [
   { path: 'registro-platillo', component: RegistroPlatilloComponent },
   { path: 'cocina', component: CocinaComponent },
   { path: 'mesero', component: MeseroComponent },
+  { path: 'reservaciones',    component: ReservacionesComponent },
 ];
