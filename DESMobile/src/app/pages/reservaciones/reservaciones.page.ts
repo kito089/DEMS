@@ -6,6 +6,17 @@ import { PageHeaderCreamComponent } from '../../layout/page-header-cream/page-he
 import { BottomNavComponent } from '../../layout/bottom-nav/bottom-nav.component';
 import { SectionIntroComponent } from '../../components/section-intro/section-intro.component';
 import { ReservationRowComponent } from '../../components/reservation-row/reservation-row.component';
+import { firstValueFrom } from 'rxjs';
+import { ApiService } from '../../services/api.service';
+
+interface Reservation {
+  idReservation: number;
+  NombreCliente: string;
+  Telefono: string;
+  Fecha: string;
+  NoPersonas: number;
+  Estado: string;
+}
 
 @Component({
   selector: 'app-reservaciones',
@@ -23,7 +34,9 @@ import { ReservationRowComponent } from '../../components/reservation-row/reserv
   ],
 })
 export class ReservacionesPage implements OnInit {
-  constructor() {}
+  constructor(private apiService: ApiService) {}
+
+reservations: Reservation[] = [];
 
   ngOnInit() {}
 }
