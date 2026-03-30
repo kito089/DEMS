@@ -6,6 +6,8 @@ import { InicioComponent } from './pages/inicio/inicioComponent';
 import { CocinaComponent } from './pages/cocina/cocinaComponent';
 import { MeseroComponent } from './pages/mesero/meseroComponent';
 import { ReservacionesComponent } from './pages/reservacion/reservacionesComponent';
+import { TrabajadoresComponent } from './pages/trabajadores/trabajadoresComponent';
+import { RegistroTrabajadorComponent } from './components/registro-trabajador-component/registro-trabajador-component';
 
 
 export const routes: Routes = [
@@ -18,4 +20,8 @@ export const routes: Routes = [
   { path: 'cocina', component: CocinaComponent },
   { path: 'mesero', component: MeseroComponent },
   { path: 'reservaciones',    component: ReservacionesComponent },
+  { path: 'trabajadores', component: TrabajadoresComponent },
+  { path: 'registro-trabajador', component: RegistroTrabajadorComponent },
+  { path: 'registro-trabajador/:id', component: RegistroTrabajadorComponent },
+  { path: 'reportes', component: InicioComponent },
 ];
