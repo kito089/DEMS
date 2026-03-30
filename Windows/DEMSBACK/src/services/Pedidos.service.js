@@ -49,6 +49,23 @@ const createPedido = async ({ TrabajadorId, Tipo, NoMesa, Detalles }) => {
     return true;
 };
 
+// UPDATE
+const updatePedido = async (idPedido, { TrabajadorId, Tipo, NoMesa, Detalles }) => {
+    if (!Detalles || !Array.isArray(Detalles) || Detalles.length === 0) {
+        throw new Error('Datos inválidos');
+    }
+    const pool = await getConnection();
+
+    await pool.request()
+        .input('idPedido', sql.Int, idPedido)
+        .input('TrabajadorId', sql.Int, TrabajadorId)
+        .input('Tipo', sql.TinyInt, Tipo)
+        .input('NoMesa', sql.Int, NoMesa)
+        .input('DetallesPedido', sql.NVarChar(sql.MAX), JSON.stringify(Detalles))
+        .execute('sp_ActualizarPedido');
+    return true;
+};
+
 // FINALIZAR
 const finalizarPedido = async (idPedido) => {
     const pool = await getConnection();
@@ -82,6 +99,7 @@ export default {
     getPedidos,
     getDetalles,
     createPedido,
+    updatePedido,
     finalizarPedido,
     cancelar
 };

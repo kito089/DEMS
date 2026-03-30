@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MeseroCobrarPedido</title>
+	<style>
+		body {
+			font-family: system-ui;
+		}
+		.absolute-text {
+			position: absolute;
+			bottom: -12px;
+			right: -6px;
+			left: -6px;
+			color: #B2224B;
+			font-size: 15px;
+		}
+		.box {
+			flex: 1;
+			align-self: stretch;
+		}
+		.column {
+			align-self: stretch;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			padding-bottom: 1px;
+			margin-bottom: 45px;
+			margin-left: 15px;
+			margin-right: 15px;
+		}
+		.column2 {
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 5px;
+		}
+		.column3 {
+			align-self: stretch;
+			display: flex;
+			flex-direction: column;
+			padding-bottom: 1px;
+			margin-bottom: 252px;
+			margin-left: 15px;
+			margin-right: 15px;
+			gap: 47px;
+		}
+		.column4 {
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			margin-left: 68px;
+			position: relative;
+		}
+		.column5 {
+			flex-shrink: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-right: 34px;
+			gap: 2px;
+		}
+		.contain {
+			display: flex;
+			flex-direction: column;
+			background: #FFFFFF;
+		}
+		.image {
+			border-radius: 10px;
+			width: 64px;
+			height: 50px;
+			object-fit: fill;
+		}
+		.image2 {
+			border-radius: 10px;
+			width: 17px;
+			height: 17px;
+			object-fit: fill;
+		}
+		.image3 {
+			border-radius: 10px;
+			width: 45px;
+			height: 47px;
+			object-fit: fill;
+		}
+		.image4 {
+			border-radius: 10px;
+			width: 37px;
+			height: 39px;
+			object-fit: fill;
+		}
+		.row-view {
+			align-self: stretch;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: #FFFCF8E3;
+			padding: 20px 23px;
+			margin-bottom: 19px;
+		}
+		.row-view2 {
+			align-self: stretch;
+			display: flex;
+			align-items: center;
+			background: #FAFAFA;
+			border-radius: 16px;
+			border: 1px solid #EDE0CCC4;
+			padding: 14px 13px;
+			margin-bottom: 51px;
+			box-shadow: 1px 4px 4px #00000040;
+		}
+		.row-view3 {
+			align-self: stretch;
+			display: flex;
+			align-items: center;
+			background: #FAFAFA;
+			border-radius: 16px;
+			border: 1px solid #EDE0CCC4;
+			padding: 14px 13px;
+			box-shadow: 1px 4px 4px #00000040;
+		}
+		.row-view4 {
+			align-self: stretch;
+			display: flex;
+			align-items: center;
+			background: #FAFAFA;
+			border-radius: 16px;
+			border: 1px solid #EDE0CCC4;
+			padding: 16px 13px;
+			box-shadow: 1px 4px 4px #00000040;
+		}
+		.row-view5 {
+			align-self: stretch;
+			display: flex;
+			align-items: center;
+			background: #FAFAFA;
+			border-radius: 16px;
+			border: 1px solid #EDE0CCC4;
+			padding: 17px 13px;
+			box-shadow: 1px 4px 4px #00000040;
+		}
+		.row-view6 {
+			align-self: stretch;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: #FFFCF8;
+			padding-top: 21px;
+			padding-bottom: 21px;
+		}
+		.scroll-view {
+			align-self: stretch;
+			background: #F5EFE6;
+			border-radius: 10px;
+		}
+		.text {
+			color: #7A5C42;
+			font-size: 30px;
+			font-weight: bold;
+		}
+		.text2 {
+			color: #7A5C42;
+			font-size: 13px;
+			margin-bottom: 31px;
+			margin-left: 1px;
+		}
+		.text3 {
+			color: #4A2C1A;
+			font-size: 17px;
+		}
+		.text4 {
+			color: #946B42;
+			font-size: 12px;
+			margin-right: 55px;
+		}
+		.text5 {
+			color: #8B1A1A;
+			font-size: 18px;
+			font-weight: bold;
+			margin-right: 9px;
+		}
+		.text6 {
+			color: #8B1A1A;
+			font-size: 18px;
+			font-weight: bold;
+			margin-right: 12px;
+		}
+		.text7 {
+			color: #946B42;
+			font-size: 12px;
+			margin-right: 82px;
+		}
+		.text8 {
+			color: #946B42;
+			font-size: 12px;
+			margin-right: 81px;
+		}
+		.text9 {
+			color: #8B1A1A;
+			font-size: 18px;
+			font-weight: bold;
+			margin-right: 8px;
+		}
+		.text10 {
+			color: #B2224B;
+			font-size: 15px;
+		}
+	</style>
+</head>
+<body>
+		<div class="contain">
+		<div class="scroll-view">
+			<div class="row-view">
+				<span class="text" >
+					Cobrar pedido
+				</span>
+				<img
+					src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/kv8d5ngj_expires_30_days.png" 
+					class="image"
+				/>
+			</div>
+			<div class="column">
+				<span class="text2" >
+					Seleccionar un pedido para cobrar
+				</span>
+				<div class="row-view2">
+					<div class="column2">
+						<span class="text3" >
+							P-012 Mesa 3
+						</span>
+						<span class="text4" >
+							4 platillos
+						</span>
+					</div>
+					<div class="box">
+					</div>
+					<span class="text5" >
+						$370
+					</span>
+					<img
+						src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/xxvpk7hh_expires_30_days.png" 
+						class="image2"
+					/>
+				</div>
+				<div class="row-view3">
+					<div class="column2">
+						<span class="text3" >
+							P-015 Mesa 5
+						</span>
+						<span class="text4" >
+							3 platillos
+						</span>
+					</div>
+					<div class="box">
+					</div>
+					<span class="text6" >
+						$210
+					</span>
+					<img
+						src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/ufrpxn78_expires_30_days.png" 
+						class="image2"
+					/>
+				</div>
+			</div>
+			<div class="column3">
+				<div class="row-view4">
+					<div class="column2">
+						<span class="text3" >
+							P-014 Mostrador
+						</span>
+						<span class="text7" >
+							2 platillos
+						</span>
+					</div>
+					<div class="box">
+					</div>
+					<span class="text6" >
+						$150
+					</span>
+					<img
+						src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/zbcyfkcl_expires_30_days.png" 
+						class="image2"
+					/>
+				</div>
+				<div class="row-view5">
+					<div class="column2">
+						<span class="text3" >
+							P-016 Mostrador
+						</span>
+						<span class="text8" >
+							4 platillos
+						</span>
+					</div>
+					<div class="box">
+					</div>
+					<span class="text9" >
+						$350
+					</span>
+					<img
+						src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/1972pnme_expires_30_days.png" 
+						class="image2"
+					/>
+				</div>
+			</div>
+			<div class="row-view6">
+				<div class="column4">
+					<img
+						src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/9jhveudp_expires_30_days.png" 
+						class="image3"
+					/>
+					<span class="absolute-text" >
+						Pedidos
+					</span>
+				</div>
+				<div class="column5">
+					<img
+						src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/qj6sj88h_expires_30_days.png" 
+						class="image4"
+					/>
+					<span class="text10" >
+						Reservaciones
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

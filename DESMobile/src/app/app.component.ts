@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { ConfigService } from './services/config.service';
+import { BackButtonService } from './services/back-button.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,8 @@ export class AppComponent {
 
   constructor(
     private config: ConfigService,
-    private router: Router
+    private router: Router,
+    private backButtonService: BackButtonService
   ) {
     this.checkConfig();
   }

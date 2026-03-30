@@ -8,48 +8,39 @@
     <div class="page-stack">
       <section class="block">
         <span class="hint">Seleccionar un pedido para editar</span>
-        <span class="mesa-label">MESA 3</span>
-        <app-pedido-select-row
-          code="P-012"
-          subtitle="4 platillos - Local"
-          status="pending"
-          spacing="list"
-          trailingIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/yi0q096o_expires_30_days.png"
-        />
-        <span class="mesa-label">MESA 5</span>
-        <app-pedido-select-row
-          code="P-015"
-          subtitle="3 platillos - Local"
-          status="pending"
-          spacing="list"
-          trailingIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/qnb7i0fo_expires_30_days.png"
-        />
+
+        <ng-container *ngFor="let mesa of (mesas | keyvalue)">
+          <span class="mesa-label">MESA {{ mesa.key }}</span>
+          <app-pedido-select-row
+            *ngFor="let pedido of mesa.value"
+            [code]="'P-' + pedido.folio"
+            [subtitle]="pedido.items.length + ' platillos - Local'"
+            [status]="'pending'"
+            spacing="list"
+            trailingIconSrc="assets/flecha.png"
+            (click)="editarPedido(pedido)"
+          />
+        </ng-container>
       </section>
 
-      <section class="block block--counter">
+      <section class="block block--counter" *ngIf="mostrador.length > 0">
         <span class="mesa-label mesa-label--counter">MOSTRADOR</span>
         <app-pedido-select-row
-          code="P-014"
-          subtitle="2 platillos - Para recoger"
-          status="ready"
-          spacing="section-gap"
-          trailingIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/3a197lde_expires_30_days.png"
-        />
-        <app-pedido-select-row
-          code="P-016"
-          subtitle="4 platillos - Para recoger"
-          status="pending"
-          spacing="flush"
-          trailingIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/ca2863pe_expires_30_days.png"
+          *ngFor="let pedido of mostrador"
+          [code]="'P-' + pedido.folio"
+          [subtitle]="pedido.items.length + ' platillos - Para recoger'"
+          [status]="'pending'"
+          spacing="list"
+          trailingIconSrc="assets/flecha.png"
+          (click)="editarPedido(pedido)"
         />
       </section>
 
       <app-divider-line tone="section" />
-
-      <app-primary-button label="Guardar pedido" (pressed)="noop()" />
     </div>
   </app-page-body>
 </ion-content>
+
 <app-bottom-nav
   pedidosIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/ypmkgm6w_expires_30_days.png"
   reservacionesIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/zwj9no5g_expires_30_days.png"
