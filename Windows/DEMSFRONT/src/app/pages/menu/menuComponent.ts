@@ -1,88 +1,104 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';  
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { HeaderComponent } from '../../components/headerAdmin/headerComponent';
-import { CardComponent } from '../../components/card-menu/card-menuComponent';  
-import { PlatillosService, MenuApiResponse } from '../../services/platillos.service';
+import { CardComponent } from '../../components/card-menu/card-menuComponent';
+import { PlatillosService } from '../../services/platillos.service';
+import { Subscription } from 'rxjs';
 
-@Component({  
+@Component({
   selector: 'app-menu',
   standalone: true,
   imports: [HeaderComponent, CardComponent, CommonModule],
   templateUrl: './menu.html',
   styleUrls: ['./menu.css']
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnDestroy {
   categories: Array<{ nombre: string; platillos: any[] }> = [];
-  isLoading = false;
+  isLoading = true;
   errorMessage = '';
+  private sseSub?: Subscription;
 
-  constructor(private platillosService: PlatillosService) {}
+  constructor(
+    private router: Router,
+    private platillosService: PlatillosService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.loadMenu();
+    this.listenSSE();
   }
 
-  loadMenu() {
-    console.log('[MenuComponent] loadMenu init');
-    this.isLoading = true;
-    this.errorMessage = '';
+  ngOnDestroy() {
+    this.sseSub?.unsubscribe();
+  }
 
-    this.platillosService.getMenu().subscribe({
-      next: (data: MenuApiResponse) => {
-        console.log('[MenuComponent] getMenu response:', data);
-
-        const keys = Object.keys(data || {});
-        if (keys.length === 0) {
-          this.loadMenuDirect();
-          return;
-        }
-
-        this.categories = keys.map((categoria) => ({
-          nombre: categoria,
-          platillos: data[categoria] || [],
-        }));
-
-        if (!this.categories.some((c) => c.platillos.length > 0)) {
-          this.errorMessage = 'No hay platillos disponibles.';
-        }
-
-        this.isLoading = false;
+  listenSSE() {
+    this.sseSub = this.platillosService.listenSSE().subscribe({
+      next: (evento) => {
+        console.log('[SSE] evento recibido:', evento.type, evento.data);
+        this.loadMenu();
       },
-      error: (error) => {
-        console.error('[MenuComponent] Error cargando menú:', error);
-        this.errorMessage = 'No se pudo cargar el menú. Revisa la conexión con el servidor.';
-        this.isLoading = false;
-      }
+      error: (err) => console.error('[SSE] error:', err)
     });
   }
 
-  loadMenuDirect() {
-    console.log('[MenuComponent] loadMenuDirect fallback');
-    this.platillosService.getAll().subscribe({
-      next: (platillos) => {
-        console.log('[MenuComponent] getAll response:', platillos);
-
-        if (!platillos || platillos.length === 0) {
-          this.errorMessage = 'No hay platillos disponibles.';
-        } else {
-          this.categories = [{ nombre: 'Todos', platillos }];
-        }
-
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('[MenuComponent] Error cargando todos los platillos:', error);
-        this.errorMessage = 'No se pudo cargar el menú de platillos. Intenta nuevamente.';
-        this.isLoading = false;
-      }
-    });
+  irARegistro() {
+    this.router.navigate(['/registro-platillo']);
   }
 
   onEditar(platillo: any) {
-    console.log('Editar:', platillo.nombre);
+    localStorage.setItem('platilloEditar', JSON.stringify(platillo));
+    this.router.navigate(['/registro-platillo', platillo.idPlatillo]);
   }
 
   onEliminar(platillo: any) {
     console.log('Eliminar:', platillo.nombre);
+  }
+
+  getImagenCategoria(categoria: string): string {
+  const imagenes: { [key: string]: string } = {
+    'Comida': 'assets/enchiladas-rojas.png',
+    'Bebidas': 'assets/coca.jpg',
+    'Extras': 'assets/cubiertos.png'
+  };
+  return imagenes[categoria] || 'assets/menu.png';
+}
+
+  loadMenu() {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.platillosService.getCompleto().subscribe({
+      next: (platillos: any[]) => {
+        const grupos: { [key: string]: any[] } = {};
+        platillos.forEach(p => {
+          const cat = p.Categoria?.nombre || 'Sin categoría';
+          if (!grupos[cat]) grupos[cat] = [];
+          grupos[cat].push({
+            idPlatillo: p.idPlatillo,
+            nombre: p.Nombre,
+            precio: p.Precio,
+            descripcion: p.Descripcion || ''
+          });
+        });
+        this.categories = Object.keys(grupos).map(nombre => ({
+          nombre,
+          platillos: grupos[nombre]
+        }));
+        if (this.categories.length === 0) {
+          this.errorMessage = 'No hay platillos disponibles.';
+        }
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('[MenuComponent] Error:', error);
+        this.errorMessage = 'No se pudo cargar el menú.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 }
