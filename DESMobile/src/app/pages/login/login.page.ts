@@ -15,8 +15,13 @@ import { Router } from '@angular/router';
 export class LoginPage implements OnInit {
   public username = '';
   public password = '';
+  public showPassword = false;
 
   constructor(private api: ApiService, private router: Router) { }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
 
   ngOnInit() {
   }
