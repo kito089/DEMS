@@ -188,7 +188,7 @@ CREATE PROCEDURE sp_ActualizarPedido @idPedido INT, @TrabajadorId INT, @Tipo TIN
 BEGIN
     BEGIN TRANSACTION;
     BEGIN TRY
-        UPDATE pedidos
+        UPDATE Pedidos
         SET Tipo = @Tipo,
             NoMesa = @NoMesa,
             trabajadores_idTrabajador = @TrabajadorId,
