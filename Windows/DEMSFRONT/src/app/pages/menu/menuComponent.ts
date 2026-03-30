@@ -54,8 +54,16 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   onEliminar(platillo: any) {
-    console.log('Eliminar:', platillo.nombre);
+  if (confirm(`¿Seguro que quieres eliminar "${platillo.nombre}"?`)) {
+    this.platillosService.deletePlatillo(platillo.idPlatillo).subscribe({
+      next: () => {
+        console.log('Platillo eliminado');
+        this.loadMenu();
+      },
+      error: (err) => console.error('Error eliminando:', err)
+    });
   }
+}
 
   getImagenCategoria(categoria: string): string {
   const imagenes: { [key: string]: string } = {
