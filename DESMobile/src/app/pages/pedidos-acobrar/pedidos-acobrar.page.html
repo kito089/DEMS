@@ -12,9 +12,9 @@
         <app-pedido-cobro-row
           *ngFor="let pedido of pedidosE"
           [code]="pedido.folio"
-          [location]="pedido.mesa"
+          [location]="pedido.mesa ?? ''"
           [dishes]="pedido.items.length"
-          [price]="pedido.items.reduce((total, item) => total + item.Precio, 0)"
+          [price]="getTotal(pedido)"
           iconSrc="assets/flecha.png"
           (click)="cobrarPedido(pedido)"
         />

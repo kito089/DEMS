@@ -46,7 +46,7 @@ export class PedidosACobrarPage implements OnInit {
   }
 
   async cargarPedidos() {
-    try{
+    try {
       const pedidosRaw = await firstValueFrom(this.api.get('/Pedidos/')) as Pedido[];
       const listos = pedidosRaw.filter(
         p =>
@@ -65,6 +65,12 @@ export class PedidosACobrarPage implements OnInit {
     } catch (err) {
       console.error('Error cargando pedidos:', err);
     }
+  }
+
+  getTotal(pedido: PedidoE): number {
+    return pedido.items.reduce((total: number, item: any) => {
+      return total + (item.Precio || 0);
+    }, 0);
   }
 
   cobrarPedido(pedido: PedidoE) {
