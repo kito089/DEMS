@@ -9,6 +9,7 @@ import { DividerLineComponent } from '../../components/divider-line/divider-line
 import { PedidoSelectRowComponent } from 'src/app/components/pedido-select-row/pedido-select-row.component';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
+import { PedidoE } from 'src/app/models/PedidoE.model';
 
 interface Pedido {
   idPedido: number;
@@ -18,16 +19,6 @@ interface Pedido {
   Tipo: number; // 0 = local, 1 = para llevar
   Mesero: { id: number; nombre: string };
   Platillos: any[];
-}
-
-interface PedidoE {
-  idPedido: number;
-  folio: string;
-  mesa?: string;
-  items: any[];
-  estado: string;
-  tipo: number;
-  TrabajadorId: number;
 }
 
 @Component({

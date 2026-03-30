@@ -18,7 +18,9 @@ const getReservacionesProximas = async () => {
     const pool = await getConnection();
     const result = await pool.request()
         .execute('sp_GetReservacionesProximas');
+    console.log("Reservaciones recibida: ", result.recordset);
     const raw = result.recordset[0][Object.keys(result.recordset[0])[0]];
+    console.log("Raw data: ", JSON.parse(raw));
     return JSON.parse(raw);
 };
 
