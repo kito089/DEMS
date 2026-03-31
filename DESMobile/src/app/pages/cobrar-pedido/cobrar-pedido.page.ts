@@ -45,27 +45,49 @@ export class CobrarPedidoPage implements OnInit {
   pagos: any[] = [];
   total: number = 0;
 
-  constructor(private router: Router, private modalCtrl: ModalController, private api: ApiService) {}
+  constructor(private router: Router, private modalCtrl: ModalController, private api: ApiService) { }
 
   ngOnInit() {
     const nav = this.router.getCurrentNavigation();
     this.pedido = nav?.extras?.state?.['pedido'];
 
-    console.log('Pedido recibido:', this.pedido);
+    console.log('Pedido recibido:', JSON.stringify(this.pedido));
 
     if (this.pedido) {
       this.calcularTotal();
+      console.log('Total calculado:', this.total);
     }
   }
 
   calcularTotal() {
     this.total = this.pedido.items.reduce((acc: number, item: any) => {
-      return acc + (item.PrecioUnitario || 0);
+      return acc + ((item.PrecioUnitario || 0) * (item.Cantidad || 1));
     }, 0);
   }
 
   getDescripcion(item: any): string {
     return `${item.Cantidad}x ${item.nombre}${item.Nota ? ' (' + item.Nota + ')' : ''}`;
+  }
+
+  async imprimirTicket() {
+    try {
+      const body = {
+        folio: this.pedido.folio,
+        ubicacion: this.pedido.mesa,
+        fecha: new Date().toLocaleString(),
+        productos: this.pedido.items.map((item: any) => ({
+          nombre: item.nombre,
+          cantidad: item.Cantidad,
+          precio: item.PrecioUnitario || item.Precio || 0
+        }))
+      };
+      console.log('Enviando ticket con body:', JSON.stringify(body));
+      await firstValueFrom(this.api.post('/pagos/imprimir-ticket', body));
+      alert('Ticket enviado correctamente');
+    } catch (error) {
+      console.error('Error al enviar ticket:', error);
+      alert('Error al enviar ticket. Intenta de nuevo.');
+    }
   }
 
   async dividirPorPago() {
@@ -75,7 +97,8 @@ export class CobrarPedidoPage implements OnInit {
       initialBreakpoint: 0.5,
       handle: true,
       componentProps: {
-        total: this.total
+        total: this.total,
+        pagos: this.pagos
       }
     });
     await modal.present();
@@ -83,7 +106,7 @@ export class CobrarPedidoPage implements OnInit {
     const { data } = await modal.onWillDismiss();
     if (data) {
       console.log('Pagos divididos:', JSON.stringify(data));
-      this.pagos = data;
+      this.pagos = data.pagos;
       alert('Pagos divididos correctamente. Total: ' + this.total); // @ThreeBook3458 css adskjadkajda
     }
   }
@@ -101,7 +124,7 @@ export class CobrarPedidoPage implements OnInit {
     if (data) {
       console.log('Ticket enviado a:', data);
       alert('Ticket enviado a: ' + data);
-      try{
+      try {
         const body = {
           folio: this.pedido.folio,
           ubicacion: this.pedido.mesa,
@@ -116,12 +139,47 @@ export class CobrarPedidoPage implements OnInit {
         console.log('Enviando ticket con body:', JSON.stringify(body));
         await firstValueFrom(this.api.post('/pagos/enviar-ticket', body));
         alert('Ticket enviado correctamente');
-      }catch (error) {
+      } catch (error) {
         console.error('Error al enviar ticket:', error);
         alert('Error al enviar ticket. Intenta de nuevo.');
       }
     }
   }
 
-  noop(): void {}
+  async cobrar() {
+    try {
+      if (!this.pagos || this.pagos.length === 0) {
+        alert('Debes agregar al menos una forma de pago');
+        return;
+      }
+
+      const pagosInvalidos = this.pagos.some(p => !p.monto || p.monto <= 0);
+      if (pagosInvalidos) {
+        alert('Todos los pagos deben tener un monto válido');
+        return;
+      }
+
+
+      const body = {
+        idPedido: this.pedido.idPedido,
+        pagos: this.pagos
+      };
+
+      console.log('Enviando cobro con body:', JSON.stringify(body));
+
+      await firstValueFrom(this.api.post('/pagos', body));
+
+      await firstValueFrom(
+        this.api.put(`/pedidos/${this.pedido.idPedido}/finalizar`, {})
+      );
+
+      alert('Cobro realizado correctamente');
+      this.router.navigate(['/home']);
+
+    } catch (error) {
+      console.error('Error al realizar cobro:', error);
+      alert('Error al realizar cobro. Intenta de nuevo.');
+    }
+  }
+
 }
