@@ -52,24 +52,25 @@ export class ApiService {
     return new Observable(observer => {
       this.config.getApiUrl().then(baseUrl => {
         const evtSource = new EventSource(`${baseUrl}/sse/events`);
-
-        evtSource.onmessage = (event: MessageEvent) => {
+        evtSource.addEventListener('pedido_ready', (event: MessageEvent) => {
           try {
             const data = JSON.parse(event.data);
-            observer.next(data);
+            observer.next({
+              tipo: 'pedido_ready',
+              ...data
+            });
+            console.log('Evento recibido:', event.type, event.data);
           } catch (err) {
-            console.error('Error parseando evento SSE:', err, event.data);
+            console.error('Error parseando SSE:', err);
           }
-        };
+        });
 
         evtSource.onerror = (err) => {
           console.error('SSE error:', err);
-          observer.error(err);
-          evtSource.close(); // opcional: cerrar al error grave
         };
 
         return () => {
-          evtSource.close(); // cleanup cuando se unsubscribe
+          evtSource.close();
         };
       });
     });
