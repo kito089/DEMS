@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,8 +10,9 @@ import { CommonModule } from '@angular/common';
 })
 export class InputComponent {
   @Input() label: string = '';
-  @Input() type: string = 'text'; // 'text', 'password', 'email', etc.
-  @Input() isPasswordToggle: boolean = false; // Nueva propiedad
+  @Input() type: string = 'text';
+  @Input() isPasswordToggle: boolean = false;
+  @Output() enterPressed = new EventEmitter<void>();
   @ViewChild('inputElement') inputElement!: ElementRef;
 
   hide = true;
@@ -20,7 +21,12 @@ export class InputComponent {
     this.hide = !this.hide;
   }
 
-  // Determina el tipo actual del input dinámicamente
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.enterPressed.emit();
+    }
+  }
+
   get inputType(): string {
     if (this.isPasswordToggle) {
       return this.hide ? 'password' : 'text';
@@ -28,19 +34,16 @@ export class InputComponent {
     return this.type;
   }
 
-  // Método para obtener el valor del input
   getValue(): string {
     return this.inputElement?.nativeElement?.value || '';
   }
 
-  // Método para establecer el valor del input
   setValue(value: string): void {
     if (this.inputElement) {
       this.inputElement.nativeElement.value = value;
     }
   }
 
-  // Método para limpiar el input
   clear(): void {
     if (this.inputElement) {
       this.inputElement.nativeElement.value = '';
