@@ -66,6 +66,23 @@ const updatePedido = async (idPedido, { TrabajadorId, Tipo, NoMesa, Detalles }) 
     return true;
 };
 
+// MARCAR READY
+const marcarReady = async (idPedido) => {
+    const pool = await getConnection();
+    const result = await pool.request()
+        .input('idPedido', sql.Int, idPedido)
+        .query(`
+            UPDATE Pedidos 
+            SET Estado = 'Listo' 
+            WHERE idPedido = @idPedido
+              AND Estado NOT IN ('Terminado', 'Completado');
+
+            SELECT @@ROWCOUNT AS affected;
+        `);
+
+    return result.recordset[0].affected > 0;
+}
+
 // FINALIZAR
 const finalizarPedido = async (idPedido) => {
     const pool = await getConnection();
