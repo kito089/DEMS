@@ -35,9 +35,9 @@ const getByPedido = async (req, res) => {
 // POST /pagos
 const create = async (req, res) => {
     try {
-        const { Monto, idPedido, Pagos } = req.body;
-        if (!Monto || !idPedido || !Pagos)
-            return res.status(400).json({ error: 'Monto, idPedido y Pagos son requeridos' });
+        const { Monto, idPedido, idTipoPago } = req.body;
+        if (!Monto || !idPedido || !idTipoPago)
+            return res.status(400).json({ error: 'Monto, idPedido e idTipoPago son requeridos' });
 
         const idPago = await service.createPago({ Monto, idPedido, idTipoPago });
 

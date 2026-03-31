@@ -1,14 +1,29 @@
 import { getConnection, sql } from '../config/connection.js';
 
+const parseJsonResult = (result) => {
+    const recordset = (result.recordsets && result.recordsets[0]) || result.recordset || [];
+    if (!recordset || recordset.length === 0) return [];
+
+    const key = Object.keys(recordset[0])[0];
+    const jsonString = recordset.map(row => row[key]).join('');
+
+    if (!jsonString || jsonString.trim() === '') return [];
+
+    try {
+        return JSON.parse(jsonString);
+    } catch (e) {
+        console.error('❌ JSON inválido recibido del SP:', jsonString);
+        return [];
+    }
+};
+
 const getHistorialVentas = async (fechaInicio, fechaFin) => {
     const pool = await getConnection();
     const result = await pool.request()
         .input('FechaInicio', sql.DateTime, new Date(fechaInicio))
         .input('FechaFin', sql.DateTime, new Date(fechaFin))
         .execute('sp_ReporteHistorialVentas');
-
-    const raw = result.recordset[0][Object.keys(result.recordset[0])[0]];
-    return JSON.parse(raw);
+    return parseJsonResult(result);
 };
 
 const getTopPlatillos = async (fechaInicio, fechaFin) => {
@@ -17,9 +32,7 @@ const getTopPlatillos = async (fechaInicio, fechaFin) => {
         .input('FechaInicio', sql.DateTime, new Date(fechaInicio))
         .input('FechaFin', sql.DateTime, new Date(fechaFin))
         .execute('sp_GraficaTopPlatillos');
-
-    const raw = result.recordset[0][Object.keys(result.recordset[0])[0]];
-    return JSON.parse(raw);
+    return parseJsonResult(result);
 };
 
 const getMetodosPago = async (fechaInicio, fechaFin) => {
@@ -28,9 +41,7 @@ const getMetodosPago = async (fechaInicio, fechaFin) => {
         .input('FechaInicio', sql.DateTime, new Date(fechaInicio))
         .input('FechaFin', sql.DateTime, new Date(fechaFin))
         .execute('sp_GraficaMetodosPago');
-
-    const raw = result.recordset[0][Object.keys(result.recordset[0])[0]];
-    return JSON.parse(raw);
+    return parseJsonResult(result);
 };
 
 const getVentasPorFecha = async (fechaInicio, fechaFin) => {
@@ -39,9 +50,7 @@ const getVentasPorFecha = async (fechaInicio, fechaFin) => {
         .input('FechaInicio', sql.DateTime, new Date(fechaInicio))
         .input('FechaFin', sql.DateTime, new Date(fechaFin))
         .execute('sp_GraficaVentasPorFecha');
-
-    const raw = result.recordset[0][Object.keys(result.recordset[0])[0]];
-    return JSON.parse(raw);
+    return parseJsonResult(result);
 };
 
 const getHistorialCambios = async () => {

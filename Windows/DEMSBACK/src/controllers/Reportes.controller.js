@@ -12,13 +12,14 @@ const getResumen = async (req, res) => {
             svc.getMetodosPago(desde, hasta)
         ]);
 
-        const totalVentas = ventas.reduce((sum, v) => sum + v.total, 0);
+        const totalVentas = ventas.reduce((sum, v) => sum + (v.total || 0), 0);
         const ticketPromedio = ventas.length > 0 ? totalVentas / ventas.length : 0;
 
-        const metodoPrincipal = metodosPago.reduce((prev, curr) =>
-            curr.total > prev.total ? curr : prev, { metodo: 'N/A', total: 0 });
+        const metodoPrincipal = metodosPago.length > 0
+            ? metodosPago.reduce((prev, curr) => curr.total > prev.total ? curr : prev)
+            : { metodo: 'N/A', total: 0 };
 
-        const totalPagos = metodosPago.reduce((sum, m) => sum + m.total, 0);
+        const totalPagos = metodosPago.reduce((sum, m) => sum + (m.total || 0), 0);
         const porcentajeMetodo = totalPagos > 0
             ? Math.round((metodoPrincipal.total / totalPagos) * 100)
             : 0;
@@ -33,6 +34,7 @@ const getResumen = async (req, res) => {
             topPlatillos
         });
     } catch (e) {
+        console.error('❌ Error en getResumen:', e);
         res.status(500).json({ error: e.message });
     }
 };
@@ -42,6 +44,7 @@ const getHistorialCambios = async (_req, res) => {
         const data = await svc.getHistorialCambios();
         res.json(data);
     } catch (e) {
+        console.error('❌ Error en getHistorialCambios:', e);
         res.status(500).json({ error: e.message });
     }
 };
