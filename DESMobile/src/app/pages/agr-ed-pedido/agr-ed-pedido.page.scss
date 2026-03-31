@@ -6,6 +6,7 @@
 .agr-ed-pedido-page-content {
   --background: #ffffff;
   --page-pad: 16px;
+  --padding-bottom: calc(94px + env(safe-area-inset-bottom));
 }
 
 .page-column {

@@ -5,6 +5,7 @@
 
 .pedidos-acobrar-page-content {
   --background: #ffffff;
+  --padding-bottom: calc(94px + env(safe-area-inset-bottom));
 }
 
 .page-stack {
