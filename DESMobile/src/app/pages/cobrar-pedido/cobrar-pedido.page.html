@@ -18,7 +18,7 @@
 
           <app-ticket-line-row
             [description]="getDescripcion(item)"
-            [price]="'$' + item.PrecioUnitario"
+            [price]="'$' + item.PrecioUnitario + ' - $' + (item.Cantidad*item.PrecioUnitario)"
             [flexDescription]="true"
           />
 

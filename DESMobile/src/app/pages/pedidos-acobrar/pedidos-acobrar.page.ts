@@ -70,7 +70,7 @@ export class PedidosACobrarPage implements OnInit {
 
   getTotal(pedido: PedidoE): number {
     return pedido.items.reduce((total: number, item: any) => {
-      return total + (item.PrecioUnitario || 0);
+      return total + ((item.PrecioUnitario || 0) * (item.Cantidad || 1));
     }, 0);
   }
 
