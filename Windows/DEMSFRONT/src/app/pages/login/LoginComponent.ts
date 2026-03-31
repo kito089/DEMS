@@ -52,9 +52,6 @@ export class LoginComponent {
         } else if (rol === 'Cocina') {
           // Asumiendo que existe una ruta /cocina
           this.router.navigate(['/cocina']);
-        } else if (rol === 'Mesero') {
-          // Asumiendo que existe una ruta /mesero
-          this.router.navigate(['/mesero']);
         } else {
           this.router.navigate(['/menu']);
         }

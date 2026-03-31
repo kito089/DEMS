@@ -35,22 +35,18 @@ export class ReservacionesComponent implements OnInit {
   }
 
 cargarDatos(): void {
-  this.isLoading = true;  // ← activa el loading ANTES de pedir datos
-
   this.svc.getAll().subscribe({
     next: (data) => {
       this.reservaciones = data;
-      this.isLoading = false;  // ← apaga loading cuando llegan los datos
     },
     error: (e) => {
       this.errorMessage = 'Error al cargar reservaciones.';
-      this.isLoading = false;
       console.error(e);
     },
   });
 
   this.svc.getProximas().subscribe({
-    next: (data) => { this.proximas = data; },
+    next: (data) => (this.proximas = data),
     error: (e) => console.error('Error proximas:', e),
   });
 }
