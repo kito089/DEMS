@@ -1,0 +1,161 @@
+<app-header title="Reportes y Análisis"></app-header>
+
+<main class="pagina-reportes">
+
+  <!-- Tabs -->
+  <div class="tabs-contenedor">
+    <button class="tab-btn" [class.activo]="tabActiva === 'ventas'" (click)="cambiarTab('ventas')">
+      Ventas diarias
+    </button>
+    <button class="tab-btn" [class.activo]="tabActiva === 'historial'" (click)="cambiarTab('historial')">
+      Historial de cambios
+    </button>
+  </div>
+
+  <!-- VENTAS DIARIAS -->
+  <ng-container *ngIf="tabActiva === 'ventas'">
+
+    <div class="filtros-card">
+      <div class="filtros-titulo">
+        <span>🔍</span>
+        <strong>Filtrar ventas</strong>
+      </div>
+      <div class="filtros-fila">
+        <div class="filtro-grupo">
+          <label>Desde</label>
+          <div class="filtro-input">
+            <span>01/03/2026</span>
+            <span>📅</span>
+          </div>
+        </div>
+        <div class="filtro-grupo">
+          <label>Hasta</label>
+          <div class="filtro-input">
+            <span>10/03/2026</span>
+            <span>📅</span>
+          </div>
+        </div>
+        <div class="filtro-grupo">
+          <label>Producto</label>
+          <div class="filtro-input">
+            <span>Todos los productos</span>
+            <span>▼</span>
+          </div>
+        </div>
+        <div class="filtro-grupo">
+          <label>Método de pago</label>
+          <div class="filtro-input">
+            <span>Todos</span>
+            <span>▼</span>
+          </div>
+        </div>
+        <button class="btn-aplicar">Aplicar</button>
+      </div>
+    </div>
+
+    <div class="resumen-cards">
+      <div class="resumen-card destacado">
+        <span class="resumen-label">TOTAL VENTAS</span>
+        <span class="resumen-valor">${{ ventasResumen.total | number }}</span>
+        <span class="resumen-sub">{{ ventasResumen.ventas }} ventas registradas</span>
+      </div>
+      <div class="resumen-card">
+        <span class="resumen-label">TICKET PROMEDIO</span>
+        <span class="resumen-valor">${{ ventasResumen.ticketPromedio | number }}</span>
+        <span class="resumen-sub">Por venta</span>
+      </div>
+      <div class="resumen-card">
+        <span class="resumen-label">MÉTODO PRINCIPAL</span>
+        <span class="resumen-valor">{{ ventasResumen.metodoPrincipal }}</span>
+        <span class="resumen-sub">{{ ventasResumen.porcentajeMetodo }}% de ventas</span>
+      </div>
+    </div>
+
+    <div class="tabla-card">
+      <h3 class="tabla-titulo">Historial de ventas</h3>
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Folio</th>
+            <th>Fecha</th>
+            <th>Mesa</th>
+            <th>Platillos Consumidos</th>
+            <th>Método</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let v of historialVentas">
+            <td class="folio">{{ v.folio }}</td>
+            <td>{{ v.fecha }}</td>
+            <td>{{ v.mesa }}</td>
+            <td>{{ v.platillos }}</td>
+            <td>{{ v.metodo }}</td>
+            <td class="total">${{ v.total }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="productos-card">
+      <h3 class="productos-titulo">Productos más vendidos</h3>
+      <div class="producto-item" *ngFor="let p of productosVendidos">
+        <div class="producto-fila">
+          <span class="producto-pos">{{ p.posicion }}</span>
+          <span class="producto-nombre">{{ p.nombre }}</span>
+          <span class="producto-cantidad">{{ p.cantidad }}</span>
+        </div>
+        <div class="barra-contenedor">
+          <div class="barra" [style.width.%]="p.porcentaje"></div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- HISTORIAL DE CAMBIOS -->
+  <ng-container *ngIf="tabActiva === 'historial'">
+    <div class="historial-card">
+
+      <div class="historial-header">
+        <span class="historial-icono">📋</span>
+        <div>
+          <h3 class="historial-titulo">Historial de cambios en el sistema</h3>
+          <p class="historial-sub">Registro de agregaciones, modificaciones y eliminaciones de Trabajadores, Reservaciones, Platillos y Pedidos</p>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filtros-historial">
+        <span class="filtros-label">FILTRAR:</span>
+        <button class="filtro-chip" [class.activo]="filtroActivo === 'Todos'" (click)="cambiarFiltro('Todos')">Todos</button>
+        <button class="filtro-chip" [class.activo]="filtroActivo === 'Agregación'" (click)="cambiarFiltro('Agregación')">Agregación</button>
+        <button class="filtro-chip" [class.activo]="filtroActivo === 'Modificación'" (click)="cambiarFiltro('Modificación')">Modificación</button>
+        <button class="filtro-chip" [class.activo]="filtroActivo === 'Eliminación'" (click)="cambiarFiltro('Eliminación')">Eliminación</button>
+      </div>
+
+      <!-- Grupos por periodo -->
+      <div class="periodo-grupo" *ngFor="let grupo of historialFiltrado">
+        <div class="periodo-header">
+          <span class="periodo-label">{{ grupo.periodo }}</span>
+          <div class="periodo-linea"></div>
+          <span class="periodo-count">{{ grupo.items.length }} cambio{{ grupo.items.length !== 1 ? 's' : '' }}</span>
+        </div>
+
+        <div class="cambio-item" *ngFor="let item of grupo.items">
+          <span class="cambio-icono">📄</span>
+          <div class="cambio-info">
+            <span class="cambio-desc">{{ item.descripcion }}</span>
+            <div class="cambio-meta">
+              <span>👤 {{ item.usuario }}</span>
+              <span>🕐 {{ item.tiempo }}</span>
+            </div>
+          </div>
+          <span class="badge" [ngClass]="getTipoClass(item.tipo)">{{ item.tipo }}</span>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+</main>
