@@ -35,9 +35,9 @@ const getByPedido = async (req, res) => {
 // POST /pagos
 const create = async (req, res) => {
     try {
-        const { Monto, idPedido, Pagos } = req.body;
-        if (!Monto || !idPedido || !Pagos)
-            return res.status(400).json({ error: 'Monto, idPedido y Pagos son requeridos' });
+        const { Monto, idPedido, idTipoPago } = req.body;
+        if (!Monto || !idPedido || !idTipoPago)
+            return res.status(400).json({ error: 'Monto, idPedido e idTipoPago son requeridos' });
 
         const idPago = await service.createPago({ Monto, idPedido, idTipoPago });
 
@@ -55,9 +55,9 @@ const enviarTicket = async (req, res) => {
         const { idPago, email } = req.body;
         if (!idPago || !email)
             return res.status(400).json({ error: 'idPago y email son requeridos' });
-    }catch (e) {
+    } catch (e) {
         res.status(500).json({ error: e.message });
     }
-
+};
 
 export default { getAll, getById, getByPedido, create, enviarTicket };
