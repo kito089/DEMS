@@ -50,29 +50,41 @@ export class ApiService {
 
   escucharEventos(): Observable<any> {
     return new Observable(observer => {
-      this.config.getApiUrl().then(baseUrl => {
-        const evtSource = new EventSource(`${baseUrl}/sse/events`);
+
+      let evtSource: EventSource | null = null;
+
+      const connect = async () => {
+        const baseUrl = await this.config.getApiUrl();
+
+        console.log('Conectando a SSE...');
+
+        evtSource = new EventSource(`${baseUrl}/sse/events`);
+
         evtSource.addEventListener('pedido_ready', (event: MessageEvent) => {
-          try {
-            const data = JSON.parse(event.data);
-            observer.next({
-              tipo: 'pedido_ready',
-              ...data
-            });
-            console.log('Evento recibido:', event.type, event.data);
-          } catch (err) {
-            console.error('Error parseando SSE:', err);
-          }
+          const data = JSON.parse(event.data);
+          observer.next({
+            tipo: 'pedido_ready',
+            ...data
+          });
         });
 
         evtSource.onerror = (err) => {
-          console.error('SSE error:', err);
-        };
+          console.error('SSE error, reconectando...', err);
 
-        return () => {
-          evtSource.close();
+          evtSource?.close();
+
+          setTimeout(() => {
+            connect();
+          }, 3000);
         };
-      });
+      };
+
+      connect();
+
+      return () => {
+        console.log('Cerrando SSE');
+        evtSource?.close();
+      };
     });
   }
 }
