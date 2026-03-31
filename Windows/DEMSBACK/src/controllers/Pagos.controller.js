@@ -1,5 +1,6 @@
 import service from '../services/Pagos.service.js';
 import { sendEventToAll } from '../routes/sse.route.js';
+import { sendTicketEmail } from '../services/Email.service.js';
 
 // GET /pagos
 const getAll = async (_req, res) => {
