@@ -55,17 +55,39 @@ export class CobrarPedidoPage implements OnInit {
 
     if (this.pedido) {
       this.calcularTotal();
+      console.log('Total calculado:', this.total);
     }
   }
 
   calcularTotal() {
     this.total = this.pedido.items.reduce((acc: number, item: any) => {
-      return acc + (item.PrecioUnitario || 0);
+      return acc + ((item.PrecioUnitario || 0) * (item.Cantidad || 1));
     }, 0);
   }
 
   getDescripcion(item: any): string {
     return `${item.Cantidad}x ${item.nombre}${item.Nota ? ' (' + item.Nota + ')' : ''}`;
+  }
+
+  async imprimirTicket() {
+    try {
+      const body = {
+        folio: this.pedido.folio,
+        ubicacion: this.pedido.mesa,
+        fecha: new Date().toLocaleString(),
+        productos: this.pedido.items.map((item: any) => ({
+          nombre: item.nombre,
+          cantidad: item.Cantidad,
+          precio: item.PrecioUnitario || item.Precio || 0
+        }))
+      };
+      console.log('Enviando ticket con body:', JSON.stringify(body));
+      await firstValueFrom(this.api.post('/pagos/imprimir-ticket', body));
+      alert('Ticket enviado correctamente');
+    } catch (error) {
+      console.error('Error al enviar ticket:', error);
+      alert('Error al enviar ticket. Intenta de nuevo.');
+    }
   }
 
   async dividirPorPago() {
@@ -75,7 +97,8 @@ export class CobrarPedidoPage implements OnInit {
       initialBreakpoint: 0.5,
       handle: true,
       componentProps: {
-        total: this.total
+        total: this.total,
+        pagos: this.pagos
       }
     });
     await modal.present();
@@ -159,5 +182,4 @@ export class CobrarPedidoPage implements OnInit {
     }
   }
 
-  noop(): void { }
 }

@@ -1,11 +1,6 @@
 <app-header title="Reservaciones"></app-header>
 <main class="pagina-reservaciones">
 
-  <!-- Estados ───────────────────────────────────────── -->
-  <div *ngIf="isLoading"    class="estado-msg">Cargando reservaciones...</div>
-  <div *ngIf="errorMessage" class="estado-msg error">{{ errorMessage }}</div>
-
-  <ng-container *ngIf="!isLoading">
 
     <!-- Cards próximas ────────────────────────────────── -->
     <p class="seccion-label">Próximas reservaciones</p>
@@ -64,7 +59,7 @@
       </table>
     </div>
 
-  </ng-container>
+
 
   <!-- Modal ─────────────────────────────────────────── -->
   <div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
