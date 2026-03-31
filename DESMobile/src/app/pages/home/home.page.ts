@@ -83,12 +83,14 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   actualizarPedido(evento: any) {
-    this.pedidos = this.pedidos.map(p =>
-      p.id === evento.pedidoId
-        ? { ...p, estado: evento.estado }
-        : p
-    );
-
+    if (evento.tipo === 'pedido_ready') {
+      this.pedidos = this.pedidos.map(p =>
+        p.id == Number(evento.id)
+          ? { ...p, estado: 'Listo' }
+          : p
+      );
+    }
+    console.log('Pedidos actualizadosE:', JSON.stringify(this.pedidos));
     this.actualizarListas();
   }
 

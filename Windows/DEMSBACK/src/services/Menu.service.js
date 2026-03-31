@@ -1,5 +1,6 @@
 import PDFDocument from 'pdfkit';
 import svc from './Platillos.service.js';
+import { uploadPDFToCloudinary } from './Cloudinary.service.js';
 
 const COLORS = {
     black:    '#1A1A1A',
@@ -222,8 +223,8 @@ const drawFooter = (doc, W, H) => {
              0, H - 30, { align: 'center', width: W });
 };
 
-// ── EXPORT PRINCIPAL ─────────────────────────────────────
-export const generarMenuPDF = async (res) => {
+// ── GENERADOR DE PDF EN BUFFER ──────────────────────────
+const generarMenuPDFBuffer = async () => {
     const platillos = await svc.getPlatillos();
 
     const menu = platillos.reduce((acc, p) => {
@@ -237,40 +238,57 @@ export const generarMenuPDF = async (res) => {
     const bebidas = menu['Bebidas'] || [];
     const extras  = menu['Extras']  || [];
 
-    const doc = new PDFDocument({ size: 'A4', margin: 0 });
-    const W = doc.page.width;
-    const H = doc.page.height;
+    return new Promise((resolve, reject) => {
+        const doc = new PDFDocument({ size: 'A4', margin: 0 });
+        const W = doc.page.width;
+        const H = doc.page.height;
+        const chunks = [];
 
-    res.setHeader('Content-Type', 'application/pdf');
+        // Captura el PDF en buffer
+        doc.on('data', (chunk) => chunks.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(chunks)));
+        doc.on('error', reject);
 
-//  res.setHeader('Content-Disposition', 'inline; filename="menu-loma-bonita.pdf"'); descomentar si quieren solo VISUALIZAR el pdf
-    res.setHeader('Content-Disposition', 'attachment; filename="menu-loma-bonita.pdf"');
-    doc.pipe(res);
+        // Fondo blanco
+        doc.rect(0, 0, W, H).fill(COLORS.white);
 
-    // Fondo blanco
-    doc.rect(0, 0, W, H).fill(COLORS.white);
+        // Marco decorativo (todo en pdfkit, sin recursos externos)
+        drawFrame(doc, W, H);
 
-    // Marco decorativo (todo en pdfkit, sin recursos externos)
-    drawFrame(doc, W, H);
+        // Header
+        drawHeader(doc, W);
 
-    // Header
-    drawHeader(doc, W);
+        // Bloques
+        const gap   = 14;
+        const colW  = (W - MARGIN * 2 - gap) / 2;
+        const row1H = Math.max(180, Math.max(comida.length, bebidas.length) * 28 + 60);
+        const row1Y = 134;
 
-    // Bloques
-    const gap   = 14;
-    const colW  = (W - MARGIN * 2 - gap) / 2;
-    const row1H = Math.max(180, Math.max(comida.length, bebidas.length) * 28 + 60);
-    const row1Y = 134;
+        drawBlock(doc, 'Platillos', comida,  MARGIN,               row1Y, colW, row1H);
+        drawBlock(doc, 'Bebidas',   bebidas, MARGIN + colW + gap,  row1Y, colW, row1H);
 
-    drawBlock(doc, 'Platillos', comida,  MARGIN,               row1Y, colW, row1H);
-    drawBlock(doc, 'Bebidas',   bebidas, MARGIN + colW + gap,  row1Y, colW, row1H);
+        const row2Y = row1Y + row1H + gap;
+        const row2H = Math.max(100, extras.length * 28 + 60);
+        drawBlock(doc, 'Extras', extras, MARGIN, row2Y, W - MARGIN * 2, row2H);
 
-    const row2Y = row1Y + row1H + gap;
-    const row2H = Math.max(100, extras.length * 28 + 60);
-    drawBlock(doc, 'Extras', extras, MARGIN, row2Y, W - MARGIN * 2, row2H);
+        // Footer
+        drawFooter(doc, W, H);
 
-    // Footer
-    drawFooter(doc, W, H);
+        doc.end();
+    });
+};
 
-    doc.end();
+// ── EXPORT PRINCIPAL ─────────────────────────────────────
+/**
+ * Genera el PDF del menú y lo sube a Cloudinary
+ * @returns {Promise<{url: string, previewUrl: string, secure_url: string}>}
+ */
+export const generarMenuPDF = async () => {
+    // Generar PDF en buffer
+    const pdfBuffer = await generarMenuPDFBuffer();
+    
+    // Subir a Cloudinary
+    const result = await uploadPDFToCloudinary(pdfBuffer, 'menu-loma-bonita', 'menus');
+    
+    return result;
 };

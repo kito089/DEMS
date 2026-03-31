@@ -59,10 +59,9 @@ const update = async (req, res) => {
 const ready = async (req, res) => {
     try {
         await svc.marcarReady(req.params.id);
-        sendEventToAll('pedidoListo', {
-            pedidoId: req.params.id,
-            estado: 'Listo'
-        });
+        
+        sendEventToAll('pedido_ready', { id: req.params.id });
+
         res.json({ message: 'Pedido marcado como listo' });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -83,6 +82,7 @@ const finalizar = async (req, res) => {
     }
 };
 
+// PUT /pedidos/:id/cancelar
 const cancelar = async (req, res) => {
     try {
         const ok = await svc.cancelar(req.params.id);
