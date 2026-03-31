@@ -340,8 +340,8 @@ BEGIN
     SET NOCOUNT ON;
 
     -- Definimos el rango de búsqueda: desde hoy hasta 3 días después
-    DECLARE @FechaInicio DATETIME = GETDATE();
-    DECLARE @FechaFin DATETIME = DATEADD(DAY, 3, GETDATE());
+    DECLARE @FechaInicio DATE = CAST(GETDATE() AS DATE);
+    DECLARE @FechaFin DATE = DATEADD(DAY, 4, @FechaInicio);
 
     BEGIN TRY
         SELECT 
@@ -360,7 +360,7 @@ BEGIN
              WHERE t.idTrabajador = r.trabajadores_idTrabajador
              FOR JSON PATH, WITHOUT_ARRAY_WRAPPER) AS RegistradoPor
         FROM reservaciones r
-        WHERE r.Fecha BETWEEN @FechaInicio AND @FechaFin
+        WHERE CAST(r.Fecha AS DATE) BETWEEN @FechaInicio AND @FechaFin
           AND r.Estado <> 'Cancelada' -- Opcional: No mostrar las ya canceladas
         ORDER BY r.Fecha ASC
         FOR JSON PATH; -- Retorna el arreglo de objetos para el Frontend

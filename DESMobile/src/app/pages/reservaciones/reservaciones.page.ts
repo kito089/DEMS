@@ -38,7 +38,9 @@ export class ReservacionesPage implements OnInit {
 
   reservations: Reservation[] = [];
 
-  async ngOnInit() { 
+  ngOnInit() {}
+
+  async ionViewWillEnter() {
     await this.loadReservations();
   }
 

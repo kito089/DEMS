@@ -27,7 +27,7 @@
           </ion-item>
 
           <ion-item lines="none" class="payment-amount-item">
-            <ion-input type="number" placeholder="Monto $" [(ngModel)]="pago.monto">
+            <ion-input type="number" placeholder="Monto $" [(ngModel)]="pago.monto" (ionBlur)="onMontoChange(i)">
             </ion-input>
           </ion-item>
 

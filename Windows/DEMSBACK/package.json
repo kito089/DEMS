@@ -25,6 +25,7 @@
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.4",
     "open": "^11.0.0",
+    "pdf-to-printer": "^5.7.0",
     "pdfkit": "^0.18.0",
     "qrcode": "^1.5.4"
   },
