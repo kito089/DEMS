@@ -55,12 +55,13 @@ export class CobrarPedidoPage implements OnInit {
 
     if (this.pedido) {
       this.calcularTotal();
+      console.log('Total calculado:', this.total);
     }
   }
 
   calcularTotal() {
     this.total = this.pedido.items.reduce((acc: number, item: any) => {
-      return acc + (item.PrecioUnitario || 0);
+      return acc + ((item.PrecioUnitario || 0) * (item.Cantidad || 1));
     }, 0);
   }
 
@@ -75,7 +76,8 @@ export class CobrarPedidoPage implements OnInit {
       initialBreakpoint: 0.5,
       handle: true,
       componentProps: {
-        total: this.total
+        total: this.total,
+        pagos: this.pagos
       }
     });
     await modal.present();

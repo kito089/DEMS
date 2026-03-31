@@ -56,7 +56,7 @@ export class HomePage implements OnInit, OnDestroy {
         // tomamos directamente los platillos
         const items = p.Platillos || [];
         // calculamos subtotal sumando los precios
-        const subtotal = items.reduce((acc: number, item: any) => acc + (item.PrecioUnitario || 0), 0);
+        const subtotal = items.reduce((acc: number, item: any) => acc + ((item.PrecioUnitario || 0) * (item.Cantidad || 1)), 0);
 
         return {
           id: p.idPedido,
