@@ -50,14 +50,43 @@ const create = async (req, res) => {
 };
 
 // POST /pagos/enviar-ticket
-const enviarTicket = async (req, res) => {
-    try {
-        const { idPago, email } = req.body;
-        if (!idPago || !email)
-            return res.status(400).json({ error: 'idPago y email son requeridos' });
-    }catch (e) {
-        res.status(500).json({ error: e.message });
+export const enviarTicket = async (req, res) => {
+  try {
+    const { folio, ubicacion, correo, fecha, productos } = req.body;
+
+    if (!correo) {
+      return res.status(400).json({ error: 'correo es requerido' });
     }
 
+    if (!productos || !Array.isArray(productos) || productos.length === 0) {
+      return res.status(400).json({ error: 'productos inválidos' });
+    }
+
+    const total = productos.reduce((acc, p) => {
+      return acc + ((p.precio || 0) * (p.cantidad || 1));
+    }, 0);
+
+    const pedido = {
+      folio,
+      ubicacion,
+      correo,
+      fecha,
+      productos,
+      total
+    };
+
+    console.log('Enviando ticket:', pedido);
+
+    await sendTicketEmail(pedido);
+
+    return res.status(200).json({
+      message: 'Ticket enviado correctamente'
+    });
+
+  } catch (e) {
+    console.error('❌ Error en enviarTicket:', e);
+    return res.status(500).json({ error: e.message });
+  }
+};
 
 export default { getAll, getById, getByPedido, create, enviarTicket };
