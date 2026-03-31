@@ -46,6 +46,7 @@ export class ReportesComponent implements OnInit {
 
   loadResumen() {
     this.isLoading = true;
+    this.errorMessage = '';
     this.reportesService.getResumen(this.desde, this.hasta).subscribe({
       next: (data) => {
         this.resumen = data;
@@ -141,9 +142,5 @@ export class ReportesComponent implements OnInit {
 
   cambiarFiltro(filtro: 'Todos' | 'Agregación' | 'Modificación' | 'Eliminación') {
     this.filtroActivo = filtro;
-  }
-
-  exportarPDF() {
-    alert('Exportar a PDF — próximamente');
   }
 }
