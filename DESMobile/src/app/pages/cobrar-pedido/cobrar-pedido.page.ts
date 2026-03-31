@@ -69,6 +69,27 @@ export class CobrarPedidoPage implements OnInit {
     return `${item.Cantidad}x ${item.nombre}${item.Nota ? ' (' + item.Nota + ')' : ''}`;
   }
 
+  async imprimirTicket() {
+    try {
+      const body = {
+        folio: this.pedido.folio,
+        ubicacion: this.pedido.mesa,
+        fecha: new Date().toLocaleString(),
+        productos: this.pedido.items.map((item: any) => ({
+          nombre: item.nombre,
+          cantidad: item.Cantidad,
+          precio: item.PrecioUnitario || item.Precio || 0
+        }))
+      };
+      console.log('Enviando ticket con body:', JSON.stringify(body));
+      await firstValueFrom(this.api.post('/pagos/imprimir-ticket', body));
+      alert('Ticket enviado correctamente');
+    } catch (error) {
+      console.error('Error al enviar ticket:', error);
+      alert('Error al enviar ticket. Intenta de nuevo.');
+    }
+  }
+
   async dividirPorPago() {
     const modal = await this.modalCtrl.create({
       component: DividirPagosComponent,
@@ -161,5 +182,4 @@ export class CobrarPedidoPage implements OnInit {
     }
   }
 
-  noop(): void { }
 }
