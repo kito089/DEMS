@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../components/headerAdmin/headerComponent';
-import { interval, Subscription } from 'rxjs';
 
-// ── Interfaces ──────────────────────────────────────────────
 export interface Pedido {
   id: number;
   mesa: number;
@@ -14,7 +12,6 @@ export interface Pedido {
   total: number;
 }
 
-// ── Componente ───────────────────────────────────────────────
 @Component({
   selector: 'app-cocina',
   standalone: true,
@@ -23,73 +20,92 @@ export interface Pedido {
   styleUrls: ['./cocina.css'],
 })
 export class CocinaComponent implements OnInit, OnDestroy {
-  isLoading = false;
+  isLoading    = true;
   errorMessage = '';
+  pedidos: Pedido[] = [];
 
-  pedidos: Pedido[] = [
-    {
-      id: 1,
-      mesa: 1,
-      numero: '003',
-      estado: 'Pendiente',
-      items: ['2 Enchiladas verdes', '1 Pozole rojo', '2 Agua de sabor'],
-      hora: '14:05',
-      total: 210,
-    },
-    {
-      id: 2,
-      mesa: 5,
-      numero: '004',
-      estado: 'Pendiente',
-      items: ['2 Enchiladas rojas', '1 Tacos dorados', '2 Tostadas Mixtas'],
-      hora: '14:42',
-      total: 310,
-    },
-    {
-      id: 3,
-      mesa: 4,
-      numero: '006',
-      estado: 'Listo',
-      items: ['2 Flautas', '1 Pozole verde', '2 Coca Cola'],
-      hora: '15:05',
-      total: 190,
-    },
-    {
-      id: 4,
-      mesa: 3,
-      numero: '007',
-      estado: 'Pendiente',
-      items: ['3 Enchiladas rojas', '2 Tacos dorados', '3 Tostadas Mixtas'],
-      hora: '16:42',
-      total: 420,
-    },
-  ];
-
-  private pollingSubscription?: Subscription;
-  private readonly POLLING_INTERVAL = 15_000;
+  private sseUrl    = 'http://localhost:3000/events'; // ← tu URL del backend
+  private apiUrl    = 'http://localhost:3000/Pedidos';
+  private eventSource?: EventSource;
 
   ngOnInit(): void {
-    // Cuando conectes el servicio real, descomenta esto:
-    // this.cargarPedidos();
-    // this.pollingSubscription = interval(this.POLLING_INTERVAL)
-    //   .pipe(switchMap(() => this.pedidosService.getPedidosActivos()))
-    //   .subscribe({ next: (data) => (this.pedidos = data) });
+    this.cargarPedidos();
+    this.conectarSSE();
   }
 
   ngOnDestroy(): void {
-    this.pollingSubscription?.unsubscribe();
+    this.eventSource?.close();
   }
 
-  get pedidosActivos(): Pedido[] {
-    return this.pedidos.filter((p) => p.estado !== 'Entregado');
+  // ── Carga inicial ────────────────────────────────────
+  cargarPedidos(): void {
+    this.isLoading = true;
+    fetch(this.apiUrl)
+      .then(r => r.json())
+      .then(data => {
+        this.pedidos   = data;
+        this.isLoading = false;
+      })
+      .catch(e => {
+        this.errorMessage = 'Error al cargar pedidos.';
+        this.isLoading    = false;
+        console.error(e);
+      });
   }
+conectarSSE(): void {
+  this.eventSource = new EventSource(this.sseUrl);
 
-  marcarLista(pedido: Pedido): void {
-    pedido.estado = 'Listo';
-  }
+  // Nuevo pedido → aparece en cocina
+  this.eventSource.addEventListener('nuevo_pedido', (e: MessageEvent) => {
+    const pedido: Pedido = JSON.parse(e.data);
+    const existe = this.pedidos.find(p => p.id === pedido.id);
+    if (!existe) this.pedidos.unshift(pedido);
+  });
 
-  entregar(pedido: Pedido): void {
-    // Quita el pedido de la vista al entregarlo
-    this.pedidos = this.pedidos.filter((p) => p.id !== pedido.id);
-  }
+  // ✅ "pedidoListo" (camelCase, así lo manda tu backend)
+  this.eventSource.addEventListener('pedidoListo', (e: MessageEvent) => {
+    const { pedidoId } = JSON.parse(e.data);
+    this.pedidos = this.pedidos.map(p =>
+      p.id == pedidoId ? { ...p, estado: 'Listo' } : p
+    );
+  });
+
+  // Pedido finalizado → sale de cocina
+  this.eventSource.addEventListener('pedido_finalizado', (e: MessageEvent) => {
+    const { id } = JSON.parse(e.data);
+    this.pedidos = this.pedidos.filter(p => p.id != id);
+  });
+
+  // Pedido cancelado → sale de cocina
+  this.eventSource.addEventListener('pedido_cancelado', (e: MessageEvent) => {
+    const { id } = JSON.parse(e.data);
+    this.pedidos = this.pedidos.filter(p => p.id != id);
+  });
+
+  this.eventSource.onerror = () => {
+    console.warn('SSE desconectado, reconectando en 3s...');
+    this.eventSource?.close();
+    setTimeout(() => this.conectarSSE(), 3000);
+  };
+}
+
+marcarLista(pedido: Pedido): void {
+  fetch(`${this.apiUrl}/${pedido.id}/ready`, {  // ← /ready no /estado
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(() => { pedido.estado = 'Listo'; })
+  .catch(e => console.error('Error al marcar como listo:', e));
+}
+
+entregar(pedido: Pedido): void {
+  fetch(`${this.apiUrl}/${pedido.id}/finalizar`, {  // ← /finalizar
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  .then(() => {
+    this.pedidos = this.pedidos.filter(p => p.id !== pedido.id);
+  })
+  .catch(e => console.error('Error al finalizar pedido:', e));
+} 
 }

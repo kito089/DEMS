@@ -1,6 +1,11 @@
 import service from '../services/Pagos.service.js';
 import { sendEventToAll } from '../routes/sse.route.js';
 import { sendTicketEmail } from '../services/Email.service.js';
+import { generarTicket } from '../utils/generarTicket.js';
+//import { print } from 'pdf-to-printer';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 // GET /pagos
 const getAll = async (_req, res) => {
@@ -128,4 +133,50 @@ export const enviarTicket = async (req, res) => {
   }
 };
 
-export default { getAll, getById, getByPedido, create, enviarTicket };
+// POST /pagos/imprimir-ticket
+export const imprimirTicket = async (req, res) => {
+  try {
+    const { folio, ubicacion, fecha, productos } = req.body;
+
+    if (!productos || !Array.isArray(productos) || productos.length === 0) {
+      return res.status(400).json({ error: 'productos inválidos' });
+    }
+
+    // 🔹 Calcular total
+    const total = productos.reduce((acc, p) => {
+      return acc + ((p.precio || 0) * (p.cantidad || 1));
+    }, 0);
+
+    const pedido = {
+      folio,
+      ubicacion: ubicacion || 'Mostrador',
+      fecha,
+      productos,
+      total
+    };
+
+    console.log('🖨️ Generando ticket:', pedido);
+
+    const pdfBuffer = await generarTicket(pedido);
+
+    const filePath = path.join(os.tmpdir(), `ticket-${Date.now()}.pdf`);
+    fs.writeFileSync(filePath, pdfBuffer);
+
+    /*await print(filePath, {
+      // printer: "",
+      silent: true
+    });*/
+
+    fs.unlinkSync(filePath);
+
+    return res.status(200).json({
+      message: 'Ticket impreso correctamente'
+    });
+
+  } catch (e) {
+    console.error('❌ Error en imprimirTicket:', e);
+    return res.status(500).json({ error: e.message });
+  }
+};
+
+export default { getAll, getById, getByPedido, create, enviarTicket, imprimirTicket };

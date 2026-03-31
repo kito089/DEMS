@@ -39,13 +39,20 @@ interface Pago {
 export class DividirPagosComponent implements OnInit {
 
   @Input() total: number = 0;
-
-  pagos: Pago[] = [];
+  @Input() pagos: Pago[] = [];
 
   constructor(private modalCtrl: ModalController) { }
 
   ngOnInit() {
-    this.agregarPago();
+    if (this.pagos && this.pagos.length > 0) {
+      this.pagos = this.pagos.map(p => ({
+        metodo: p.metodo || 'tarjeta',
+        monto: p.monto ?? null
+      }));
+    } else {
+      this.pagos = [];
+      this.agregarPago();
+    }
   }
 
   agregarPago() {
@@ -70,6 +77,18 @@ export class DividirPagosComponent implements OnInit {
 
   get hayPagosIncompletos(): boolean {
     return this.pagos.some(p => !p.monto || p.monto <= 0);
+  }
+
+  onMontoChange(index: number) {
+    const pago = this.pagos[index];
+
+    if (!pago.monto || pago.monto <= 0) {
+      this.pagos.splice(index, 1);
+    }
+
+    if (this.pagos.length === 0) {
+      this.agregarPago();
+    }
   }
 
   onConfirmPayments() {
