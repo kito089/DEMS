@@ -59,7 +59,7 @@ export class HomePage implements OnInit, OnDestroy {
         return {
           id: p.idPedido,
           folio: p.idPedido.toString(),
-          mesa: p.NoMesa?.toString(),
+          mesa: p.NoMesa ? `Mesa ${p.NoMesa}` : 'Mostrador',
           total: subtotal,   // subtotal calculado
           items: items,      // array de platillos
           estado: p.Estado || 'Proceso'
