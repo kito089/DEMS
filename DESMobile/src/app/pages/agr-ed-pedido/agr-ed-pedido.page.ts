@@ -196,6 +196,21 @@ export class AgrEdPedidoPage implements OnInit {
     }
   }
 
+  async cancelarPedido() {
+    if (!this.idPedido) return;
+    const confirm = window.confirm('¿Estás seguro de que deseas cancelar este pedido?');
+    if (!confirm) return;
+
+    try {
+      await firstValueFrom(this.api.put(`/pedidos/${this.idPedido}/cancelar`, {}));
+      alert('Pedido cancelado uwu'); // <-- dale css @ThreeBook3458 uwu
+      this.router.navigate(['/home']);
+    } catch (err) {
+      console.error('Error cancelando pedido:', err);
+      alert('Error cancelando pedido');
+    }
+  }
+
   onDishMinus(index: number): void {
     const dish = this.dishes[index];
     if (!dish) return;

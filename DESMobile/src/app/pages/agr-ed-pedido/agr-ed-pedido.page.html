@@ -57,6 +57,7 @@
       <app-divider-line tone="section" />
 
       <app-primary-button label="Guardar pedido" widthMode="centered" (pressed)="guardarPedido()" />
+      <app-primary-button *ngIf="this.idPedido" label="Cancelar pedido" widthMode="centered" (pressed)="cancelarPedido()" />
     </div>
 
   </app-page-body>

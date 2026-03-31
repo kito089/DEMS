@@ -1,4 +1,5 @@
 import PDFDocument from 'pdfkit';
+import { uploadPDFToCloudinary } from '../services/Cloudinary.service.js';
 
 export const generarTicket = (pedido) => {
   return new Promise((resolve, reject) => {
@@ -27,4 +28,15 @@ export const generarTicket = (pedido) => {
 
     doc.end();
   });
+};
+
+/**
+ * Genera un ticket PDF y lo sube a Cloudinary
+ * @param {Object} pedido - Datos del pedido
+ * @returns {Promise<{url: string, previewUrl: string, secure_url: string}>}
+ */
+export const generarTicketYSubir = async (pedido) => {
+  const pdfBuffer = await generarTicket(pedido);
+  const nombreArchivo = `ticket-${Date.now()}`;
+  return await uploadPDFToCloudinary(pdfBuffer, nombreArchivo, 'tickets');
 };
