@@ -162,10 +162,10 @@ export const imprimirTicket = async (req, res) => {
     const filePath = path.join(os.tmpdir(), `ticket-${Date.now()}.pdf`);
     fs.writeFileSync(filePath, pdfBuffer);
 
-    await print(filePath, {
+    /*await print(filePath, {
       // printer: "",
       silent: true
-    });
+    });*/
 
     fs.unlinkSync(filePath);
 
