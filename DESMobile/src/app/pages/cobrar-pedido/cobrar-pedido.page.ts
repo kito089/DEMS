@@ -81,7 +81,7 @@ export class CobrarPedidoPage implements OnInit {
 
     const { data } = await modal.onWillDismiss();
     if (data) {
-      console.log('Pagos divididos:', data);
+      console.log('Pagos divididos:', JSON.stringify(data));
       // Aquí podrías actualizar la UI o enviar la información al backend
     }
   }
