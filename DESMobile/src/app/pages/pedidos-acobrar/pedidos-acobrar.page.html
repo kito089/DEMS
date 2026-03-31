@@ -11,7 +11,7 @@
         
         <app-pedido-cobro-row
           *ngFor="let pedido of pedidosE"
-          [code]="pedido.folputoio"
+          [code]="pedido.folio"
           [location]="pedido.mesa ?? ''"
           [dishes]="pedido.items.length"
           [price]="getTotal(pedido)"
@@ -21,8 +21,9 @@
       </section>
     </div>
   </app-page-body>
-  <app-bottom-nav
-    pedidosIconSrc="assets/NewPedido.png"
-    reservacionesIconSrc="assets/Reserva.png"
-  />
 </ion-content>
+
+<app-bottom-nav
+  pedidosIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/9jhveudp_expires_30_days.png"
+  reservacionesIconSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/S4topjr39u/qj6sj88h_expires_30_days.png"
+/>
