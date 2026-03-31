@@ -20,19 +20,19 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding-bottom: clamp(16px, 5vh, 32px);
+  padding-bottom: clamp(80px, max(15vh, 90px), 140px);
 }
 
 .scroll-view--home {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding-bottom: clamp(48px, 15vh, 130px);
+  padding-bottom: clamp(100px, max(20vh, 110px), 160px);
 }
 
 .scroll-view--reservaciones {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding-bottom: clamp(24px, 8vh, 48px);
+  padding-bottom: clamp(90px, max(18vh, 100px), 150px);
 }
