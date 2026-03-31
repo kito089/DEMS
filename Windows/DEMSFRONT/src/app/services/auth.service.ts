@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, of } from 'rxjs';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
 export interface Trabajador {
@@ -39,13 +39,11 @@ export class AuthService {
       })
       .pipe(
         tap((response) => {
-          // Guardar el usuario en localStorage
           localStorage.setItem('currentUser', JSON.stringify(response.trabajador));
           this.currentUserSubject.next(response.trabajador);
         }),
         catchError((error) => {
-          console.error('Error en login:', error);
-          throw error;
+          return throwError(() => error);
         })
       );
   }

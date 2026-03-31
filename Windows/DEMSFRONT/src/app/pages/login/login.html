@@ -10,6 +10,19 @@
         Dinner Environment Management <br />System
       </span>
 
+      <!-- Alerta -->
+      <div *ngIf="alerta" class="alerta-overlay">
+        <div class="alerta-box" [ngClass]="'alerta-' + alerta.tipo">
+          <span class="material-icons alerta-icono">
+            {{ alerta.tipo === 'error' ? 'error_outline' : 'check_circle_outline' }}
+          </span>
+          <span class="alerta-texto">{{ alerta.mensaje }}</span>
+          <button *ngIf="alerta.tipo === 'error'" class="alerta-btn" (click)="cerrarAlerta()">
+            Aceptar
+          </button>
+        </div>
+      </div>
+
       <app-input #inputUsuario label="Usuario" type="text"
         (enterPressed)="onLogin()">
       </app-input>
@@ -18,7 +31,10 @@
         (enterPressed)="onLogin()">
       </app-input>
 
-      <app-button [text]="'Ingresar'" (click)="onLogin()"></app-button>
+      <app-button
+        [text]="isLoading ? 'Ingresando...' : 'Ingresar'"
+        (click)="onLogin()">
+      </app-button>
 
     </div>
   </div>
