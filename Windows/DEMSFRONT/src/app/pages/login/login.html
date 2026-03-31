@@ -6,19 +6,18 @@
 
       <span class="title">DEMS!</span>
 
-
       <span class="subtitle">
-        Dinner Environment Management <br />System </span>
+        Dinner Environment Management <br />System
+      </span>
 
-      <!-- Usuario -->
-      <app-input #inputUsuario label="Usuario" type="text">
+      <app-input #inputUsuario label="Usuario" type="text"
+        (enterPressed)="onLogin()">
       </app-input>
 
-      <!-- Contraseña -->
-      <app-input #inputContraseña label="Contraseña" [isPasswordToggle]="true">
+      <app-input #inputContraseña label="Contraseña" [isPasswordToggle]="true"
+        (enterPressed)="onLogin()">
       </app-input>
 
-      <!-- Botón -->
       <app-button [text]="'Ingresar'" (click)="onLogin()"></app-button>
 
     </div>
