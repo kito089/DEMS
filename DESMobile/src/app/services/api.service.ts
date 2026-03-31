@@ -20,7 +20,7 @@ export class ApiService {
   post(endpoint: string, body: any) {
     return from(this.config.getApiUrl()).pipe(
       switchMap(baseUrl => {
-        console.log('Realizando POST a:', `${baseUrl}${endpoint}`, 'con body:', body);
+        console.log('Realizando POST a:', `${baseUrl}${endpoint}`, 'con body:', JSON.stringify(body));
         return this.http.post(`${baseUrl}${endpoint}`, body, {
           observe: 'response'
         });
