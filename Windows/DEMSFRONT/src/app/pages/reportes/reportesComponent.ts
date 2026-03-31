@@ -1,75 +1,138 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/headerAdmin/headerComponent';
+import { ReportesService, ResumenReporte, CambioItem } from '../../services/reportes.service';
 
 @Component({
   selector: 'app-reportes',
   standalone: true,
-  imports: [HeaderComponent, CommonModule],
+  imports: [HeaderComponent, CommonModule, FormsModule],
   templateUrl: './reportes.html',
   styleUrls: ['./reportes.css']
 })
-export class ReportesComponent {
+export class ReportesComponent implements OnInit {
 
   tabActiva: 'ventas' | 'historial' = 'ventas';
   filtroActivo: 'Todos' | 'Agregación' | 'Modificación' | 'Eliminación' = 'Todos';
 
-  ventasResumen = {
-    total: 1987,
-    ventas: 10,
-    ticketPromedio: 987,
-    metodoPrincipal: 'Efectivo',
-    porcentajeMetodo: 67
+  isLoading = false;
+  errorMessage = '';
+
+  desde = '2026-03-01';
+  hasta = '2026-03-31';
+
+  resumen: ResumenReporte = {
+    totalVentas: 0,
+    cantidadVentas: 0,
+    ticketPromedio: 0,
+    metodoPrincipal: 'N/A',
+    porcentajeMetodo: 0,
+    historialVentas: [],
+    topPlatillos: []
   };
 
-  historialVentas = [
-    { folio: 'V-001', fecha: '2026-03-02', mesa: 'Mesa 1', platillos: 'Enchiladas Verdes ×2, Agua de Jamaica ×2', metodo: 'Efectivo', total: 220 },
-    { folio: 'V-002', fecha: '2026-03-02', mesa: 'Mesa 2', platillos: 'Pozole Rojo ×1, Tostadas ×1', metodo: 'Transferencia', total: 150 },
-    { folio: 'V-003', fecha: '2026-03-01', mesa: 'Mesa 3', platillos: 'Sopes ×3, Flautas ×2', metodo: 'Transferencia', total: 350 },
-    { folio: 'V-004', fecha: '2026-03-01', mesa: 'Mesa 5', platillos: 'Tacos dorados ×3, Coca Cola ×2', metodo: 'Efectivo', total: 290 },
-  ];
+  historialCambios: CambioItem[] = [];
 
-  productosVendidos = [
-    { posicion: 1, nombre: 'Pozole rojo', cantidad: 60, porcentaje: 100 },
-    { posicion: 2, nombre: 'Enchiladas verdes', cantidad: 56, porcentaje: 93 },
-    { posicion: 3, nombre: 'Enchiladas rojas', cantidad: 50, porcentaje: 83 },
-    { posicion: 4, nombre: 'Flautas', cantidad: 40, porcentaje: 67 },
-    { posicion: 5, nombre: 'Tacos dorados', cantidad: 20, porcentaje: 33 },
-  ];
+  constructor(
+    private reportesService: ReportesService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  historialCambios = [
-    {
-      periodo: 'Hoy',
-      cambios: 1,
-      items: [
-        { descripcion: 'Se agregó "Burritos" al menú', usuario: 'Camila G.', tiempo: 'Hace 1 día', tipo: 'Agregación' }
-      ]
-    },
-    {
-      periodo: 'Ayer',
-      cambios: 2,
-      items: [
-        { descripcion: 'Se modificó precio de "Pozole rojo" a $110', usuario: 'Camila G.', tiempo: 'Hace 2 días', tipo: 'Modificación' },
-        { descripcion: 'Se eliminó reservación de Carlos Rodriguez', usuario: 'Camila G.', tiempo: 'Hace 3 días', tipo: 'Eliminación' }
-      ]
-    }
-  ];
-
-  get historialFiltrado() {
-    if (this.filtroActivo === 'Todos') return this.historialCambios;
-    return this.historialCambios.map(grupo => ({
-      ...grupo,
-      items: grupo.items.filter(i => i.tipo === this.filtroActivo)
-    })).filter(grupo => grupo.items.length > 0);
+  ngOnInit() {
+    this.loadResumen();
+    this.loadHistorialCambios();
   }
 
-  getTipoClass(tipo: string): string {
-    const clases: { [key: string]: string } = {
-      'Agregación': 'badge-agregacion',
-      'Modificación': 'badge-modificacion',
-      'Eliminación': 'badge-eliminacion'
+  loadResumen() {
+    this.isLoading = true;
+    this.reportesService.getResumen(this.desde, this.hasta).subscribe({
+      next: (data) => {
+        this.resumen = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error cargando resumen:', err);
+        this.errorMessage = 'No se pudo cargar el reporte.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  loadHistorialCambios() {
+    this.reportesService.getHistorialCambios().subscribe({
+      next: (data) => {
+        this.historialCambios = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error cargando historial:', err)
+    });
+  }
+
+  get topPlatillosConPorcentaje() {
+    const max = this.resumen.topPlatillos[0]?.cantidadVendida || 1;
+    return this.resumen.topPlatillos.map((p, i) => ({
+      posicion: i + 1,
+      nombre: p.platillo,
+      cantidad: p.cantidadVendida,
+      porcentaje: Math.round((p.cantidadVendida / max) * 100)
+    }));
+  }
+
+  get historialAgrupado() {
+    const grupos: { [key: string]: CambioItem[] } = {};
+    this.historialCambios.forEach(item => {
+      const fecha = new Date(item.Fecha);
+      const hoy = new Date();
+      const ayer = new Date();
+      ayer.setDate(hoy.getDate() - 1);
+
+      let periodo = fecha.toLocaleDateString('es-MX');
+      if (fecha.toDateString() === hoy.toDateString()) periodo = 'Hoy';
+      else if (fecha.toDateString() === ayer.toDateString()) periodo = 'Ayer';
+
+      if (!grupos[periodo]) grupos[periodo] = [];
+      grupos[periodo].push(item);
+    });
+
+    return Object.keys(grupos).map(periodo => ({
+      periodo,
+      items: grupos[periodo].filter(i =>
+        this.filtroActivo === 'Todos' || this.getTipoLabel(i.Accion) === this.filtroActivo
+      )
+    })).filter(g => g.items.length > 0);
+  }
+
+  getTipoLabel(accion: string): string {
+    const map: { [key: string]: string } = {
+      'INSERT': 'Agregación',
+      'UPDATE': 'Modificación',
+      'DELETE': 'Eliminación'
     };
-    return clases[tipo] || '';
+    return map[accion] || accion;
+  }
+
+  getTipoClass(accion: string): string {
+    const map: { [key: string]: string } = {
+      'INSERT': 'badge-agregacion',
+      'UPDATE': 'badge-modificacion',
+      'DELETE': 'badge-eliminacion'
+    };
+    return map[accion] || '';
+  }
+
+  getDescripcionCambio(item: CambioItem): string {
+    const accion = this.getTipoLabel(item.Accion);
+    if (accion === 'Agregación') return `Se agregó "${item.DatosNv}" en ${item.TablaAfectada}`;
+    if (accion === 'Modificación') return `Se modificó "${item.DatosAnt}" → "${item.DatosNv}" en ${item.TablaAfectada}`;
+    if (accion === 'Eliminación') return `Se eliminó "${item.DatosAnt}" de ${item.TablaAfectada}`;
+    return item.Descripcion || '';
+  }
+
+  aplicarFiltro() {
+    this.loadResumen();
   }
 
   cambiarTab(tab: 'ventas' | 'historial') {
