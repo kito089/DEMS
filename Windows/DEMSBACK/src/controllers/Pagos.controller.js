@@ -2,7 +2,7 @@ import service from '../services/Pagos.service.js';
 import { sendEventToAll } from '../routes/sse.route.js';
 import { sendTicketEmail } from '../services/Email.service.js';
 import { generarTicket } from '../utils/generarTicket.js';
-import { print } from 'pdf-to-printer';
+//import { print } from 'pdf-to-printer';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
