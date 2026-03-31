@@ -1,0 +1,148 @@
+[
+    {
+        "id": 7,
+        "folio": "7",
+        "mesa": "1",
+        "total": 11,
+        "items": [
+            {
+                "id": 1,
+                "nombre": "Enchiladas Rojas",
+                "Cantidad": 1,
+                "PrecioUnitario": 5,
+                "Nota": ""
+            },
+            {
+                "id": 2,
+                "nombre": "Agua de Jamaica",
+                "Cantidad": 1,
+                "PrecioUnitario": 6,
+                "Nota": ""
+            }
+        ],
+        "estado": "Proceso"
+    },
+    {
+        "id": 6,
+        "folio": "6",
+        "mesa": "10",
+        "total": 11,
+        "items": [
+            {
+                "id": 1,
+                "nombre": "Enchiladas Rojas",
+                "Cantidad": 3,
+                "PrecioUnitario": 5,
+                "Nota": ""
+            },
+            {
+                "id": 2,
+                "nombre": "Agua de Jamaica",
+                "Cantidad": 2,
+                "PrecioUnitario": 6,
+                "Nota": ""
+            }
+        ],
+        "estado": "Proceso"
+    },
+    {
+        "id": 2,
+        "folio": "2",
+        "mesa": "5",
+        "total": 11,
+        "items": [
+            {
+                "id": 1,
+                "nombre": "Enchiladas Rojas",
+                "Cantidad": 1,
+                "PrecioUnitario": 5,
+                "Nota": ""
+            },
+            {
+                "id": 2,
+                "nombre": "Agua de Jamaica",
+                "Cantidad": 1,
+                "PrecioUnitario": 6,
+                "Nota": ""
+            }
+        ],
+        "estado": "Listo"
+    },
+    {
+        "id": 5,
+        "folio": "5",
+        "mesa": "1",
+        "total": 6,
+        "items": [
+            {
+                "id": 2,
+                "nombre": "Agua de Jamaica",
+                "Cantidad": 1,
+                "PrecioUnitario": 6,
+                "Nota": ""
+            }
+        ],
+        "estado": "Cancelado"
+    },
+    {
+        "id": 1,
+        "folio": "1",
+        "mesa": "1",
+        "total": 11,
+        "items": [
+            {
+                "id": 1,
+                "nombre": "Enchiladas Rojas",
+                "Cantidad": 3,
+                "PrecioUnitario": 5,
+                "Nota": "Sin cebolla"
+            },
+            {
+                "id": 2,
+                "nombre": "Agua de Jamaica",
+                "Cantidad": 2,
+                "PrecioUnitario": 6,
+                "Nota": "con hielos"
+            }
+        ],
+        "estado": "Listo"
+    },
+    {
+        "id": 4,
+        "folio": "4",
+        "mesa": "3",
+        "total": 5,
+        "items": [
+            {
+                "id": 1,
+                "nombre": "Enchiladas Rojas",
+                "Cantidad": 1,
+                "PrecioUnitario": 5,
+                "Nota": ""
+            }
+        ],
+        "estado": "Proceso"
+    },
+    {
+        "id": 3,
+        "folio": "3",
+        "total": 11,
+        "items": [
+            {
+                "id": 1,
+                "nombre": "Enchiladas Rojas",
+                "Cantidad": 1,
+                "PrecioUnitario": 5,
+                "Nota": ""
+            },
+            {
+                "id": 2,
+                "nombre": "Agua de Jamaica",
+                "Cantidad": 1,
+                "PrecioUnitario": 6,
+                "Nota": ""
+            }
+        ],
+        "estado": "Listo"
+    }
+]
