@@ -42,6 +42,7 @@ import { EnviarTicketComponent } from 'src/app/layout/enviar-ticket/enviar-ticke
 export class CobrarPedidoPage implements OnInit {
 
   pedido: any;
+  pagos: any[] = [];
   total: number = 0;
 
   constructor(private router: Router, private modalCtrl: ModalController, private api: ApiService) {}
@@ -82,7 +83,8 @@ export class CobrarPedidoPage implements OnInit {
     const { data } = await modal.onWillDismiss();
     if (data) {
       console.log('Pagos divididos:', JSON.stringify(data));
-      // Aquí podrías actualizar la UI o enviar la información al backend
+      this.pagos = data;
+      alert('Pagos divididos correctamente. Total: ' + this.total); // @ThreeBook3458 css adskjadkajda
     }
   }
 
@@ -98,7 +100,26 @@ export class CobrarPedidoPage implements OnInit {
     const { data } = await modal.onWillDismiss();
     if (data) {
       console.log('Ticket enviado a:', data);
-      // Aquí podrías mostrar una confirmación o actualizar la UI
+      alert('Ticket enviado a: ' + data);
+      try{
+        const body = {
+          folio: this.pedido.folio,
+          ubicacion: this.pedido.mesa,
+          correo: data,
+          fecha: new Date().toLocaleString(),
+          productos: this.pedido.items.map((item: any) => ({
+            nombre: item.nombre,
+            cantidad: item.Cantidad,
+            precio: item.PrecioUnitario || item.Precio || 0
+          }))
+        };
+        console.log('Enviando ticket con body:', JSON.stringify(body));
+        await firstValueFrom(this.api.post('/pagos/enviar-ticket', body));
+        alert('Ticket enviado correctamente');
+      }catch (error) {
+        console.error('Error al enviar ticket:', error);
+        alert('Error al enviar ticket. Intenta de nuevo.');
+      }
     }
   }
 

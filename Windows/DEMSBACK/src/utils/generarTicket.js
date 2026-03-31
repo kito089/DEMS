@@ -11,16 +11,18 @@ export const generarTicket = (pedido) => {
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    doc.fontSize(20).text('TICKET DE COMPRA', { align: 'center' });
+    doc.fontSize(20).text('DEMS! LOMA BONITA', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(12).text(`Cliente: ${pedido.nombre}`);
-    doc.text(`Correo: ${pedido.correo}`);
+    doc.fontSize(12).text(`${pedido.ubicacion} - ${pedido.folio}`);
+    if (pedido.correo) {
+      doc.text(`Correo: ${pedido.correo}`);
+    }
     doc.text(`Fecha: ${pedido.fecha}`);
     doc.moveDown();
     doc.text('--- Detalles ---');
 
     pedido.productos.forEach(p => {
-      doc.text(`${p.nombre} - $${p.precio}`);
+      doc.text(`${p.cantidad}x ${p.nombre} - $${p.precio}: $${p.cantidad * p.precio}`);
     });
 
     doc.moveDown();
