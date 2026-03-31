@@ -44,7 +44,10 @@ export class EditarPedidosPage implements OnInit {
 
   constructor(private api: ApiService, private router: Router) {}
 
-  async ngOnInit() {
+  ngOnInit() {
+  }
+
+  async ionViewWillEnter() {
     await this.cargarPedidos();
   }
 

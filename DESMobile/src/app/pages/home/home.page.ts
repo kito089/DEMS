@@ -34,13 +34,6 @@ export class HomePage implements OnInit, OnDestroy {
 
   constructor(private pedidoService: ApiService) { }
 
-  actualizarListas() {
-    this.pedidosReady = this.pedidos.filter(p => p.estado === 'Listo');
-    this.pedidosPending = this.pedidos.filter(p => p.estado === 'Proceso');
-    console.log('Pedidos listos:', JSON.stringify(this.pedidosReady));
-    console.log('Pedidos en proceso:', JSON.stringify(this.pedidosPending));
-  }
-
   async ngOnInit() {
     const trabajadorData = localStorage.getItem('trabajador');
     if (trabajadorData) {
@@ -48,22 +41,37 @@ export class HomePage implements OnInit, OnDestroy {
       this.trabajador = trabajadorObj.Nombre || '';
     }
 
+    this.sub = this.pedidoService.escucharEventos().subscribe({
+      next: (evento: any) => {
+        console.log('Evento SSE recibido:', evento);
+        this.actualizarPedido(evento);
+      },
+      error: (err) => console.error('Error SSE:', err)
+    });
+  }
+
+  ionViewWillEnter() {
+    this.cargarDatos();
+  }
+
+  async cargarDatos() {
     try {
       const pedidos: any = await firstValueFrom(this.pedidoService.get('/Pedidos/'));
       console.log('Pedidos recibidos:', JSON.stringify(pedidos));
 
       this.pedidos = pedidos.map((p: any) => {
-        // tomamos directamente los platillos
         const items = p.Platillos || [];
-        // calculamos subtotal sumando los precios
-        const subtotal = items.reduce((acc: number, item: any) => acc + ((item.PrecioUnitario || 0) * (item.Cantidad || 1)), 0);
+
+        const subtotal = items.reduce((acc: number, item: any) => {
+          return acc + ((item.PrecioUnitario || 0) * (item.Cantidad || 1));
+        }, 0);
 
         return {
           id: p.idPedido,
           folio: p.idPedido.toString(),
           mesa: p.NoMesa ? `Mesa ${p.NoMesa}` : 'Mostrador',
-          total: subtotal,   // subtotal calculado
-          items: items,      // array de platillos
+          total: subtotal,
+          items: items,
           estado: p.Estado || 'Proceso'
         };
       });
@@ -74,14 +82,13 @@ export class HomePage implements OnInit, OnDestroy {
     } catch (err) {
       console.error('Error cargando pedidos:', err);
     }
+  }
 
-    this.sub = this.pedidoService.escucharEventos().subscribe({
-      next: (evento: any) => {
-        console.log('Evento SSE recibido:', evento);
-        this.actualizarPedido(evento);
-      },
-      error: (err) => console.error('Error SSE:', err)
-    });
+  actualizarListas() {
+    this.pedidosReady = this.pedidos.filter(p => p.estado === 'Listo');
+    this.pedidosPending = this.pedidos.filter(p => p.estado === 'Proceso');
+    console.log('Pedidos listos:', JSON.stringify(this.pedidosReady));
+    console.log('Pedidos en proceso:', JSON.stringify(this.pedidosPending));
   }
 
   actualizarPedido(evento: any) {
