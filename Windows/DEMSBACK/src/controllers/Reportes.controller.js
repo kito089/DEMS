@@ -1,0 +1,49 @@
+import svc from '../services/Reportes.service.js';
+
+const getResumen = async (req, res) => {
+    try {
+        const { desde, hasta } = req.query;
+        if (!desde || !hasta)
+            return res.status(400).json({ error: 'desde y hasta son requeridos' });
+
+        const [ventas, topPlatillos, metodosPago] = await Promise.all([
+            svc.getHistorialVentas(desde, hasta),
+            svc.getTopPlatillos(desde, hasta),
+            svc.getMetodosPago(desde, hasta)
+        ]);
+
+        const totalVentas = ventas.reduce((sum, v) => sum + v.total, 0);
+        const ticketPromedio = ventas.length > 0 ? totalVentas / ventas.length : 0;
+
+        const metodoPrincipal = metodosPago.reduce((prev, curr) =>
+            curr.total > prev.total ? curr : prev, { metodo: 'N/A', total: 0 });
+
+        const totalPagos = metodosPago.reduce((sum, m) => sum + m.total, 0);
+        const porcentajeMetodo = totalPagos > 0
+            ? Math.round((metodoPrincipal.total / totalPagos) * 100)
+            : 0;
+
+        res.json({
+            totalVentas,
+            cantidadVentas: ventas.length,
+            ticketPromedio: Math.round(ticketPromedio),
+            metodoPrincipal: metodoPrincipal.metodo,
+            porcentajeMetodo,
+            historialVentas: ventas,
+            topPlatillos
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+const getHistorialCambios = async (_req, res) => {
+    try {
+        const data = await svc.getHistorialCambios();
+        res.json(data);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+export default { getResumen, getHistorialCambios };
