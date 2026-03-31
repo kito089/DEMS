@@ -62,6 +62,7 @@ export class PedidosACobrarPage implements OnInit {
         tipo: p.Tipo,
         TrabajadorId: p.Mesero.id
       }));
+      console.log('Pedidos listos para cobrar:', JSON.stringify(this.pedidosE));
     } catch (err) {
       console.error('Error cargando pedidos:', err);
     }
@@ -69,7 +70,7 @@ export class PedidosACobrarPage implements OnInit {
 
   getTotal(pedido: PedidoE): number {
     return pedido.items.reduce((total: number, item: any) => {
-      return total + (item.Precio || 0);
+      return total + (item.PrecioUnitario || 0);
     }, 0);
   }
 
