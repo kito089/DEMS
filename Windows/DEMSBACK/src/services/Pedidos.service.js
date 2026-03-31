@@ -118,5 +118,6 @@ export default {
     createPedido,
     updatePedido,
     finalizarPedido,
+    marcarReady,
     cancelar
 };
