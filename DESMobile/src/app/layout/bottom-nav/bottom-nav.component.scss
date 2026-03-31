@@ -2,10 +2,16 @@
   display: flex;
   width: 100%;
   box-sizing: border-box;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 999;
+  background: #fffcf8;
+  border-top: 1px solid rgba(0,0,0,0.08);
 }
 
 .bottom-toolbar {
-  --background: #fffcf8;
+  --background: transparent;
   --padding-start: var(--page-pad, 12px);
   --padding-end: var(--page-pad, 12px);
   --min-height: auto;
@@ -14,8 +20,14 @@
   justify-content: space-around;
   align-items: center;
   gap: 16px;
-
   padding: clamp(16px, 4vw, 21px) 0;
+  width: 100%;
+}
+
+@supports (padding: max(0px)) {
+  :host {
+    padding-bottom: max(env(safe-area-inset-bottom), 8px);
+  }
 }
 
 /* item */
@@ -45,14 +57,9 @@
 /* iconos */
 .nav-item__icon {
   border-radius: 10px;
-  width: min(37px, 10vw);
-  aspect-ratio: 37 / 39;
-  object-fit: contain;
-}
-
-.nav-item__icon--lg {
   width: min(45px, 12vw);
   aspect-ratio: 45 / 47;
+  object-fit: contain;
 }
 
 /* label */
