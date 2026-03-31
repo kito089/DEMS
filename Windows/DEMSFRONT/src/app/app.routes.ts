@@ -8,7 +8,7 @@ import { MeseroComponent } from './pages/mesero/meseroComponent';
 import { ReservacionesComponent } from './pages/reservacion/reservacionesComponent';
 import { TrabajadoresComponent } from './pages/trabajadores/trabajadoresComponent';
 import { RegistroTrabajadorComponent } from './components/registro-trabajador-component/registro-trabajador-component';
-
+import { ReportesComponent } from './pages/reportes/reportesComponent';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -19,9 +19,9 @@ export const routes: Routes = [
   { path: 'registro-platillo/:id', component: RegistroPlatilloComponent },
   { path: 'cocina', component: CocinaComponent },
   { path: 'mesero', component: MeseroComponent },
-  { path: 'reservaciones',    component: ReservacionesComponent },
+  { path: 'reservaciones', component: ReservacionesComponent },
   { path: 'trabajadores', component: TrabajadoresComponent },
   { path: 'registro-trabajador', component: RegistroTrabajadorComponent },
   { path: 'registro-trabajador/:id', component: RegistroTrabajadorComponent },
-  { path: 'reportes', component: InicioComponent },
+  { path: 'reportes', component: ReportesComponent },
 ];
