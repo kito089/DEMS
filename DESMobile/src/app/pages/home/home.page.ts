@@ -37,6 +37,8 @@ export class HomePage implements OnInit, OnDestroy {
   actualizarListas() {
     this.pedidosReady = this.pedidos.filter(p => p.estado === 'Listo');
     this.pedidosPending = this.pedidos.filter(p => p.estado === 'Proceso');
+    console.log('Pedidos listos:', JSON.stringify(this.pedidosReady));
+    console.log('Pedidos en proceso:', JSON.stringify(this.pedidosPending));
   }
 
   async ngOnInit() {
