@@ -34,20 +34,58 @@ const getByPedido = async (req, res) => {
 };
 
 // POST /pagos
+// POST /pagos
 const create = async (req, res) => {
-    try {
-        const { Monto, idPedido, idTipoPago } = req.body;
-        if (!Monto || !idPedido || !idTipoPago)
-            return res.status(400).json({ error: 'Monto, idPedido e idTipoPago son requeridos' });
+  try {
+    const { idPedido, pagos } = req.body;
 
-        const idPago = await service.createPago({ Monto, idPedido, idTipoPago });
-
-        sendEventToAll('nuevo_pago', { Monto, idPedido, idTipoPago, idPago });
-
-        res.status(201).json({ message: 'Pago registrado', idPago });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
+    if (!idPedido || !pagos || !Array.isArray(pagos) || pagos.length === 0) {
+      return res.status(400).json({
+        error: 'idPedido y pagos son requeridos'
+      });
     }
+
+    const metodoMap = {
+      efectivo: 1,
+      transferencia: 2,
+      tarjeta: 3
+    };
+
+    const idsPagos = [];
+
+    for (const pago of pagos) {
+      if (!pago.monto || pago.monto <= 0) {
+        return res.status(400).json({
+          error: 'Todos los pagos deben tener monto válido'
+        });
+      }
+
+      const idTipoPago = metodoMap[pago.metodo];
+
+      if (!idTipoPago) {
+        return res.status(400).json({
+          error: `Método de pago inválido: ${pago.metodo}`
+        });
+      }
+
+      const idPago = await service.createPago({
+        Monto: pago.monto,
+        idPedido,
+        idTipoPago
+      });
+
+      idsPagos.push(idPago);
+    }
+
+    return res.status(201).json({
+      message: 'Pagos registrados correctamente',
+      idsPagos
+    });
+
+  } catch (e) {
+    console.error('Error al registrar pagos:', e);
+    res.status(500).json({ error: e.message });
+  }
 };
 
 // POST /pagos/enviar-ticket
