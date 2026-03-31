@@ -9,6 +9,7 @@ import ReservacionesRoutes from './routes/Reservaciones.route.js';
 import recordatorioRoutes from './routes/Recordatorio.route.js';
 import PedidosRoutes from './routes/Pedidos.route.js';
 import MenuRoutes from './routes/Menu.route.js';
+import reportesRouter from './routes/Reportes.route.js';
 
 
 // Jobs (cron)
@@ -28,6 +29,7 @@ app.use('/Reservaciones', ReservacionesRoutes);
 app.use('/recordatorios', recordatorioRoutes);
 app.use('/Pedidos', PedidosRoutes);
 app.use('/Menu', MenuRoutes);
+app.use('/reportes', reportesRouter);
 
 // iniciar tareas automáticas
 iniciarRecordatorios();
