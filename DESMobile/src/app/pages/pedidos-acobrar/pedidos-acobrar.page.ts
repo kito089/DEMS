@@ -75,7 +75,7 @@ export class PedidosACobrarPage implements OnInit {
   }
 
   cobrarPedido(pedido: PedidoE) {
-    this.router.navigate(['/cobrar-pedido', pedido]);
+    this.router.navigate(['/cobrar-pedido'], { state: { pedido } });
   }
 
 }

@@ -1,42 +1,39 @@
 <app-page-header-cream
-  title="Cobrar P-012"
+  [title]="'Cobrar ' + pedido?.folio"
   imageSrc="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/3NWzJkfAGi/01bc3aoa_expires_30_days.png"
 />
 
 <ion-content [fullscreen]="true" class="cobrar-pedido-page-content">
   <app-page-body>
     <div class="page-column">
+
       <app-elevated-panel preset="cobrar-ticket">
-        <app-ticket-brand-header brand="DEMS! LOMA BONITA" subheading="Mesa 3 - P-012" />
 
-        <app-ticket-line-row description="2x Enchiladas verdes" price="$170" />
-
-        <app-divider-line />
-
-        <app-ticket-line-row
-          description="1x Pozole rojo (sin limón)"
-          price="$110"
-          [flexDescription]="true"
+        <app-ticket-brand-header
+          brand="DEMS! LOMA BONITA"
+          [subheading]="pedido?.mesa + ' - ' + pedido?.folio"
         />
 
-        <app-divider-line />
+        <ng-container *ngFor="let item of pedido?.items">
 
-        <app-ticket-line-row description="2x Agua de Jamaica" price="$60" />
+          <app-ticket-line-row
+            [description]="getDescripcion(item)"
+            [price]="'$' + item.PrecioUnitario"
+            [flexDescription]="true"
+          />
 
-        <app-divider-line />
+          <app-divider-line />
 
-        <app-ticket-line-row
-          description="2x Flautas (no muy doradas)"
-          price="$100"
-          [flexDescription]="true"
-          [tightRightMargin]="true"
-        />
+        </ng-container>
 
         <app-divider-line tone="soft" spacing="tight-before-total" />
-
         <app-divider-line tone="emphasis" spacing="tight-before-total" />
 
-        <app-ticket-total-row label="Total" amount="$440" />
+        <app-ticket-total-row
+          label="Total"
+          [amount]="'$' + total"
+        />
+
       </app-elevated-panel>
 
       <div class="actions">
@@ -47,18 +44,37 @@
           labelSize="body"
           (pressed)="noop()"
         />
+
         <app-primary-button
-          label="Cobrado- Cerrar pedido"
+          label="Dividir por pago"
+          widthMode="centered"
+          padding="wide"
+          labelSize="body"
+          (pressed)="noop()"
+        />
+
+        <app-primary-button
+          label="Enviar ticket al correo"
+          widthMode="centered"
+          padding="wide"
+          labelSize="body"
+          (pressed)="noop()"
+        />
+
+        <app-primary-button
+          label="Cobrado - Cerrar pedido"
           widthMode="centered"
           padding="compact"
           labelSize="body"
           (pressed)="noop()"
         />
       </div>
+
     </div>
   </app-page-body>
+
   <app-bottom-nav
-  pedidosIconSrc="assets/NewPedido.png"
+    pedidosIconSrc="assets/NewPedido.png"
     reservacionesIconSrc="assets/Reserva.png"
   />
 </ion-content>
