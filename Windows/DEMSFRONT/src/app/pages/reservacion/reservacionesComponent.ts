@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../components/headerAdmin/headerComponent';
@@ -27,7 +27,7 @@ export class ReservacionesComponent implements OnInit {
   // idTrabajador hardcoded por ahora — reemplázalo con tu auth
   private readonly ID_TRABAJADOR = 1;
 
-  constructor(private svc: ReservacionesService) {}
+  constructor(private svc: ReservacionesService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.cargarDatos();
@@ -87,7 +87,9 @@ guardar(): void {
             : r
         );
         this.isSaving = false;
-        this.cerrarModal();
+        //this.cerrarModal();
+        this.mostrarModal = false;
+        this.cdr.detectChanges();
       },
       error: (e) => {
         this.errorMessage = 'Error al actualizar.';
@@ -105,7 +107,9 @@ guardar(): void {
           idReservacion: res.idReservacion
         });
         this.isSaving = false;
-        this.cerrarModal();
+        //this.cerrarModal();
+        this.mostrarModal = false;
+        this.cdr.detectChanges();
       },
       error: (e) => {
         this.errorMessage = 'Error al crear.';
