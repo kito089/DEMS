@@ -38,20 +38,33 @@ export class CocinaComponent implements OnInit, OnDestroy {
   }
 
   // ── Carga inicial ────────────────────────────────────
-  cargarPedidos(): void {
-    this.isLoading = true;
-    fetch(this.apiUrl)
-      .then(r => r.json())
-      .then(data => {
-        this.pedidos   = data;
-        this.isLoading = false;
-      })
-      .catch(e => {
-        this.errorMessage = 'Error al cargar pedidos.';
-        this.isLoading    = false;
-        console.error(e);
-      });
-  }
+  // ── Carga inicial ────────────────────────────────────
+cargarPedidos(): void {
+  this.isLoading = true;
+  fetch(this.apiUrl)
+    .then(r => r.json())
+    .then(data => {
+      console.log('Pedidos recibidos desde backend:', data);
+
+      // Adaptamos la respuesta a la interfaz Pedido
+      this.pedidos = data.map((p: any) => ({
+        id: p.id,
+        mesa: p.mesa,
+        numero: p.numero ?? '',
+        estado: p.estado ?? 'Pendiente',
+        items: p.items ?? p.productos ?? [],   // ← fallback si backend usa "productos"
+        hora: p.hora ?? p.horaPedido ?? '',
+        total: p.total ?? p.monto ?? 0
+      }));
+
+      this.isLoading = false;
+    })
+    .catch(e => {
+      this.errorMessage = 'Error al cargar pedidos.';
+      this.isLoading    = false;
+      console.error(e);
+    });
+}
 conectarSSE(): void {
   this.eventSource = new EventSource(this.sseUrl);
 

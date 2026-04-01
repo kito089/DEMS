@@ -1,7 +1,5 @@
 <app-header title="Cocina"></app-header>
 <main class="pagina-cocina">
-  <div *ngIf="isLoading" class="loading">Cargando pedidos...</div>
-  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
   <ng-container *ngIf="!isLoading && !errorMessage">
     <ng-container *ngIf="pedidos.length > 0; else emptyTemplate">
       <section
