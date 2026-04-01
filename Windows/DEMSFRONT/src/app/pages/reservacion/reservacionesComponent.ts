@@ -15,7 +15,6 @@ export class ReservacionesComponent implements OnInit {
 
   reservaciones: Reservacion[] = [];
   proximas:      Reservacion[] = [];
-  isLoading      = false;
   errorMessage   = '';
 
   // Modal
