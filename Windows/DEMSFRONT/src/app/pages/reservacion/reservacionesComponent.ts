@@ -34,6 +34,7 @@ export class ReservacionesComponent implements OnInit {
     this.svc.getAll().subscribe({
       next: (data) => { 
         this.reservaciones = data; 
+        this.proximas = this.reservaciones.filter(r => new Date(r.Fecha) > new Date());
         this.cdr.detectChanges(); // 👈 fuerza render
       },
       error: (e) => {
@@ -85,6 +86,7 @@ export class ReservacionesComponent implements OnInit {
           this.reservaciones = this.reservaciones.map(r =>
             r.idReservacion === this.editandoId ? { ...r, ...this.form } : r
           );
+          this.proximas = this.reservaciones.filter(r => new Date(r.Fecha) > new Date());
           this.isSaving = false;
           this.mostrarModal = false;
           this.cdr.detectChanges(); // 👈
@@ -103,6 +105,7 @@ export class ReservacionesComponent implements OnInit {
             ...this.form,
             idReservacion: res.idReservacion
           });
+          this.proximas = this.reservaciones.filter(r => new Date(r.Fecha) > new Date())
           this.isSaving = false;
           this.mostrarModal = false;
           this.cdr.detectChanges(); // 👈
