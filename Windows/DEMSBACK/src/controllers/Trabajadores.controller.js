@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import service from '../services/Trabajadores.service.js';
+import jwt from 'jsonwebtoken';
+
 
 const SALT_ROUNDS = 10;
 
@@ -120,7 +122,7 @@ const login = async (req, res) => {
 
         if (!Nombre || !Contra) {
             return res.status(400).json({
-                error: 'Nombre y Contra son requeridos'
+                error: 'Nombre y Contraseña son requeridos'
             });
         }
 
@@ -140,11 +142,18 @@ const login = async (req, res) => {
             });
         }
 
-        // quitar contraseña del response
         const { Contra: _, ...datos } = trabajador;
+
+        // TOKENSSSSS
+        const token = jwt.sign(
+            { id: datos.idTrabajador, rol: datos.Rol },
+            process.env.JWT_SECRET,
+            { expiresIn: '8h' }
+        );
 
         res.json({
             message: 'Login exitoso',
+            token,           // 👈 y esto
             trabajador: datos
         });
 
@@ -162,3 +171,5 @@ export default {
     remove,
     login
 };
+
+
