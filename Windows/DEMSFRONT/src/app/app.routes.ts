@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { loginGuard } from './guards/login.guard';
 import { LoginComponent } from './pages/login/LoginComponent';
 import { MenuComponent } from './pages/menu/menuComponent';
 import { RegistroPlatilloComponent } from './components/registro-platillo-component/registro-platillo-component';
@@ -11,17 +13,17 @@ import { RegistroTrabajadorComponent } from './components/registro-trabajador-co
 import { ReportesComponent } from './pages/reportes/reportesComponent';
 
 export const routes: Routes = [
-  { path: '', component: LoginComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'inicio', component: InicioComponent },
-  { path: 'menu', component: MenuComponent },
-  { path: 'registro-platillo', component: RegistroPlatilloComponent },
-  { path: 'registro-platillo/:id', component: RegistroPlatilloComponent },
-  { path: 'cocina', component: CocinaComponent },
-  { path: 'mesero', component: MeseroComponent },
-  { path: 'reservaciones', component: ReservacionesComponent },
-  { path: 'trabajadores', component: TrabajadoresComponent },
-  { path: 'registro-trabajador', component: RegistroTrabajadorComponent },
-  { path: 'registro-trabajador/:id', component: RegistroTrabajadorComponent },
-  { path: 'reportes', component: ReportesComponent },
+  { path: '',      component: LoginComponent, canActivate: [loginGuard] }, // 👈
+  { path: 'login', component: LoginComponent, canActivate: [loginGuard] }, // 👈
+  { path: 'inicio',                  component: InicioComponent,             canActivate: [authGuard] },
+  { path: 'menu',                    component: MenuComponent,               canActivate: [authGuard] },
+  { path: 'registro-platillo',       component: RegistroPlatilloComponent,   canActivate: [authGuard] },
+  { path: 'registro-platillo/:id',   component: RegistroPlatilloComponent,   canActivate: [authGuard] },
+  { path: 'cocina',                  component: CocinaComponent,             canActivate: [authGuard] },
+  { path: 'mesero',                  component: MeseroComponent,             canActivate: [authGuard] },
+  { path: 'reservaciones',           component: ReservacionesComponent,      canActivate: [authGuard] },
+  { path: 'trabajadores',            component: TrabajadoresComponent,       canActivate: [authGuard] },
+  { path: 'registro-trabajador',     component: RegistroTrabajadorComponent, canActivate: [authGuard] },
+  { path: 'registro-trabajador/:id', component: RegistroTrabajadorComponent, canActivate: [authGuard] },
+  { path: 'reportes',                component: ReportesComponent,           canActivate: [authGuard] },
 ];
