@@ -12,6 +12,7 @@ export interface Trabajador {
 
 export interface LoginResponse {
   message: string;
+  token: string;        // tokensito agregado
   trabajador: Trabajador;
 }
 
@@ -24,7 +25,6 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    // Cargar usuario del localStorage si existe
     const stored = localStorage.getItem('currentUser');
     if (stored) {
       this.currentUserSubject.next(JSON.parse(stored));
@@ -40,12 +40,17 @@ export class AuthService {
       .pipe(
         tap((response) => {
           localStorage.setItem('currentUser', JSON.stringify(response.trabajador));
+          localStorage.setItem('token', response.token); // 👈 guarda el token
           this.currentUserSubject.next(response.trabajador);
         }),
         catchError((error) => {
           return throwError(() => error);
         })
       );
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token'); // 👈 para el interceptor
   }
 
   getCurrentUser(): Trabajador | null {
@@ -59,6 +64,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token'); // 👈 limpia el token
     this.currentUserSubject.next(null);
   }
 
