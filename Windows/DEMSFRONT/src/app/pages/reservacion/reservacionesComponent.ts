@@ -8,8 +8,8 @@ import { ReservacionesService, Reservacion } from '../../services/reservacion.se
   selector: 'app-reservaciones',
   standalone: true,
   imports: [CommonModule, FormsModule, HeaderComponent],
-  templateUrl: './reservacion.html',  // ← sin .component y sin la s
-  styleUrls: ['./reservacion.css'],   // ← sin .component y sin la s
+  templateUrl: './reservacion.html',
+  styleUrls: ['./reservacion.css'],
 })
 export class ReservacionesComponent implements OnInit {
 
@@ -17,14 +17,11 @@ export class ReservacionesComponent implements OnInit {
   proximas:      Reservacion[] = [];
   errorMessage   = '';
 
-  // Modal
   mostrarModal = false;
   modoEdicion  = false;
   editandoId: number | null = null;
 
   form: Reservacion = this.formVacio();
-
-  // idTrabajador hardcoded por ahora — reemplázalo con tu auth
   private readonly ID_TRABAJADOR = 1;
 
   constructor(private svc: ReservacionesService, private cdr: ChangeDetectorRef) {}
@@ -33,29 +30,33 @@ export class ReservacionesComponent implements OnInit {
     this.cargarDatos();
   }
 
-cargarDatos(): void {
-  this.svc.getAll().subscribe({
-    next: (data) => {
-      this.reservaciones = data;
-    },
-    error: (e) => {
-      this.errorMessage = 'Error al cargar reservaciones.';
-      console.error(e);
-    },
-  });
+  cargarDatos(): void {
+    this.svc.getAll().subscribe({
+      next: (data) => { 
+        this.reservaciones = data; 
+        this.cdr.detectChanges(); // 👈 fuerza render
+      },
+      error: (e) => {
+        this.errorMessage = 'Error al cargar reservaciones.';
+        console.error(e);
+      },
+    });
 
-  this.svc.getProximas().subscribe({
-    next: (data) => (this.proximas = data),
-    error: (e) => console.error('Error proximas:', e),
-  });
-}
+    this.svc.getProximas().subscribe({
+      next: (data) => { 
+        this.proximas = data; 
+        this.cdr.detectChanges(); // 👈 fuerza render
+      },
+      error: (e) => console.error('Error proximas:', e),
+    });
+  }
 
-  // ── Modal ──────────────────────────────────────────────
   abrirModal(): void {
     this.modoEdicion  = false;
     this.editandoId   = null;
     this.form         = this.formVacio();
     this.mostrarModal = true;
+    this.cdr.detectChanges(); // 👈
   }
 
   editar(r: Reservacion): void {
@@ -65,71 +66,74 @@ cargarDatos(): void {
       NombreCliente: r.NombreCliente,
       Telefono:      r.Telefono,
       Correo:        r.Correo,
-      Fecha:         r.Fecha?.split('T')[0], // normaliza fecha ISO
+      Fecha:         r.Fecha?.split('T')[0],
       NoPersonas:    r.NoPersonas,
       Estado:        r.Estado ?? 'Activa',
     };
     this.mostrarModal = true;
+    this.cdr.detectChanges(); // 👈
   }
 
- isSaving = false;
+  isSaving = false;
 
-guardar(): void {
-  this.isSaving = true;
+  guardar(): void {
+    this.isSaving = true;
 
-  if (this.modoEdicion && this.editandoId !== null) {
-    this.svc.update(this.editandoId, this.form).subscribe({
-      next: () => {
-        // ✅ Actualiza solo el registro en memoria, sin recargar
-        this.reservaciones = this.reservaciones.map(r =>
-          r.idReservacion === this.editandoId
-            ? { ...r, ...this.form }
-            : r
-        );
-        this.isSaving = false;
-        //this.cerrarModal();
-        this.mostrarModal = false;
-        this.cdr.detectChanges();
-      },
-      error: (e) => {
-        this.errorMessage = 'Error al actualizar.';
-        this.isSaving = false;
-        console.error(e);
-      },
-    });
+    if (this.modoEdicion && this.editandoId !== null) {
+      this.svc.update(this.editandoId, this.form).subscribe({
+        next: () => {
+          this.reservaciones = this.reservaciones.map(r =>
+            r.idReservacion === this.editandoId ? { ...r, ...this.form } : r
+          );
+          this.isSaving = false;
+          this.mostrarModal = false;
+          this.cdr.detectChanges(); // 👈
+        },
+        error: (e) => {
+          this.errorMessage = 'Error al actualizar.';
+          this.isSaving = false;
+          console.error(e);
+        },
+      });
 
-  } else {
-    this.svc.create({ ...this.form, idTrabajador: this.ID_TRABAJADOR }).subscribe({
-      next: (res) => {
-        // ✅ Agrega solo el nuevo registro en memoria, sin recargar
-        this.reservaciones.push({
-          ...this.form,
-          idReservacion: res.idReservacion
-        });
-        this.isSaving = false;
-        //this.cerrarModal();
-        this.mostrarModal = false;
-        this.cdr.detectChanges();
-      },
-      error: (e) => {
-        this.errorMessage = 'Error al crear.';
-        this.isSaving = false;
-        console.error(e);
-      },
-    });
+    } else {
+      this.svc.create({ ...this.form, idTrabajador: this.ID_TRABAJADOR }).subscribe({
+        next: (res) => {
+          this.reservaciones.push({
+            ...this.form,
+            idReservacion: res.idReservacion
+          });
+          this.isSaving = false;
+          this.mostrarModal = false;
+          this.cdr.detectChanges(); // 👈
+        },
+        error: (e) => {
+          this.errorMessage = 'Error al crear.';
+          this.isSaving = false;
+          console.error(e);
+        },
+      });
+    }
   }
-}
+
   eliminar(r: Reservacion): void {
     if (!confirm(`¿Eliminar reservación de ${r.NombreCliente}?`)) return;
     this.svc.delete(r.idReservacion!).subscribe({
-      next: () => this.cargarDatos(),
-      error: (e) => { this.errorMessage = 'Error al eliminar.'; console.error(e); },
+      next: () => {
+        this.cargarDatos();
+        this.cdr.detectChanges(); // 👈
+      },
+      error: (e) => { 
+        this.errorMessage = 'Error al eliminar.'; 
+        console.error(e); 
+      },
     });
   }
 
   cerrarModal(): void {
     this.mostrarModal = false;
     this.errorMessage = '';
+    this.cdr.detectChanges(); // 👈
   }
 
   formVacio(): Reservacion {
