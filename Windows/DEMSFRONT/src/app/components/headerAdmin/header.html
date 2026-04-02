@@ -13,5 +13,10 @@
     <a routerLink="/trabajadores" routerLinkActive="active" class="nav-item">Trabajadores</a>
   </nav>
 
-  <span class="header-title">{{ title }}</span>
+  <div class="header-right">
+    <span class="header-title">{{ title }}</span>
+    <button class="logout-btn" (click)="logout()">
+      <span class="material-icons">Salir</span>
+    </button>
+  </div>
 </header>
