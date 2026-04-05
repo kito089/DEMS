@@ -6,13 +6,12 @@ import {
   IonToolbar,
   IonButtons,
   IonButton,
-  IonIcon
 } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-page-header-home',
   standalone: true,
-  imports: [CommonModule, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon],
+  imports: [CommonModule, IonHeader, IonToolbar, IonButtons, IonButton,],
   templateUrl: './page-header-home.component.html',
   styleUrls: ['./page-header-home.component.scss'],
 })
