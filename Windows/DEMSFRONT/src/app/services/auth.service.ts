@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 export interface Trabajador {
   idTrabajador: number;
@@ -24,7 +25,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<Trabajador | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
     const stored = localStorage.getItem('currentUser');
     if (stored) {
       this.currentUserSubject.next(JSON.parse(stored));
@@ -50,7 +51,7 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token'); // 👈 para el interceptor
+    return localStorage.getItem('token'); // 👈 para el interceptor, pero no lo usas bue XD
   }
 
   getCurrentUser(): Trabajador | null {
@@ -66,6 +67,7 @@ export class AuthService {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('token'); // 👈 limpia el token
     this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
   }
 
   isLoggedIn(): boolean {

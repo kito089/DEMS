@@ -11,11 +11,14 @@ import { AuthService } from '../../services/auth.service';
 })
 export class HeaderComponent {
   @Input() title: string = '';
-
+  rol: string | null = null;
   constructor(private authService: AuthService, private router: Router) {}
+
+  ngOnInit() {
+    this.rol = this.authService.getRol();
+  }
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
 }
