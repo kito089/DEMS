@@ -4,13 +4,12 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
-  IonButtons
 } from '@ionic/angular/standalone';
 
 @Component({
   selector: 'app-page-header-cream',
   standalone: true,
-  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonButtons],
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle],
   templateUrl: './page-header-cream.component.html',
   styleUrls: ['./page-header-cream.component.scss'],
 })
