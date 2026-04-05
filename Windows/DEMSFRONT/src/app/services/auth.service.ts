@@ -60,6 +60,7 @@ export class AuthService {
 
   getRol(): string | null {
     const user = this.currentUserSubject.value;
+    console.log('Usuario actual:', user);
     return user ? user.Rol : null;
   }
 
