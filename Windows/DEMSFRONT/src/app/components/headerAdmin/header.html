@@ -5,12 +5,12 @@
   </div>
 
   <nav class="header-nav">
-    <a routerLink="/inicio" routerLinkActive="active" class="nav-item">Inicio</a>
-    <a routerLink="/menu" routerLinkActive="active" class="nav-item">Menú</a>
-    <a routerLink="/reservaciones" routerLinkActive="active" class="nav-item">Reservaciones</a>
-    <a routerLink="/cocina" routerLinkActive="active" class="nav-item">Cocina</a>
-    <a routerLink="/reportes" routerLinkActive="active" class="nav-item">Reportes</a>
-    <a routerLink="/trabajadores" routerLinkActive="active" class="nav-item">Trabajadores</a>
+    <a *ngIf="rol === 'Administrador'" routerLink="/inicio" routerLinkActive="active" class="nav-item">Inicio</a>
+    <a *ngIf="rol === 'Administrador'" routerLink="/menu" routerLinkActive="active" class="nav-item">Menú</a>
+    <a *ngIf="rol === 'Administrador'" routerLink="/reservaciones" routerLinkActive="active" class="nav-item">Reservaciones</a>
+    <a *ngIf="rol === 'Administrador'" routerLink="/cocina" routerLinkActive="active" class="nav-item">Cocina</a>
+    <a *ngIf="rol === 'Administrador'" routerLink="/reportes" routerLinkActive="active" class="nav-item">Reportes</a>
+    <a *ngIf="rol === 'Administrador'" routerLink="/trabajadores" routerLinkActive="active" class="nav-item">Trabajadores</a>
   </nav>
 
   <div class="header-right">

@@ -61,10 +61,9 @@ export class LoginComponent {
                 this.router.navigate(['/inicio']);
               } else if (rol === 'Cocina') {
                 this.router.navigate(['/cocina']);
-              } else if (rol === 'Mesero') {
-                this.router.navigate(['/mesero']);
               } else {
-                this.router.navigate(['/menu']);
+                alert('Acceso denegado.');
+                this.authService.logout();
               }
             }, 1200);
           }

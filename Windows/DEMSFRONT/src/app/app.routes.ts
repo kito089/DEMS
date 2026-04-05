@@ -15,15 +15,15 @@ import { ReportesComponent } from './pages/reportes/reportesComponent';
 export const routes: Routes = [
   { path: '',      component: LoginComponent, canActivate: [loginGuard] }, // 👈
   { path: 'login', component: LoginComponent, canActivate: [loginGuard] }, // 👈
-  { path: 'inicio',                  component: InicioComponent,             canActivate: [authGuard] },
-  { path: 'menu',                    component: MenuComponent,               canActivate: [authGuard] },
-  { path: 'registro-platillo',       component: RegistroPlatilloComponent,   canActivate: [authGuard] },
-  { path: 'registro-platillo/:id',   component: RegistroPlatilloComponent,   canActivate: [authGuard] },
-  { path: 'cocina',                  component: CocinaComponent,             canActivate: [authGuard] },
-  { path: 'mesero',                  component: MeseroComponent,             canActivate: [authGuard] },
-  { path: 'reservaciones',           component: ReservacionesComponent,      canActivate: [authGuard] },
-  { path: 'trabajadores',            component: TrabajadoresComponent,       canActivate: [authGuard] },
-  { path: 'registro-trabajador',     component: RegistroTrabajadorComponent, canActivate: [authGuard] },
-  { path: 'registro-trabajador/:id', component: RegistroTrabajadorComponent, canActivate: [authGuard] },
-  { path: 'reportes',                component: ReportesComponent,           canActivate: [authGuard] },
+  { path: 'inicio',                  component: InicioComponent,             canActivate: [authGuard], data: {roles: ['Administrador']} },
+  { path: 'menu',                    component: MenuComponent,               canActivate: [authGuard], data: {roles: ['Administrador']}  },
+  { path: 'registro-platillo',       component: RegistroPlatilloComponent,   canActivate: [authGuard], data: {roles: ['Administrador']}  },
+  { path: 'registro-platillo/:id',   component: RegistroPlatilloComponent,   canActivate: [authGuard], data: {roles: ['Administrador']}  },
+  { path: 'cocina',                  component: CocinaComponent,             canActivate: [authGuard], data: {roles: ['Administrador', 'Cocina']}  },
+  //{ path: 'mesero',                  component: MeseroComponent,             canActivate: [authGuard], data: {roles: ['Administrador']}  }, // QUE LOS MESEROS NO VAN AKI LTPM
+  { path: 'reservaciones',           component: ReservacionesComponent,      canActivate: [authGuard], data: {roles: ['Administrador']}  },
+  { path: 'trabajadores',            component: TrabajadoresComponent,       canActivate: [authGuard], data: {roles: ['Administrador']}  },
+  { path: 'registro-trabajador',     component: RegistroTrabajadorComponent, canActivate: [authGuard], data: {roles: ['Administrador']}  },
+  { path: 'registro-trabajador/:id', component: RegistroTrabajadorComponent, canActivate: [authGuard], data: {roles: ['Administrador']}  },
+  { path: 'reportes',                component: ReportesComponent,           canActivate: [authGuard], data: {roles: ['Administrador']}  },
 ];

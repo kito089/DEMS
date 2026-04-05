@@ -7,7 +7,10 @@ export const loginGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (auth.isLoggedIn()) {
-    router.navigate(['/inicio']); // ya está logueado, mándalo a inicio
+    const rol = auth.getRol();
+    // hay q usar roles ya uwu
+    if (rol === 'Admin') return router.parseUrl('/inicio');
+    if (rol === 'Cocina') return router.parseUrl('/cocina');
     return false;
   }
 
