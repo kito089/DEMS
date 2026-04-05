@@ -44,9 +44,13 @@ export class LoginPage {
 
     this.api.post('/trabajadores/login', payload).subscribe({
       next: (res: any) => {
-        const trabajador = res.body?.trabajador;
-        if (trabajador) {
+        const body = res.body;
+        console.log('Respuesta del login:', JSON.stringify(body));
+        const trabajador = body?.trabajador;
+        const token = body?.token;
+        if (trabajador && token) {
           localStorage.setItem('trabajador', JSON.stringify(trabajador));
+          localStorage.setItem('token', token);
           this.presentToast('Login exitoso', 'success');
 
           this.router.navigate(['/home']);

@@ -25,9 +25,14 @@ export class AppComponent {
 
   async checkConfig() {
     const configured = await this.config.isConfigured();
+    const token = localStorage.getItem('token');
 
     if (!configured) {
       this.router.navigate(['/setup']);
+    } else if (!token) {
+      this.router.navigate(['/login']);
+    } else {
+      this.router.navigate(['/home']);
     }
   }
 }
