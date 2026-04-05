@@ -9,7 +9,7 @@ export const loginGuard: CanActivateFn = () => {
   if (auth.isLoggedIn()) {
     const rol = auth.getRol();
     // hay q usar roles ya uwu
-    if (rol === 'Admin') return router.parseUrl('/inicio');
+    if (rol === 'Administrador') return router.parseUrl('/inicio');
     if (rol === 'Cocina') return router.parseUrl('/cocina');
     return false;
   }
