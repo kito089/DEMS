@@ -183,6 +183,18 @@
   color: #c0392b;
 }
 
+.item-nota {
+  font-size: 0.85rem;
+  color: #555;
+  margin-left: 1.5rem;
+  font-style: italic;
+}
+
+.actualizado {
+  border-left: 5px solid orange;
+  background-color: #fff8e1;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .pagina-cocina {

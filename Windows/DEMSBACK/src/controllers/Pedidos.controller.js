@@ -23,17 +23,19 @@ const getDetalles = async (req, res) => {
 // POST /pedidos
 const create = async (req, res) => {
     try {
-        const { TrabajadorId, Tipo, NoMesa, Detalles } = req.body;
+        const { TrabajadorId, Tipo, NoMesa, Platillos } = req.body;
 
-        if (!TrabajadorId || Tipo === undefined || !Detalles)
+        if (!TrabajadorId || Tipo === undefined || !Platillos)
             return res.status(400).json({ error: 'Datos incompletos' });
 
-        await svc.createPedido({ TrabajadorId, Tipo, NoMesa, Detalles });
+        console.log('Crear pedido - req.body:', { TrabajadorId, Tipo, NoMesa, Platillos });
+        const idPedido = await svc.createPedido({ TrabajadorId, Tipo, NoMesa, Platillos });
 
-        sendEventToAll('nuevo_pedido', { TrabajadorId, Tipo, NoMesa, Detalles });
+        sendEventToAll('nuevo_pedido', { idPedido, TrabajadorId, Tipo, NoMesa, Fecha: new Date(), Platillos });
 
-        res.status(201).json({ message: 'Pedido registrado' });
+        res.status(201).json({ message: 'Pedido registrado', id: idPedido });
     } catch (e) {
+        console.log('Error al crear pedido:', e);
         res.status(500).json({ error: e.message });
     }
 };
@@ -42,12 +44,13 @@ const create = async (req, res) => {
 const update = async (req, res) => {
     try {
         console.log('Actualizar pedido - req.body:', req.body);
-        const { TrabajadorId, Tipo, NoMesa, Detalles } = req.body;
-        if (!Detalles || !Array.isArray(Detalles) || Detalles.length === 0) {
-            return res.status(400).json({ error: 'Detalles inválidos' });
+        const { TrabajadorId, Tipo, NoMesa, Platillos } = req.body;
+        if (!Platillos || !Array.isArray(Platillos) || Platillos.length === 0) {
+            return res.status(400).json({ error: 'Platillos inválidos' });
         }
 
-        await svc.updatePedido(req.params.id, { TrabajadorId, Tipo, NoMesa, Detalles });
+        await svc.updatePedido(req.params.id, { TrabajadorId, Tipo, NoMesa, Platillos });
+        sendEventToAll('pedido_actualizado', { id: req.params.id, TrabajadorId, Tipo, NoMesa, Platillos });
         res.json({ message: 'Pedido actualizado' });
     } catch (e) {
         console.log('Error al actualizar pedido:', e);
@@ -58,6 +61,7 @@ const update = async (req, res) => {
 // PUT /pedidos/:id/ready
 const ready = async (req, res) => {
     try {
+        console.log(`Marcar pedido ${req.params.id} como listo`);
         await svc.marcarReady(req.params.id);
         
         sendEventToAll('pedido_ready', { id: req.params.id });

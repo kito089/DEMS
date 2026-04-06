@@ -31,27 +31,28 @@ const getDetalles = async (idPedido) => {
 };
 
 // INSERT
-const createPedido = async ({ TrabajadorId, Tipo, NoMesa, Detalles }) => {
-    if (!Detalles || !Array.isArray(Detalles) || Detalles.length === 0) {
-        throw new Error('Detalles inválidos');
+const createPedido = async ({ TrabajadorId, Tipo, NoMesa, Platillos }) => {
+    if (!Platillos || !Array.isArray(Platillos) || Platillos.length === 0) {
+        throw new Error('Platillos inválidos');
     }
 
     const pool = await getConnection();
 
-    await pool.request()
+    const result = await pool.request()
         .input('TrabajadorId', sql.Int, TrabajadorId)
         .input('Tipo', sql.TinyInt, Tipo)
         .input('NoMesa', sql.Int, NoMesa)
-        .input('DetallesPedido', sql.NVarChar(sql.MAX), JSON.stringify(Detalles))
+        .input('DetallesPedido', sql.NVarChar(sql.MAX), JSON.stringify(Platillos))
         .execute('sp_RegistrarPedido');
 
-    return true;
+    const idPedido = result.recordset?.[0]?.idPedido;
+    return idPedido;
 };
 
 // UPDATE
-const updatePedido = async (idPedido, { TrabajadorId, Tipo, NoMesa, Detalles }) => {
-    console.log('Actualizar pedido:', { idPedido, TrabajadorId, Tipo, NoMesa, Detalles });
-    if (!Detalles || !Array.isArray(Detalles) || Detalles.length === 0) {
+const updatePedido = async (idPedido, { TrabajadorId, Tipo, NoMesa, Platillos }) => {
+    console.log('Actualizar pedido:', { idPedido, TrabajadorId, Tipo, NoMesa, Platillos });
+    if (!Platillos || !Array.isArray(Platillos) || Platillos.length === 0) {
         throw new Error('Datos inválidos');
     }
     const pool = await getConnection();
@@ -61,7 +62,7 @@ const updatePedido = async (idPedido, { TrabajadorId, Tipo, NoMesa, Detalles }) 
         .input('TrabajadorId', sql.Int, TrabajadorId)
         .input('Tipo', sql.TinyInt, Tipo)
         .input('NoMesa', sql.Int, NoMesa)
-        .input('DetallesPedido', sql.NVarChar(sql.MAX), JSON.stringify(Detalles))
+        .input('DetallesPedido', sql.NVarChar(sql.MAX), JSON.stringify(Platillos))
         .execute('sp_ActualizarPedido');
     return true;
 };
