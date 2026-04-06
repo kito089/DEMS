@@ -174,11 +174,12 @@ export class AgrEdPedidoPage implements OnInit {
         TrabajadorId: this.idtrabajador,
         Tipo: this.orderType === 'local' ? 0 : 1,
         NoMesa: this.orderType === 'local' ? this.noMesa : null,
-        Detalles: this.dishes.map(d => ({
-          idPlatillo: d.id,
-          cantidad: d.quantity,
-          precio: d.price,
-          nota: d.note,
+        Platillos: this.dishes.map(d => ({
+          id: d.id,
+          nombre: d.name,
+          Cantidad: d.quantity,
+          PrecioUnitario: d.price,
+          Nota: d.note,
         })),
       };
       console.log('Enviando pedido:', JSON.stringify(body));

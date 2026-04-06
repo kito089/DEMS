@@ -6,8 +6,12 @@ export interface Pedido {
   id: number;
   mesa: number;
   numero: string;
-  estado: 'Pendiente' | 'Listo' | 'Entregado';
-  items: string[];
+  estado: 'Pendiente' | 'Listo' | 'Cancelado' | 'Actualizado';
+  items: {
+    cantidad: number;
+    nombre: string;
+    nota?: string;
+  }[];
   hora: string;
   total: number;
 }
@@ -19,16 +23,17 @@ export interface Pedido {
   templateUrl: './cocina.html',
   styleUrls: ['./cocina.css'],
 })
+
 export class CocinaComponent implements OnInit, OnDestroy {
-  isLoading    = true;
+  isLoading = true;
   errorMessage = '';
   pedidos: Pedido[] = [];
 
-  private sseUrl    = 'http://localhost:3000/sse/events';
-  private apiUrl    = 'http://localhost:3000/Pedidos';
+  private sseUrl = 'http://localhost:3000/sse/events';
+  private apiUrl = 'http://localhost:3000/Pedidos';
   private eventSource?: EventSource;
 
-  constructor(private cdr: ChangeDetectorRef) {} // para forzar detección de cambios
+  constructor(private cdr: ChangeDetectorRef) { } // para forzar detección de cambios
 
   ngOnInit(): void {
     this.cargarPedidos();
@@ -37,6 +42,43 @@ export class CocinaComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.eventSource?.close();
+  }
+
+  formatearNumero(id: number): string {
+    return id.toString().padStart(3, '0');
+  }
+
+  formatearHora(fecha: any): string {
+    const f = fecha ? new Date(fecha) : new Date();
+
+    return f.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  }
+
+  transformarPedido(data: any): Pedido {
+
+    const platillos = data.Platillos || [];
+
+    const total = platillos.reduce((acc: number, d: any) => {
+      return acc + ((d.PrecioUnitario || 0) * (d.Cantidad || 1));
+    }, 0);
+
+    return {
+      id: Number(data.idPedido),
+      mesa: data.NoMesa ?? 0,
+      numero: this.formatearNumero(data.idPedido),
+      estado: 'Pendiente',
+      items: platillos.map((p: any) => ({
+        cantidad: p.Cantidad,
+        nombre: p.nombre || 'Platillo',
+        nota: p.Nota
+      })),
+      hora: this.formatearHora(data.Fecha),
+      total
+    };
   }
 
   cargarPedidos(): void {
@@ -48,22 +90,35 @@ export class CocinaComponent implements OnInit, OnDestroy {
 
         this.pedidos = data
           .filter((p: any) => p.Estado === 'Proceso') // solo los activos
-          .map((p: any) => ({
-            id: p.idPedido,
-            mesa: p.NoMesa ?? 0,
-            numero: String(p.idPedido),
-            estado: 'Pendiente' as const,
-            items: p.Platillos ?? [],
-            hora: p.Fecha ?? '',
-            total: 0
-          }));
+          .map((p: any) => {
+
+            const items = p.Platillos || [];
+            console.log(`Pedido ${p.idPedido} - items:`, items);
+            const total = items.reduce((acc: number, item: any) => {
+              return acc + ((item.PrecioUnitario || 0) * (item.Cantidad || 1));
+            }, 0);
+
+            return {
+              id: p.idPedido,
+              mesa: p.NoMesa ?? 0,
+              numero: this.formatearNumero(p.idPedido),
+              estado: 'Pendiente' as const,
+              items: items.map((i: any) => ({
+                cantidad: i.Cantidad,
+                nombre: i.nombre,
+                nota: i.Nota
+              })),
+              hora: this.formatearHora(p.Fecha),
+              total
+            };
+          });
 
         this.isLoading = false;
         this.cdr.detectChanges(); // fuerza el render
       })
       .catch(e => {
         this.errorMessage = 'Error al cargar pedidos.';
-        this.isLoading    = false;
+        this.isLoading = false;
         console.error(e);
       });
   }
@@ -73,28 +128,36 @@ export class CocinaComponent implements OnInit, OnDestroy {
 
     this.eventSource.addEventListener('nuevo_pedido', (e: MessageEvent) => {
       const pedido: Pedido = JSON.parse(e.data);
-      const existe = this.pedidos.find(p => p.id === pedido.id);
-      if (!existe) this.pedidos.unshift(pedido);
+      console.log('Nuevo pedido SSE:', JSON.stringify(pedido));
+      const nuevoPedido = this.transformarPedido(pedido);
+      this.pedidos.unshift(nuevoPedido);
       this.cdr.detectChanges(); // 👈
     });
 
-    this.eventSource.addEventListener('pedidoListo', (e: MessageEvent) => {
-      const { pedidoId } = JSON.parse(e.data);
+    this.eventSource.addEventListener('pedido_actualizado', (e: MessageEvent) => {
+      const data = JSON.parse(e.data);
+      console.log('Pedido actualizado SSE:', JSON.stringify(data));
+      const pedidoActualizado = this.transformarPedido({
+        idPedido: Number(data.id),
+        NoMesa: data.NoMesa,
+        Fecha: new Date().toISOString(),
+        Platillos: data.Platillos
+      });
+
       this.pedidos = this.pedidos.map(p =>
-        p.id == pedidoId ? { ...p, estado: 'Listo' } : p
+        p.id === Number(data.id)
+          ? { ...pedidoActualizado, estado: 'Actualizado' }
+          : p
       );
-      this.cdr.detectChanges(); // 👈
-    });
-
-    this.eventSource.addEventListener('pedido_finalizado', (e: MessageEvent) => {
-      const { id } = JSON.parse(e.data);
-      this.pedidos = this.pedidos.filter(p => p.id != id);
       this.cdr.detectChanges(); // 👈
     });
 
     this.eventSource.addEventListener('pedido_cancelado', (e: MessageEvent) => {
       const { id } = JSON.parse(e.data);
-      this.pedidos = this.pedidos.filter(p => p.id != id);
+      console.log(`Pedido cancelado SSE: ${id}`);
+      this.pedidos = this.pedidos.map(p =>
+        p.id === Number(id) ? { ...p, estado: 'Cancelado' } : p
+      );
       this.cdr.detectChanges(); // 👈
     });
 
@@ -110,22 +173,11 @@ export class CocinaComponent implements OnInit, OnDestroy {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
     })
-    .then(() => {
-      pedido.estado = 'Listo';
-      this.cdr.detectChanges(); // 👈
-    })
-    .catch(e => console.error('Error al marcar como listo:', e));
+      .then(() => {
+        this.pedidos = this.pedidos.filter(p => p.id !== pedido.id);
+        this.cdr.detectChanges();
+      })
+      .catch(e => console.error('Error al marcar como listo:', e));
   }
 
-  entregar(pedido: Pedido): void {
-    fetch(`${this.apiUrl}/${pedido.id}/finalizar`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    .then(() => {
-      this.pedidos = this.pedidos.filter(p => p.id !== pedido.id);
-      this.cdr.detectChanges(); // 👈
-    })
-    .catch(e => console.error('Error al finalizar pedido:', e));
-  }
 }

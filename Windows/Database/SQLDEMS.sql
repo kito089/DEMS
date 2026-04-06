@@ -170,9 +170,11 @@ BEGIN
         VALUES (GETDATE(), 'Proceso', @Tipo, @NoMesa, @TrabajadorId);
         DECLARE @Id INT = SCOPE_IDENTITY();
         INSERT INTO detallespedido (Pedidos_idPedido, Platillos_idPlatillo, Cantidad, PrecioUnitario, Nota)
-        SELECT @Id, idPlatillo, cantidad, precio, nota FROM OPENJSON(@DetallesPedido)
-        WITH (idPlatillo INT, cantidad INT, precio DECIMAL(10,2), nota VARCHAR(45));
+        SELECT @Id, id, Cantidad, PrecioUnitario, Nota FROM OPENJSON(@DetallesPedido)
+        WITH (id INT, Cantidad INT, PrecioUnitario DECIMAL(10,2), Nota VARCHAR(45));
         COMMIT TRANSACTION;
+
+        SELECT @Id AS idPedido; -- Retorna el ID del pedido recién creado para que el frontend pueda usarlo
     END TRY
     BEGIN CATCH ROLLBACK TRANSACTION; THROW; END CATCH
 END;
@@ -198,8 +200,8 @@ BEGIN
         DELETE FROM detallespedido WHERE Pedidos_idPedido = @idPedido;
 
         INSERT INTO detallespedido (Pedidos_idPedido, Platillos_idPlatillo, Cantidad, PrecioUnitario, Nota)
-        SELECT @idPedido, idPlatillo, cantidad, precio, nota FROM OPENJSON(@DetallesPedido)
-        WITH (idPlatillo INT, cantidad INT, precio DECIMAL(10,2), nota VARCHAR(45));
+        SELECT @idPedido, id, Cantidad, PrecioUnitario, Nota FROM OPENJSON(@DetallesPedido)
+        WITH (id INT, Cantidad INT, PrecioUnitario DECIMAL(10,2), Nota VARCHAR(45));
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH ROLLBACK TRANSACTION; THROW; END CATCH
