@@ -73,7 +73,9 @@ export class LoginPage {
 
           this.router.navigate(['/home']);
         } else {
-          this.presentToast('Error: no se recibió información del trabajador', 'danger');
+          if (trabajador.Rol !== 'Administrador' && trabajador.Rol !== 'Cocina') {
+            this.presentToast('Error: no se recibió información del trabajador', 'danger');
+          }
         }
       },
       error: (err) => {
