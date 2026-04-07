@@ -48,7 +48,7 @@ export class LoginPage {
         console.log('Respuesta del login:', JSON.stringify(body));
         const trabajador = body?.trabajador;
         const token = body?.token;
-        if (trabajador && token) {
+        if (trabajador && token && trabajador.Rol === 'Mesero') {
           localStorage.setItem('trabajador', JSON.stringify(trabajador));
           localStorage.setItem('token', token);
           this.presentToast('Login exitoso', 'success');
