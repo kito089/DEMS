@@ -20,10 +20,28 @@ export class LoginPage {
   constructor(private api: ApiService, private router: Router, private toastController: ToastController) { }
 
   async presentToast(message: string, color: string = 'primary') {
+    let icon = '';
+    switch (color) {
+      case 'success':
+        icon = 'checkmark-circle';
+        break;
+      case 'danger':
+        icon = 'close-circle';
+        break;
+      case 'warning':
+        icon = 'warning';
+        break;
+      default:
+        icon = 'information-circle';
+        break;
+    }
+
     const toast = await this.toastController.create({
       message,
-      duration: 2000,
-      color
+      duration: 3000,
+      color,
+      position: 'bottom',
+      icon
     });
     toast.present();
   }
