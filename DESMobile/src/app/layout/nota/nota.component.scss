@@ -24,17 +24,33 @@
 .input-box {
   background: #F5EFE6;
   border: 1px solid #D9C4A0;
-  border-radius: 10px;
-  padding: 10px;
+  border-radius: 16px;
+  padding: 12px;
   min-height: 160px;
-  color: #000000;
+}
+
+ion-item {
+  --inner-padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+  --border-color: transparent;
 }
 
 ion-textarea {
-  min-height: 100px;
+  min-height: 120px;
   width: 100%;
-  --padding-start: 6px;
-  --padding-end: 6px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --placeholder-color: rgba(74, 44, 26, 0.35);
+  --background: transparent;
+  color: #4A2C1A;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+ion-textarea textarea {
+  background: transparent !important;
+  color: #4A2C1A !important;
 }
 
 .buttons {
@@ -43,13 +59,22 @@ ion-textarea {
   padding: 16px;
 }
 
-ion-item {
-  --inner-padding-start: 0;
-  --inner-padding-end: 0;
+.button-cancel {
+  --border-radius: 12px;
+  --border-color: #D9C4A0;
+  --color: #4A2C1A;
+  border: 1px solid #D9C4A0;
+  background: #F5EFE6 !important;
 }
 
-ion-textarea {
-  
-  --placeholder-color: rgba(0,0,0,0.5);
-  color: #F5EFE6;
+.button-save {
+  --border-radius: 12px;
+  --background: #AD1D1D;
+  --color: #FFFFFF;
+  --ripple-color: rgba(255,255,255,0.2);
 }
+
+.button-save::part(native) {
+  font-weight: 600;
+}
+
