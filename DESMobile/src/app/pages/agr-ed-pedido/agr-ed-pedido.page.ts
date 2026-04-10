@@ -144,9 +144,10 @@ export class AgrEdPedidoPage implements OnInit {
       },
       breakpoints: [0.2, 0.5, 0.9],
       initialBreakpoint: 0.5,
-      handle: true,
+      handle: false,
       backdropDismiss: true,
-      cssClass: 'nota-modal'
+      cssClass: 'nota-modal',
+      keyboardClose: false
     });
 
     await modal.present();

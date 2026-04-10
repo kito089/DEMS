@@ -20,10 +20,28 @@ export class LoginPage {
   constructor(private api: ApiService, private router: Router, private toastController: ToastController) { }
 
   async presentToast(message: string, color: string = 'primary') {
+    let icon = '';
+    switch (color) {
+      case 'success':
+        icon = 'checkmark-circle';
+        break;
+      case 'danger':
+        icon = 'close-circle';
+        break;
+      case 'warning':
+        icon = 'warning';
+        break;
+      default:
+        icon = 'information-circle';
+        break;
+    }
+
     const toast = await this.toastController.create({
       message,
-      duration: 2000,
-      color
+      duration: 3000,
+      color,
+      position: 'bottom',
+      icon
     });
     toast.present();
   }
@@ -48,14 +66,16 @@ export class LoginPage {
         console.log('Respuesta del login:', JSON.stringify(body));
         const trabajador = body?.trabajador;
         const token = body?.token;
-        if (trabajador && token) {
+        if (trabajador && token && trabajador.Rol === 'Mesero') {
           localStorage.setItem('trabajador', JSON.stringify(trabajador));
           localStorage.setItem('token', token);
           this.presentToast('Login exitoso', 'success');
 
           this.router.navigate(['/home']);
         } else {
-          this.presentToast('Error: no se recibió información del trabajador', 'danger');
+          if (trabajador.Rol !== 'Administrador' && trabajador.Rol !== 'Cocina') {
+            this.presentToast('Error: no se recibió información del trabajador', 'danger');
+          }
         }
       },
       error: (err) => {
