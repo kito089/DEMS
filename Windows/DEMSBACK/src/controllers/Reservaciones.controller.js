@@ -1,7 +1,20 @@
+/**
+ * Controlador de reservaciones.
+ *
+ * Maneja reservas de clientes: listado, próximas citas, creación,
+ * actualización, eliminación y notificación SSE.
+ */
 import svc from '../services/Reservaciones.service.js';
 import { sendEventToAll } from '../routes/sse.route.js';
 
-// GET /Reservaciones
+/**
+ * GET /Reservaciones
+ *
+ * Devuelve todas las reservaciones registradas.
+ *
+ * @param {Object} _req - Petición Express.
+ * @param {Object} res - Respuesta Express.
+ */
 const getAll = async (_req, res) => {
     try {
         const data = await svc.getReservaciones();
@@ -12,6 +25,7 @@ const getAll = async (_req, res) => {
 };
 
 // GET /Reservaciones/proximas
+// Devuelve las reservaciones próximas que requieren atención.
 const getProximas = async (_req, res) => {
     try {
         const data = await svc.getReservacionesProximas();
@@ -22,6 +36,7 @@ const getProximas = async (_req, res) => {
 };
 
 // GET /Reservaciones/:id
+// Obtiene los datos de una reservación específica.
 const getById = async (req, res) => {
     try {
         const reservacion = await svc.getReservacionById(req.params.id);
@@ -33,6 +48,7 @@ const getById = async (req, res) => {
 };
 
 // POST /Reservaciones
+// Crea una nueva reservación para un cliente.
 const create = async (req, res) => {
     try {
         const { NombreCliente, Telefono, Correo, Fecha, NoPersonas, idTrabajador } = req.body;
@@ -51,6 +67,7 @@ const create = async (req, res) => {
 };
 
 // PUT /Reservaciones/:id
+// Actualiza una reservación existente.
 const update = async (req, res) => {
     try {
         const { NombreCliente, Telefono, Correo, Fecha, NoPersonas, Estado } = req.body;
@@ -70,6 +87,7 @@ const update = async (req, res) => {
 };
 
 // DELETE /Reservaciones/:id
+// Elimina una reservación.
 const remove = async (req, res) => {
     try {
         const ok = await svc.deleteReservacion(req.params.id);
