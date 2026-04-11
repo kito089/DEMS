@@ -1,3 +1,9 @@
+/**
+ * Rutas de la aplicación móvil Ionic.
+ *
+ * Cada entrada define una página cargada de forma perezosa y, cuando es
+ * necesario, se protege con `authGuard` para usuarios autenticados.
+ */
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 
