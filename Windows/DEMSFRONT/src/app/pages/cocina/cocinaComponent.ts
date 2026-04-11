@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../components/headerAdmin/headerComponent';
+import { ConfigService } from '../../services/config.service';
 
 export interface Pedido {
   id: number;
@@ -29,11 +30,14 @@ export class CocinaComponent implements OnInit, OnDestroy {
   errorMessage = '';
   pedidos: Pedido[] = [];
 
-  private sseUrl = 'http://localhost:3000/sse/events';
-  private apiUrl = 'http://localhost:3000/Pedidos';
+  private sseUrl = ``;
+  private apiUrl = ``;
   private eventSource?: EventSource;
 
-  constructor(private cdr: ChangeDetectorRef) { } // para forzar detección de cambios
+  constructor(private cdr: ChangeDetectorRef, private config: ConfigService) {
+    this.sseUrl = `${this.config.apiUrl}/sse/events`;
+    this.apiUrl = `${this.config.apiUrl}/Pedidos`;
+  } // para forzar detección de cambios
 
   ngOnInit(): void {
     this.cargarPedidos();

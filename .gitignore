@@ -1,0 +1,5 @@
+# Builds
+dist/
+Windows/electron/dist/
+installer/
+*.exe

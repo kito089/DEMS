@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:electron": "ng build --base-href ./ && xcopy dist\\DEMSFRONT\\browser\\* ..\\electron\\renderer /E /I /Y",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
