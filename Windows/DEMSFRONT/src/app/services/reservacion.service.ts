@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ConfigService } from './config.service';
 
 export interface Reservacion {
   idReservacion?: number;
@@ -15,9 +16,11 @@ export interface Reservacion {
 
 @Injectable({ providedIn: 'root' })
 export class ReservacionesService {
-  private api = 'http://localhost:3000/Reservaciones'; // ← ajusta tu puerto
+  private api = ``; // ← ajusta tu puerto
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private config: ConfigService) {
+    this.api = `${this.config.apiUrl}/Reservaciones`;
+  }
 
   getAll(): Observable<Reservacion[]> {
     return this.http.get<Reservacion[]>(this.api);
