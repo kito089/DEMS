@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ConfigService } from './config.service';
 
 export interface MenuItem {
   idPlatillo: number;
@@ -21,10 +22,13 @@ export interface Categoria {
   providedIn: 'root',
 })
 export class PlatillosService {
-  private apiUrl = 'http://localhost:3000/Platillos';
-  private sseUrl = 'http://localhost:3000/sse/events';
+  private apiUrl = ``;
+  private sseUrl = ``;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private config: ConfigService) {
+    this.apiUrl = `${this.config.apiUrl}/Platillos`;
+    this.sseUrl = `${this.config.apiUrl}/sse/events`;
+  }
 
   getMenu(): Observable<MenuApiResponse> {
     return this.http.get<MenuApiResponse>(`${this.apiUrl}/menu`);
