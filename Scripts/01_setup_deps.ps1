@@ -54,17 +54,28 @@ $sql = Get-Service -Name "MSSQL`$SQLEXPRESS" -ErrorAction SilentlyContinue
 if (!$sql) {
     Write-Host "Instalando SQL Server Express..."
 
-    $setup = Join-Path $InstallerDir "SQLEXPR_x64_ESN.exe"
+    $source = Join-Path $InstallerDir "SQLEXPR_x64_ESN.exe"
+    $workDir = "C:\DEMSSetup"
+    $setup   = Join-Path $workDir "SQLEXPR_x64_ESN.exe"
 
-    if (!(Test-Path $setup)) {
-        Write-Host "No existe instalador offline: $setup"
-        Write-Host "Coloca SQLEXPR_x64_ENU.exe en la carpeta /Installers/ del proyecto"
+    if (!(Test-Path $source)) {
+        Write-Host "No existe instalador offline: $source"
         Stop-Transcript
         exit 1
     }
 
+    # Copiar a ruta fija con permisos completos
+    if (!(Test-Path $workDir)) {
+        New-Item -ItemType Directory -Path $workDir | Out-Null
+    }
+
+    Write-Host "Copiando instalador a $workDir..."
+    Copy-Item $source $setup -Force
+
+    Write-Host "Ejecutando instalador..."
     $p = Start-Process $setup -ArgumentList `
         "/Q /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS /SECURITYMODE=SQL /SAPWD=Admin123! /TCPENABLED=1 /NPENABLED=1 /IACCEPTSQLSERVERLICENSETERMS" `
+        -WorkingDirectory $workDir `
         -Wait -PassThru
 
     Write-Host "SQL installer exit code: $($p.ExitCode)"
@@ -75,6 +86,7 @@ if (!$sql) {
         exit 1
     }
 
+    # Esperar que el servicio quede disponible
     $retries = 0
     do {
         Start-Sleep -Seconds 10
@@ -89,6 +101,8 @@ if (!$sql) {
         exit 1
     }
 
+    # Limpiar carpeta de trabajo
+    Remove-Item $workDir -Recurse -Force -ErrorAction SilentlyContinue
     Write-Host "SQL Server instalado correctamente"
 }
 else {
