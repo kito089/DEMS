@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ConfigService } from './config.service';
 
 export interface Trabajador {
   idTrabajador: number;
@@ -13,9 +14,11 @@ export interface Trabajador {
   providedIn: 'root'
 })
 export class TrabajadoresService {
-  private apiUrl = 'http://localhost:3000/Trabajadores';
+  private apiUrl = ``;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private config: ConfigService) {
+    this.apiUrl = `${this.config.apiUrl}/Trabajadores`;
+  }
 
   getAll(): Observable<Trabajador[]> {
     return this.http.get<Trabajador[]>(`${this.apiUrl}/structure`);
