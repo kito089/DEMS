@@ -1,7 +1,21 @@
+/**
+ * Controlador de recordatorios.
+ *
+ * Envía correos de recordatorio para reservaciones próximas y permite reenviar
+ * tickets por correo a partir de pedidos.
+ */
 import { getReservacionesProximas } from '../services/Recordatorios.service.js';
 import { sendReminderEmail, sendTicketEmail, getPedidoById } from '../services/Email.service.js';
-// 👆 quita el import de PedidoService, ya no lo necesitas
 
+/**
+ * POST /recordatorios/enviar
+ *
+ * Envía por correo los recordatorios de las reservaciones próximas.
+ * Recorre la lista de reservaciones próximas y genera un mensaje para cada cliente.
+ *
+ * @param {Object} req - Petición Express.
+ * @param {Object} res - Respuesta Express.
+ */
 export const enviarRecordatorios = async (req, res) => {
   try {
     const reservaciones = await getReservacionesProximas();
@@ -23,6 +37,15 @@ export const enviarRecordatorios = async (req, res) => {
   }
 };
 
+/**
+ * POST /recordatorios/enviar-ticket/:id?correo=...
+ *
+ * Reenvía por correo el ticket de un pedido existente.
+ * Valida el correo en la query y busca el pedido por id.
+ *
+ * @param {Object} req - Petición Express con params.id y query.correo.
+ * @param {Object} res - Respuesta Express.
+ */
 export const enviarTicket = async (req, res) => {
   try {
     const { id } = req.params;

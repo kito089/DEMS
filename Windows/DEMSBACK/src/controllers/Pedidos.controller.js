@@ -1,6 +1,21 @@
+/**
+ * Controlador de pedidos.
+ *
+ * Administra la lógica de negocio de pedidos: listado, detalles, creación,
+ * actualización, cambio de estado y cancelación.
+ * Notifica eventos en tiempo real mediante SSE.
+ */
 import svc from '../services/Pedidos.service.js';
 import { sendEventToAll } from '../routes/sse.route.js';
-// GET /pedidos
+
+/**
+ * GET /pedidos
+ *
+ * Recupera todos los pedidos registrados.
+ *
+ * @param {Object} _req - Petición Express.
+ * @param {Object} res - Respuesta Express.
+ */
 const getAll = async (_req, res) => {
     try {
         const data = await svc.getPedidos();
@@ -11,6 +26,7 @@ const getAll = async (_req, res) => {
 };
 
 // GET /pedidos/:id/detalles
+// Obtiene los detalles de un pedido específico.
 const getDetalles = async (req, res) => {
     try {
         const data = await svc.getDetalles(req.params.id);
@@ -21,6 +37,7 @@ const getDetalles = async (req, res) => {
 };
 
 // POST /pedidos
+// Crea un nuevo pedido y emite un evento SSE para notificarlo.
 const create = async (req, res) => {
     try {
         const { TrabajadorId, Tipo, NoMesa, Platillos } = req.body;
@@ -41,6 +58,7 @@ const create = async (req, res) => {
 };
 
 // PUT /pedidos/:id
+// Actualiza datos del pedido y notifica el cambio en tiempo real.
 const update = async (req, res) => {
     try {
         console.log('Actualizar pedido - req.body:', req.body);
@@ -59,6 +77,7 @@ const update = async (req, res) => {
 };
 
 // PUT /pedidos/:id/ready
+// Marca un pedido como listo y avisa al cliente/servicio.
 const ready = async (req, res) => {
     try {
         console.log(`Marcar pedido ${req.params.id} como listo`);
@@ -74,6 +93,7 @@ const ready = async (req, res) => {
 
 
 // PUT /pedidos/:id/finalizar
+// Finaliza un pedido, cerrando su ciclo de vida.
 const finalizar = async (req, res) => {
     try {
         await svc.finalizarPedido(req.params.id);
@@ -87,6 +107,7 @@ const finalizar = async (req, res) => {
 };
 
 // PUT /pedidos/:id/cancelar
+// Cancela un pedido si aún no ha sido finalizado.
 const cancelar = async (req, res) => {
     try {
         const ok = await svc.cancelar(req.params.id);

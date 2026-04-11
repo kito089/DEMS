@@ -1,7 +1,20 @@
+/**
+ * Controlador de platillos.
+ *
+ * Administra el catálogo de platillos y entrega datos para el menú digital,
+ * incluyendo operaciones CRUD y estructuras de presentación.
+ */
 import svc from '../services/Platillos.service.js';
 import { sendEventToAll } from '../routes/sse.route.js';
 
-// GET /platillos
+/**
+ * GET /platillos
+ *
+ * Devuelve todos los platillos registrados en el sistema.
+ *
+ * @param {Object} _req - Petición Express.
+ * @param {Object} res - Respuesta Express.
+ */
 const getAll = async (_req, res) => {
     try {
         const data = await svc.getPlatillos();
@@ -12,6 +25,7 @@ const getAll = async (_req, res) => {
 };
 
 // GET /platillos/completo
+// Entrega la información completa de platillos, incluyendo datos enriquecidos.
 const getCompleto = async (_req, res) => {
     try {
         const data = await svc.getPlatillosCompletos();
@@ -23,6 +37,7 @@ const getCompleto = async (_req, res) => {
 };
 
 // GET /platillos/structure
+// Devuelve la estructura de categorías/menus para los platillos.
 const getStructure = async (_req, res) => {
     try {
         const data = await svc.getStructure();
@@ -33,6 +48,7 @@ const getStructure = async (_req, res) => {
 };
 
 // GET /platillos/menu
+// Devuelve el menú digital para ser mostrado al cliente.
 const getMenu = async (_req, res) => {
     try {
         const menu = await svc.getMenuDigital();
@@ -43,6 +59,7 @@ const getMenu = async (_req, res) => {
 };
 
 // GET /platillos/:id
+// Obtiene los datos de un platillo específico.
 const getById = async (req, res) => {
     try {
         const platillo = await svc.getPlatilloById(req.params.id);
@@ -54,6 +71,7 @@ const getById = async (req, res) => {
 };
 
 // POST /platillos
+// Crea un nuevo platillo en el catálogo.
 const create = async (req, res) => {
     try {
         const { Nombre, Descripcion, Precio, idCategoria } = req.body;
@@ -71,6 +89,7 @@ const create = async (req, res) => {
 };
 
 // PUT /platillos/:id
+// Actualiza los datos de un platillo existente.
 const update = async (req, res) => {
     try {
         const { Nombre, Descripcion, Precio, idCategoria } = req.body;
@@ -89,6 +108,7 @@ const update = async (req, res) => {
 };
 
 // DELETE /platillos/:id
+// Desactiva un platillo del catálogo.
 const remove = async (req, res) => {
     try {
         const ok = await svc.deletePlatillo(req.params.id);

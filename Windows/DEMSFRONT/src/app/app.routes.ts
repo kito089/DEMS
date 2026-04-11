@@ -1,3 +1,9 @@
+/**
+ * Rutas de la aplicación web Angular.
+ *
+ * Define las páginas principales de administración y usa guardas de ruta para
+ * controlar el acceso según si el usuario está autenticado y su rol.
+ */
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { loginGuard } from './guards/login.guard';

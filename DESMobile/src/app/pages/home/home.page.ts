@@ -9,6 +9,10 @@ import { Pedido } from 'src/app/models/pedido.model';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
+/**
+ * Página principal que muestra pedidos en proceso y pedidos listos.
+ * Escucha eventos SSE y actualiza el estado del pedido en tiempo real.
+ */
 @Component({
   selector: 'app-home',
   standalone: true,

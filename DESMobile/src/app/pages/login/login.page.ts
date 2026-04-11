@@ -13,6 +13,10 @@ import { ToastController } from '@ionic/angular/standalone';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
+/**
+ * Página de inicio de sesión de la app móvil.
+ * Autentica al trabajador y almacena token/localStorage para la sesión.
+ */
 export class LoginPage {
   @ViewChild('inputUsuario') inputUsuario!: InputComponent;
   @ViewChild('inputContraseña') inputContraseña!: InputComponent;

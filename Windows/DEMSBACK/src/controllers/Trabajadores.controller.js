@@ -1,3 +1,9 @@
+/**
+ * Controlador de trabajadores.
+ *
+ * Gestiona usuarios/trabajadores del sistema: listado, estructura de roles, creación,
+ * edición, baja lógica y autenticación con JWT.
+ */
 import bcrypt from 'bcrypt';
 import service from '../services/Trabajadores.service.js';
 import jwt from 'jsonwebtoken';
@@ -5,7 +11,14 @@ import jwt from 'jsonwebtoken';
 
 const SALT_ROUNDS = 10;
 
-// GET /trabajadores
+/**
+ * GET /trabajadores
+ *
+ * Devuelve todos los trabajadores registrados.
+ *
+ * @param {Object} _req - Petición Express.
+ * @param {Object} res - Respuesta Express.
+ */
 const getAll = async (_req, res) => {
     try {
         const trabajadores = await service.findAll();
@@ -16,6 +29,7 @@ const getAll = async (_req, res) => {
 };
 
 // GET /trabajadores/structure
+// Devuelve la estructura o roles de trabajadores disponibles.
 const getStructure = async (_req, res) => {
     try {
         const estructura = await service.findStructure();
@@ -26,6 +40,7 @@ const getStructure = async (_req, res) => {
 };
 
 // GET /trabajadores/:id
+// Obtiene los datos de un trabajador específico.
 const getById = async (req, res) => {
     try {
         const trabajador = await service.findById(req.params.id);
@@ -39,6 +54,7 @@ const getById = async (req, res) => {
 };
 
 // POST /trabajadores
+// Crea un trabajador con contraseña cifrada.
 const create = async (req, res) => {
     try {
         const { Nombre, Contra, idRol } = req.body;
@@ -63,6 +79,7 @@ const create = async (req, res) => {
 };
 
 // PUT /trabajadores/:id
+// Actualiza la información del trabajador y opcionalmente la contraseña.
 const update = async (req, res) => {
     try {
         const { Nombre, Contra, idRol } = req.body;
@@ -98,6 +115,7 @@ const update = async (req, res) => {
 };
 
 // DELETE /trabajadores/:id (soft delete)
+// Desactiva el trabajador sin eliminar su registro.
 const remove = async (req, res) => {
     try {
         const affected = await service.deactivateOne(req.params.id);
@@ -116,6 +134,7 @@ const remove = async (req, res) => {
 };
 
 // POST /trabajadores/login
+// Valida credenciales y devuelve un token JWT.
 const login = async (req, res) => {
     try {
         const { Nombre, Contra } = req.body;

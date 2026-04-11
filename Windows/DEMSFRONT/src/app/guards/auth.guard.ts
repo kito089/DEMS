@@ -2,6 +2,10 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
+/**
+ * Guarda que protege rutas del backend.
+ * Verifica autenticación y roles permitidos por ruta.
+ */
 export const authGuard: CanActivateFn = (route) => {
   const auth = inject(AuthService);
   const router = inject(Router);

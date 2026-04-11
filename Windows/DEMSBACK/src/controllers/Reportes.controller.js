@@ -1,5 +1,19 @@
+/**
+ * Controlador de reportes.
+ *
+ * Genera resúmenes de ventas y métricas comerciales en un rango de fechas,
+ * y también devuelve el historial de cambios del sistema.
+ */
 import svc from '../services/Reportes.service.js';
 
+/**
+ * GET /reportes/resumen?desde=...&hasta=...
+ *
+ * Consolida métricas de ventas y top platillos en un rango de fechas.
+ *
+ * @param {Object} req - Petición Express con query params desde y hasta.
+ * @param {Object} res - Respuesta Express.
+ */
 const getResumen = async (req, res) => {
     try {
         const { desde, hasta } = req.query;
@@ -39,6 +53,8 @@ const getResumen = async (req, res) => {
     }
 };
 
+// GET /reportes/historial-cambios
+// Obtiene el historial de cambios guardados en el sistema.
 const getHistorialCambios = async (_req, res) => {
     try {
         const data = await svc.getHistorialCambios();

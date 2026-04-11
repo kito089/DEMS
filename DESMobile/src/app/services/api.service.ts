@@ -12,11 +12,20 @@ import { switchMap } from 'rxjs/operators';
 })
 export class ApiService {
 
+  /**
+   * Servicio principal para consumir la API remota.
+   * El endpoint se construye dinámicamente usando la URL base de ConfigService.
+   */
   constructor(
     private http: HttpClient,
     private config: ConfigService
   ) { }
 
+  /**
+   * Realiza una solicitud POST a la API.
+   * @param endpoint Ruta relativa del backend.
+   * @param body Payload que se enviará en el cuerpo.
+   */
   post(endpoint: string, body: any) {
     return from(this.config.getApiUrl()).pipe(
       switchMap(baseUrl => {
@@ -48,6 +57,10 @@ export class ApiService {
     );
   }
 
+  /**
+   * Crea un stream SSE que escucha eventos en tiempo real de pedidos.
+   * Reconecta automáticamente en caso de error.
+   */
   escucharEventos(): Observable<any> {
     return new Observable(observer => {
 
