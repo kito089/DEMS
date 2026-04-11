@@ -15,6 +15,7 @@ Source: "..\Windows\electron\dist\win-unpacked\*"; DestDir: "{app}"; Flags: igno
 
 ; Backend
 Source: "..\Windows\DEMSBACK\*"; DestDir: "{app}\DEMSBACK"; Flags: recursesubdirs
+Source: "..\Windows\Database\SQLDEMS.sql"; DestDir: "{app}\DEMSBACK"; Flags: ignoreversion
 
 ; Scripts
 Source: "..\Scripts\*"; DestDir: "{tmp}\Scripts"; Flags: recursesubdirs
@@ -227,7 +228,7 @@ begin
 
     // DB
     ExecOrFail('powershell.exe',
-      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '02_init_db.ps1"');
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '02_init_db.ps1" -AppDir "' + ExpandConstant('{app}') + '"');
 
     // Red
     ExecOrFail('powershell.exe',
