@@ -1,5 +1,5 @@
 # Builds
 dist/
 Windows/electron/dist/
-installer/
+DEMS-Installer.exe
 *.exe
