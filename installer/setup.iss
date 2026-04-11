@@ -16,11 +16,16 @@ Source: "..\Windows\electron\dist\win-unpacked\*"; DestDir: "{app}"; Flags: igno
 ; Backend
 Source: "..\Windows\DEMSBACK\*"; DestDir: "{app}\DEMSBACK"; Flags: recursesubdirs
 
-; Scripts a TMP (IMPORTANTE)
+; Scripts
 Source: "..\Scripts\*"; DestDir: "{tmp}\Scripts"; Flags: recursesubdirs
 
-; Instaladores a TMP
-Source: "..\installers\*"; DestDir: "{tmp}\installers"; Flags: recursesubdirs
+; Extraccion temprana para InitializeSetup
+Source: "..\Scripts\01_setup_deps.ps1"; DestDir: "{tmp}"; Flags: dontcopy
+Source: "..\Installers\node-v24.14.1-x64.msi"; DestDir: "{tmp}"; Flags: dontcopy
+Source: "..\Installers\SQLEXPR_x64_ESN.exe"; DestDir: "{tmp}"; Flags: dontcopy
+
+; Instaladores a {app}
+Source: "..\Installers\*"; DestDir: "{app}\installers"; Flags: recursesubdirs
 
 [Icons]
 Name: "{group}\DEMS"; Filename: "{app}\DEMS.exe"
@@ -62,13 +67,22 @@ end;
 // VALIDAR DEPENDENCIAS (ANTES DE UI)
 // ============================
 function InitializeSetup(): Boolean;
+var
+  ScriptPath: String;
+  InstallerPath: String;
 begin
   Result := True;
 
+  ExtractTemporaryFile('01_setup_deps.ps1');
+  ExtractTemporaryFile('node-v24.14.1-x64.msi');
+  ExtractTemporaryFile('SQLEXPR_x64_ESN.exe');
+
+  ScriptPath    := ExpandConstant('{tmp}\01_setup_deps.ps1');
+  InstallerPath := ExpandConstant('{tmp}');
+
   if not Exec(
     'powershell.exe',
-    '-NoProfile -ExecutionPolicy Bypass -File "' +
-    ExpandConstant('{tmp}\Scripts\01_setup_deps.ps1') + '"',
+    '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptPath + '" -InstallerDir "' + InstallerPath + '" -LogFile "C:\dems_install_log.txt"',
     '',
     SW_HIDE,
     ewWaitUntilTerminated,
@@ -77,17 +91,16 @@ begin
   begin
     MsgBox('Error ejecutando script de dependencias', mbError, MB_OK);
     Result := False;
-    exit;
+    Exit;
   end;
 
   if ResultCode <> 0 then
   begin
-    MsgBox('Falló la instalación de dependencias. Código: ' + IntToStr(ResultCode), mbError, MB_OK);
+    MsgBox('Falló la instalación de dependencias. Código: ' + IntToStr(ResultCode) + #13#10 + 'Ver: C:\dems_install_log.txt', mbError, MB_OK);
     Result := False;
-    exit;
+    Exit;
   end;
 end;
-
 
 // ============================
 // LEER IP
@@ -108,29 +121,29 @@ end;
 // ============================
 procedure InitializeWizard();
 begin
-  WizardForm.ProgressGauge.Max := 100;
-
   DevicePage := CreateInputQueryPage(
     wpSelectDir,
     'Configuración de dispositivos',
     'Cantidad de meseros',
     'Ingrese cuántos dispositivos móviles se conectarán:'
   );
-
   DevicePage.Add('Número de dispositivos:', False);
 
-  QRImage := TBitmapImage.Create(WizardForm);
-  QRImage.Parent := WizardForm;
+  // Crear sobre la superficie de DevicePage, no sobre WizardForm
+  QRImage := TBitmapImage.Create(DevicePage.Surface);
+  QRImage.Parent := DevicePage.Surface;
   QRImage.Left := ScaleX(20);
-  QRImage.Top := ScaleY(140);
+  QRImage.Top := ScaleY(80);
   QRImage.Width := ScaleX(200);
   QRImage.Height := ScaleY(200);
+  QRImage.Visible := False; // oculto hasta que haya IP
 
-  StatusLabelDevices := TNewStaticText.Create(WizardForm);
-  StatusLabelDevices.Parent := WizardForm;
+  StatusLabelDevices := TNewStaticText.Create(DevicePage.Surface);
+  StatusLabelDevices.Parent := DevicePage.Surface;
   StatusLabelDevices.Left := ScaleX(20);
-  StatusLabelDevices.Top := ScaleY(350);
+  StatusLabelDevices.Top := ScaleY(290);
   StatusLabelDevices.Caption := 'Dispositivos conectados: 0/0';
+  StatusLabelDevices.Visible := False; // oculto hasta ssInstall
 end;
 
 
@@ -161,7 +174,8 @@ procedure UpdateStatusUI();
 var
   Status: AnsiString;
 begin
-  if LoadStringFromFile(ExpandConstant('{app}\Scripts\status.txt'), Status) then
+  // Corregido: los scripts están en {tmp}\Scripts, no en {app}\Scripts
+  if LoadStringFromFile(ExpandConstant('{tmp}\Scripts\status.txt'), Status) then
     StatusLabelDevices.Caption := 'Dispositivos conectados: ' + Trim(Status);
 end;
 
@@ -177,7 +191,8 @@ var
 begin
   while True do
   begin
-    if LoadStringFromFile(ExpandConstant('{app}\Scripts\status.txt'), Status) then
+    // Corregido: ruta consistente con {tmp}\Scripts
+    if LoadStringFromFile(ExpandConstant('{tmp}\Scripts\status.txt'), Status) then
     begin
       Status := Trim(Status);
       SepPos := Pos('/', Status);
@@ -185,7 +200,6 @@ begin
       if SepPos > 0 then
       begin
         Current := StrToIntDef(Copy(Status, 1, SepPos - 1), 0);
-
         StatusLabelDevices.Caption := 'Dispositivos conectados: ' + Status;
 
         if Current >= DeviceCount then
@@ -205,24 +219,24 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   IP: String;
+  ScriptsPath: String;
 begin
   if CurStep = ssInstall then
   begin
+    ScriptsPath := ExpandConstant('{tmp}\Scripts\');
+
     // DB
     ExecOrFail('powershell.exe',
-      '-NoProfile -ExecutionPolicy Bypass -File "' +
-      ExpandConstant('{app}\Scripts\02_init_db.ps1') + '"');
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '02_init_db.ps1"');
 
     // Red
     ExecOrFail('powershell.exe',
-      '-NoProfile -ExecutionPolicy Bypass -File "' +
-      ExpandConstant('{app}\Scripts\03_validate_network.ps1') + '"');
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '03_validate_network.ps1"');
 
-    // Sync dispositivos
+    // Sync dispositivos (sin bloquear)
     if not Exec(
       'node',
-      '"' + ExpandConstant('{app}\Scripts\device-sync.js') + '" ' +
-      IntToStr(DeviceCount),
+      '"' + ScriptsPath + 'device-sync.js" ' + IntToStr(DeviceCount),
       '',
       SW_SHOW,
       ewNoWait,
@@ -233,19 +247,22 @@ begin
       Abort;
     end;
 
+    StatusLabelDevices.Visible := True;
     WaitForDevices();
 
     // Obtener IP
     ExecOrFail('powershell.exe',
-      '-NoProfile -ExecutionPolicy Bypass -File "' +
-      ExpandConstant('{app}\Scripts\04_get_ip.ps1') + '"');
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '04_get_ip.ps1"');
 
     IP := GetIPFromFile();
-    if IP = '' then Abort;
+    if IP = '' then
+    begin
+      MsgBox('No se pudo obtener la IP de red', mbError, MB_OK);
+      Abort;
+    end;
 
     // Firewall
     ExecOrFail('powershell.exe',
-      '-NoProfile -ExecutionPolicy Bypass -File "' +
-      ExpandConstant('{app}\Scripts\06_firewall.ps1') + '"');
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '06_firewall.ps1"');
   end;
 end;
