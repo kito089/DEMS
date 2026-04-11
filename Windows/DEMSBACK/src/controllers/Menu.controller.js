@@ -1,6 +1,20 @@
+/**
+ * Controlador del menú digital.
+ *
+ * Este archivo expone la ruta para generar y devolver el PDF del menú,
+ * usando el servicio de generación de menú y cargando el resultado a Cloudinary.
+ */
 import { generarMenuPDF } from '../services/Menu.service.js';
 
-// GET /menu/pdf
+/**
+ * GET /menu/pdf
+ *
+ * Genera un PDF del menú con el servicio correspondiente y devuelve
+ * las URLs generadas para vista previa y descarga.
+ *
+ * @param {Object} _req - Objeto de petición Express (sin uso aquí).
+ * @param {Object} res - Objeto de respuesta Express.
+ */
 const getMenuPDF = async (_req, res) => {
     try {
         const urlData = await generarMenuPDF();
