@@ -15,23 +15,31 @@ let connected = 0;
 
 const basePath = __dirname;
 const statusPath = path.join(basePath, 'status.txt');
-const qrPath = path.join(basePath, 'qr.png');
+const qrPngPath = path.join(basePath, 'qr.png'); // Solo generaremos PNG
 
 // ============================
 // OBTENER IP LOCAL
 // ============================
 function getLocalIP() {
-  const interfaces = os.networkInterfaces();
-
-  for (let name in interfaces) {
-    for (let net of interfaces[name]) {
-      if (net.family === 'IPv4' && !net.internal) {
-        return net.address;
-      }
+  const { networkInterfaces } = require('os');
+    const nets = networkInterfaces();
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+            if (net.family === 'IPv4' && !net.internal) return net.address;
+        }
     }
-  }
+    return '127.0.0.1';
+}
 
-  return '127.0.0.1';
+async function generateQR(ip) {
+    const url = `http://${ip}:3000/login`;
+    try {
+        // Generamos el PNG y terminamos. Inno Setup se encargará del resto.
+        await QRCode.toFile(qrPngPath, url, { width: 300 });
+        console.log("QR PNG generado exitosamente.");
+    } catch (err) {
+        console.error("Error generando PNG:", err);
+    }
 }
 
 const ip = getLocalIP();
