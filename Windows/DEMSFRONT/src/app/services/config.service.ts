@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class ConfigService {
-  private config: any;
 
-  async loadConfig() {
-    const res = await fetch('../config.json');
-    this.config = await res.json();
-  }
+  get apiUrl(): string {
+    const config = (window as any).APP_CONFIG;
 
-  get apiUrl() {
-    return this.config.apiUrl;
+    if (!config || !config.API_URL) {
+      throw new Error('APP_CONFIG no está definido. ¿Olvidaste cargar config.js en index.html?');
+    }
+
+    return config.API_URL;
   }
 }
