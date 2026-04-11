@@ -15,7 +15,12 @@ import { ApiService } from '../../services/api.service';
   templateUrl: './setup.page.html',
   styleUrls: ['./setup.page.scss'],
   imports: [IonContent, IonButton, CommonModule, ContentHeadingComponent],
-})export class SetupPage {
+})
+/**
+ * Página de configuración inicial.
+ * Escanea el código QR del servidor y guarda la URL base de la API.
+ */
+export class SetupPage {
 
   constructor(
     private config: ConfigService,

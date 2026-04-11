@@ -1,3 +1,9 @@
+/**
+ * Controlador de pagos.
+ *
+ * Gestiona pagos de pedidos, consulta de pagos, envío de tickets y generación
+ * / preparación de impresión de tickets.
+ */
 import service from '../services/Pagos.service.js';
 import { sendEventToAll } from '../routes/sse.route.js';
 import { sendTicketEmail } from '../services/Email.service.js';
@@ -7,7 +13,14 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-// GET /pagos
+/**
+ * GET /pagos
+ *
+ * Recupera la lista completa de pagos del sistema.
+ *
+ * @param {Object} _req - Petición Express, no necesita datos.
+ * @param {Object} res - Respuesta Express.
+ */
 const getAll = async (_req, res) => {
     try {
         const pagos = await service.getPagos();
@@ -17,7 +30,14 @@ const getAll = async (_req, res) => {
     }
 };
 
-// GET /pagos/:id
+/**
+ * GET /pagos/:id
+ *
+ * Recupera un pago por su identificador.
+ *
+ * @param {Object} req - Petición Express con parámetro id.
+ * @param {Object} res - Respuesta Express.
+ */
 const getById = async (req, res) => {
     try {
         const pago = await service.getPagoById(req.params.id);
@@ -28,7 +48,14 @@ const getById = async (req, res) => {
     }
 };
 
-// GET /pagos/pedido/:idPedido
+/**
+ * GET /pagos/pedido/:idPedido
+ *
+ * Obtiene los pagos asociados a un pedido específico.
+ *
+ * @param {Object} req - Petición Express con parámetro idPedido.
+ * @param {Object} res - Respuesta Express.
+ */
 const getByPedido = async (req, res) => {
     try {
         const pagos = await service.getPagosByPedido(req.params.idPedido);
@@ -38,8 +65,16 @@ const getByPedido = async (req, res) => {
     }
 };
 
-// POST /pagos
-// POST /pagos
+/**
+ * POST /pagos
+ *
+ * Registra uno o varios pagos para un pedido.
+ * Valida la presencia de idPedido, que existan pagos y que cada pago tenga monto válido.
+ * Convierte el método de pago a idTipoPago internamente.
+ *
+ * @param {Object} req - Petición Express con body { idPedido, pagos }.
+ * @param {Object} res - Respuesta Express.
+ */
 const create = async (req, res) => {
   try {
     const { idPedido, pagos } = req.body;
@@ -93,7 +128,15 @@ const create = async (req, res) => {
   }
 };
 
-// POST /pagos/enviar-ticket
+/**
+ * POST /pagos/enviar-ticket
+ *
+ * Envía por correo electrónico un ticket de venta generado a partir de los datos del pedido.
+ * Valida que exista correo y que haya productos antes de enviar.
+ *
+ * @param {Object} req - Petición Express con body que incluye correo y productos.
+ * @param {Object} res - Respuesta Express.
+ */
 export const enviarTicket = async (req, res) => {
   try {
     const { folio, ubicacion, correo, fecha, productos } = req.body;
@@ -133,7 +176,15 @@ export const enviarTicket = async (req, res) => {
   }
 };
 
-// POST /pagos/imprimir-ticket
+/**
+ * POST /pagos/imprimir-ticket
+ *
+ * Genera un PDF con el ticket de venta, lo graba en archivo temporal y lo elimina.
+ * Ideal para preparar impresión local del ticket.
+ *
+ * @param {Object} req - Petición Express con body que incluye productos y datos de ticket.
+ * @param {Object} res - Respuesta Express.
+ */
 export const imprimirTicket = async (req, res) => {
   try {
     const { folio, ubicacion, fecha, productos } = req.body;

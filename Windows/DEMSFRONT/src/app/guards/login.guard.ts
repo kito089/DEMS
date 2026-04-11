@@ -2,6 +2,10 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
+/**
+ * Guarda que evita que un usuario autenticado vuelva al login.
+ * Redirige según el rol si ya está conectado.
+ */
 export const loginGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);

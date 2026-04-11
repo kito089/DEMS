@@ -22,6 +22,9 @@ export interface LoginResponse {
   providedIn: 'root',
 })
 export class AuthService {
+  /**
+   * Estado actual del trabajador autenticado.
+   */
   private currentUserSubject = new BehaviorSubject<Trabajador | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
