@@ -48,6 +48,9 @@ CREATE TABLE Trabajadores (
         ON DELETE NO ACTION ON UPDATE CASCADE
 );
 
+INSERT INTO Trabajadores (Nombre, Contra, RolTrabajadores_idRolTrabajadores, Activo) VALUES
+('Admin', '$2a$12$a8G2S1BVvQuZYjjLApPNceXsoeN6D8xiVVIVsHv0kYOHpaOxR/ca6', 1, 1);
+
 CREATE TABLE Platillos (
     idPlatillo INT PRIMARY KEY IDENTITY(1,1),
     Nombre VARCHAR(45) NOT NULL,

@@ -440,7 +440,7 @@ var
   ScriptsPath: String;
   SqlSetupDir: String;
 begin
-  if CurStep = ssInstall then
+  if CurStep = ssPostInstall then
   begin
     ScriptsPath := ExpandConstant('{tmp}\Scripts\');
     SqlSetupDir := ExpandConstant('{tmp}\SQLEXPR');

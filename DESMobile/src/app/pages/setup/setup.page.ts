@@ -3,7 +3,6 @@ import { IonContent, IonButton } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
 import { ConfigService } from '../../services/config.service';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ContentHeadingComponent } from '../../components/content-heading/content-heading.component';
@@ -24,8 +23,8 @@ export class SetupPage {
 
   constructor(
     private config: ConfigService,
-    private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) { }
 
   async scanQR() {
@@ -46,22 +45,19 @@ export class SetupPage {
       // Guardar base URL (quitamos /login)
       const baseUrl = url.replace('/login', '');
 
-      await this.config.setApiUrl(baseUrl);
-
       // Registrar dispositivo
       try {
-        await firstValueFrom(
-          this.http.post(`${baseUrl}/register`, {})
-        );
+        await this.config.setApiUrl(baseUrl);
+        await firstValueFrom(this.apiService.post('/register', {}));
+        console.log(`Post hacia: ${baseUrl}/register`);
+        // Ir a home
+        console.log('navegando...');
+        this.router.navigate(['/login']).then(res => {
+          console.log('resultado navegación:', res);
+        });
       } catch (error) {
         console.error("Error en register:", error);
       }
-
-      // Ir a home
-      console.log('navegando...');
-      this.router.navigate(['/login']).then(res => {
-        console.log('resultado navegación:', res);
-      });
     }
   }
 }

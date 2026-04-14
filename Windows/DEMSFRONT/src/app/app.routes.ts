@@ -17,6 +17,7 @@ import { ReservacionesComponent } from './pages/reservacion/reservacionesCompone
 import { TrabajadoresComponent } from './pages/trabajadores/trabajadoresComponent';
 import { RegistroTrabajadorComponent } from './components/registro-trabajador-component/registro-trabajador-component';
 import { ReportesComponent } from './pages/reportes/reportesComponent';
+import { Cuerre } from './pages/cuerre/cuerre';
 
 export const routes: Routes = [
   { path: '',      component: LoginComponent, canActivate: [loginGuard] }, // 👈
@@ -32,4 +33,5 @@ export const routes: Routes = [
   { path: 'registro-trabajador',     component: RegistroTrabajadorComponent, canActivate: [authGuard], data: {roles: ['Administrador']}  },
   { path: 'registro-trabajador/:id', component: RegistroTrabajadorComponent, canActivate: [authGuard], data: {roles: ['Administrador']}  },
   { path: 'reportes',                component: ReportesComponent,           canActivate: [authGuard], data: {roles: ['Administrador']}  },
+  { path: 'cuerre',                component: Cuerre,           canActivate: [authGuard], data: {roles: ['Administrador']}  },
 ];
