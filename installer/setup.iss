@@ -67,6 +67,60 @@ end;
 
 
 // ============================
+// BUSCAR node.exe EN EL SISTEMA
+// ============================
+// Inno Setup no hereda el PATH del usuario, por lo que llamar 'node' directamente
+// falla aunque Node esté instalado. Esta función busca node.exe en el registro
+// y en rutas comunes para obtener la ruta absoluta.
+function FindNodeExe(): String;
+var
+  InstallPath: String;
+  Candidate: String;
+begin
+  // 1. Buscar en registro HKLM (instalación para todos los usuarios, lo más común)
+  if RegQueryStringValue(HKLM, 'SOFTWARE\Node.js', 'InstallPath', InstallPath) then
+  begin
+    Candidate := InstallPath + '\node.exe';
+    if FileExists(Candidate) then
+    begin
+      Result := Candidate;
+      Exit;
+    end;
+  end;
+
+  // 2. Buscar en registro HKCU (instalación solo para el usuario actual)
+  if RegQueryStringValue(HKCU, 'SOFTWARE\Node.js', 'InstallPath', InstallPath) then
+  begin
+    Candidate := InstallPath + '\node.exe';
+    if FileExists(Candidate) then
+    begin
+      Result := Candidate;
+      Exit;
+    end;
+  end;
+
+  // 3. Ruta por defecto del instalador MSI oficial de Node.js
+  Candidate := 'C:\Program Files\nodejs\node.exe';
+  if FileExists(Candidate) then
+  begin
+    Result := Candidate;
+    Exit;
+  end;
+
+  // 4. Ruta alternativa en Program Files (x86), rara pero posible
+  Candidate := 'C:\Program Files (x86)\nodejs\node.exe';
+  if FileExists(Candidate) then
+  begin
+    Result := Candidate;
+    Exit;
+  end;
+
+  // 5. Sin resultado: devolver cadena vacía (el llamador debe manejar este caso)
+  Result := '';
+end;
+
+
+// ============================
 // VALIDAR DEPENDENCIAS (ANTES DE UI)
 // ============================
 function InitializeSetup(): Boolean;
@@ -131,21 +185,20 @@ begin
   );
   DevicePage.Add('Número de dispositivos:', False);
 
-  // Crear sobre la superficie de DevicePage, no sobre WizardForm
   QRImage := TBitmapImage.Create(DevicePage.Surface);
   QRImage.Parent := DevicePage.Surface;
   QRImage.Left := ScaleX(20);
   QRImage.Top := ScaleY(80);
   QRImage.Width := ScaleX(200);
   QRImage.Height := ScaleY(200);
-  QRImage.Visible := False; // oculto hasta que haya IP
+  QRImage.Visible := False;
 
   StatusLabelDevices := TNewStaticText.Create(DevicePage.Surface);
   StatusLabelDevices.Parent := DevicePage.Surface;
   StatusLabelDevices.Left := ScaleX(20);
   StatusLabelDevices.Top := ScaleY(290);
   StatusLabelDevices.Caption := 'Dispositivos conectados: 0/0';
-  StatusLabelDevices.Visible := False; // oculto hasta ssInstall
+  StatusLabelDevices.Visible := False;
 end;
 
 // ============================
@@ -155,7 +208,6 @@ procedure UpdateStatusUI();
 var
   Status: AnsiString;
 begin
-  // Corregido: los scripts están en {tmp}\Scripts, no en {app}\Scripts
   if LoadStringFromFile(ExpandConstant('{tmp}\Scripts\status.txt'), Status) then
     StatusLabelDevices.Caption := 'Dispositivos conectados: ' + Trim(Status);
 end;
@@ -172,7 +224,6 @@ var
 begin
   while True do
   begin
-    // Corregido: ruta consistente con {tmp}\Scripts
     if LoadStringFromFile(ExpandConstant('{tmp}\Scripts\status.txt'), Status) then
     begin
       Status := Trim(Status);
@@ -193,12 +244,6 @@ begin
   end;
 end;
 
-procedure CenterQRImage();
-begin
-  QRImage.Left := (DevicePage.SurfaceWidth - QRImage.Width) div 2;
-  // Ajustamos el Top para que no choque con el texto superior
-  QRImage.Top := ScaleY(100); 
-end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
 var
@@ -206,6 +251,7 @@ var
   QRPngPath, QRBmpPath: String;
   PSCommand: String;
   Timeout: Integer;
+  NodeExe: String;       // <-- NUEVO: ruta absoluta a node.exe
 begin
   Result := True;
 
@@ -220,18 +266,47 @@ begin
     end;
 
     ScriptsPath := ExpandConstant('{tmp}\Scripts\');
-    QRPngPath := ScriptsPath + 'qr.png';
-    QRBmpPath := ScriptsPath + 'qr.bmp';
+    QRPngPath   := ScriptsPath + 'qr.png';
+    QRBmpPath   := ScriptsPath + 'qr.bmp';
 
     // 1. Limpiar archivos de un intento anterior
     if FileExists(QRPngPath) then DeleteFile(QRPngPath);
     if FileExists(QRBmpPath) then DeleteFile(QRBmpPath);
 
-    // 2. Ejecutar Node en segundo plano (creará el qr.png)
-    if not Exec('node', '"' + ScriptsPath + 'device-sync.js" ' + IntToStr(DeviceCount), 
-                '', SW_HIDE, ewNoWait, ResultCode) then
+    // 2. Resolver ruta absoluta de node.exe
+    //    Inno Setup NO hereda el PATH del sistema, por lo que 'node' no se encuentra
+    //    aunque esté instalado. FindNodeExe() lo busca vía registro y rutas conocidas.
+    NodeExe := FindNodeExe();
+    if NodeExe = '' then
     begin
-      MsgBox('Error al iniciar Node.js', mbError, MB_OK);
+      MsgBox(
+        'No se encontró node.exe en el sistema.' + #13#10 +
+        'Asegúrese de que Node.js esté instalado y vuelva a intentarlo.',
+        mbError, MB_OK
+      );
+      Result := False;
+      Exit;
+    end;
+
+    // 3. Ejecutar Node en segundo plano
+    //    - Usamos la ruta absoluta de NodeExe
+    //    - El directorio de trabajo es ScriptsPath para que node_modules se resuelva
+    //    - Redirigimos la salida a node.log para facilitar depuración
+    if not Exec(
+      NodeExe,
+      '"' + ScriptsPath + 'device-sync.js" ' + IntToStr(DeviceCount) + ' > "' + ScriptsPath + 'node.log" 2>&1',
+      ScriptsPath,     // <-- directorio de trabajo: node_modules se resuelve desde aquí
+      SW_HIDE,
+      ewNoWait,
+      ResultCode
+    ) then
+    begin
+      MsgBox(
+        'Error al iniciar Node.js.' + #13#10 +
+        'Ruta usada: ' + NodeExe + #13#10 +
+        'Revise: ' + ScriptsPath + 'node.log',
+        mbError, MB_OK
+      );
       Result := False;
       Exit;
     end;
@@ -240,39 +315,47 @@ begin
     StatusLabelDevices.Visible := True;
     WizardForm.Refresh;
 
-    // 3. Esperar hasta 5 segundos a que Node cree el archivo PNG
+    // 4. Esperar hasta 10 segundos a que Node genere el PNG
+    //    (ampliado de 5s a 10s por si la máquina es lenta al arrancar el servidor)
     Timeout := 0;
-    while (not FileExists(QRPngPath)) and (Timeout < 25) do
+    while (not FileExists(QRPngPath)) and (Timeout < 50) do
     begin
       Sleep(200);
       Timeout := Timeout + 1;
     end;
 
-    // 4. Magia de Windows: Convertir PNG a BMP usando PowerShell
+    // 5. Convertir PNG → BMP con System.Drawing (Inno solo muestra BMP)
     if FileExists(QRPngPath) then
     begin
-      // Este comando usa la librería nativa System.Drawing de Windows para convertir la imagen
-      PSCommand := Format('-NoProfile -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile(''%s''); $img.Save(''%s'', [System.Drawing.Imaging.ImageFormat]::Bmp); $img.Dispose();"', [QRPngPath, QRBmpPath]);
-      
+      PSCommand :=
+        '-NoProfile -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Drawing; ' +
+        '$img = [System.Drawing.Image]::FromFile(''' + QRPngPath + '''); ' +
+        '$img.Save(''' + QRBmpPath + ''', [System.Drawing.Imaging.ImageFormat]::Bmp); ' +
+        '$img.Dispose();"';
+
       Exec('powershell.exe', PSCommand, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 
-      // 5. Mostrar el BMP en Inno Setup
+      // 6. Mostrar el BMP en la UI
       if FileExists(QRBmpPath) then
       begin
         QRImage.Bitmap.LoadFromFile(QRBmpPath);
         QRImage.Visible := True;
         QRImage.Left := (DevicePage.SurfaceWidth - QRImage.Width) div 2;
-        QRImage.Top := ScaleY(85); 
+        QRImage.Top := ScaleY(85);
       end else
       begin
         MsgBox('Error: Windows no pudo convertir el QR a formato BMP.', mbError, MB_OK);
       end;
     end else
     begin
-      MsgBox('Error: No se pudo generar el QR base (Node.js falló).', mbError, MB_OK);
+      MsgBox(
+        'Error: No se pudo generar el QR (Node.js no creó qr.png).' + #13#10 +
+        'Revise el log en: ' + ScriptsPath + 'node.log',
+        mbError, MB_OK
+      );
     end;
 
-    // 6. Bloquear el instalador hasta que los dispositivos se conecten
+    // 7. Bloquear el instalador hasta que todos los dispositivos se conecten
     WizardForm.NextButton.Enabled := False;
     try
       WaitForDevices();
@@ -295,27 +378,27 @@ begin
     ScriptsPath := ExpandConstant('{tmp}\Scripts\');
     SqlSetupDir := ExpandConstant('{tmp}\SQLEXPR');
 
-    // 1. Instalar SQL Server con comillas reforzadas
-    ExecOrFail('powershell.exe', 
+    // 1. Instalar SQL Server
+    ExecOrFail('powershell.exe',
       Format('-NoProfile -ExecutionPolicy Bypass -File "%s05_install_sql.ps1" -SetupDir "%s"', [ScriptsPath, SqlSetupDir]));
 
     // 2. Inicializar DB
-    ExecOrFail('powershell.exe', 
+    ExecOrFail('powershell.exe',
       Format('-NoProfile -ExecutionPolicy Bypass -File "%s02_init_db.ps1" -AppDir "%s"', [ScriptsPath, ExpandConstant('{app}')]));
 
-    // 3. Obtener la IP final (por si cambió durante el proceso)
-    ExecOrFail('powershell.exe', 
+    // 3. Obtener la IP final
+    ExecOrFail('powershell.exe',
       Format('-NoProfile -ExecutionPolicy Bypass -File "%s04_get_ip.ps1"', [ScriptsPath]));
 
-    IP := GetIPFromFile(); // Ahora usa la variable global declarada al principio
-    
+    IP := GetIPFromFile();
+
     if IP = '' then
     begin
       MsgBox('Advertencia: No se pudo recuperar la IP local, pero la instalación continuará.', mbInformation, MB_OK);
     end;
 
-    // 4. Configurar Firewall usando la IP si tu script lo requiere
-    ExecOrFail('powershell.exe', 
+    // 4. Configurar Firewall
+    ExecOrFail('powershell.exe',
       Format('-NoProfile -ExecutionPolicy Bypass -File "%s06_firewall.ps1"', [ScriptsPath]));
   end;
 end;

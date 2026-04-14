@@ -85,19 +85,13 @@ app.post('/register', (req, res) => {
 // SERVIDOR + QR
 // ============================
 app.listen(3000, '0.0.0.0', async () => {
-  try {
-    const url = `http://${ip}:3000/login`;
-
-    await QRCode.toFile(qrPath, url, { width: 300 });
-
-    console.log("=================================");
-    console.log("Servidor iniciado");
-    console.log("IP:", ip);
-    console.log("URL:", url);
-    console.log("QR generado en:", qrPath);
-    console.log("Escanea el QR para conectar dispositivos");
-    console.log("=================================");
-  } catch (err) {
-    console.error("Error generando QR:", err);
-  }
+  console.log("=================================");
+  console.log("Servidor iniciado en el puerto 3000");
+  console.log("IP detectada:", ip);
+  
+  // Llamamos a la función que ya definiste arriba
+  await generateQR(ip); 
+  
+  console.log("Esperando dispositivos...");
+  console.log("=================================");
 });
