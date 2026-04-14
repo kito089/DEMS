@@ -17,8 +17,9 @@ Source: "..\Windows\electron\dist\win-unpacked\*"; DestDir: "{app}"; Flags: igno
 Source: "..\Windows\DEMSBACK\*"; DestDir: "{app}\DEMSBACK"; Flags: recursesubdirs
 Source: "..\Windows\Database\SQLDEMS.sql"; DestDir: "{app}\DEMSBACK"; Flags: ignoreversion
 
-; Scripts
-Source: "..\Scripts\*"; DestDir: "{tmp}\Scripts"; Flags: recursesubdirs
+; Scripts comprimidos para extracción temprana (antes del wizard)
+; IMPORTANTE: generar Scripts.zip desde la carpeta Scripts\ incluyendo node_modules
+Source: "..\Scripts.zip"; DestDir: "{tmp}"; Flags: dontcopy
 
 ; Extraccion temprana para InitializeSetup
 Source: "..\Scripts\01_setup_deps.ps1"; DestDir: "{tmp}"; Flags: dontcopy
@@ -127,15 +128,20 @@ function InitializeSetup(): Boolean;
 var
   ScriptPath: String;
   InstallerPath: String;
+  TmpDir: String;
 begin
   Result := True;
+  TmpDir := ExpandConstant('{tmp}');
 
+  // ── Paso 1: Extraer archivos con dontcopy ──────────────────────────────────
   ExtractTemporaryFile('01_setup_deps.ps1');
   ExtractTemporaryFile('node-v24.14.1-x64.msi');
+  ExtractTemporaryFile('Scripts.zip');
 
-  ScriptPath    := ExpandConstant('{tmp}\01_setup_deps.ps1');
-  InstallerPath := ExpandConstant('{tmp}');
+  ScriptPath    := TmpDir + '\01_setup_deps.ps1';
+  InstallerPath := TmpDir;
 
+  // ── Paso 2: Instalar dependencias (Node.js, etc.) ─────────────────────────
   if not Exec(
     'powershell.exe',
     '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptPath + '" -InstallerDir "' + InstallerPath + '" -LogFile "C:\dems_install_log.txt"',
@@ -153,6 +159,55 @@ begin
   if ResultCode <> 0 then
   begin
     MsgBox('Falló la instalación de dependencias. Código: ' + IntToStr(ResultCode) + #13#10 + 'Ver: C:\dems_install_log.txt', mbError, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  // ── Paso 3: Descomprimir Scripts.zip → {tmp}\Scripts ──────────────────────
+  // Esto hace que device-sync.js y node_modules estén disponibles ANTES de que
+  // aparezca el wizard, solucionando el error de directorio inexistente.
+  if not Exec(
+    'powershell.exe',
+    '-NoProfile -ExecutionPolicy Bypass -Command "Expand-Archive -Path ''' +
+      TmpDir + '\Scripts.zip'' -DestinationPath ''' + TmpDir + '\Scripts'' -Force"',
+    '',
+    SW_HIDE,
+    ewWaitUntilTerminated,
+    ResultCode
+  ) then
+  begin
+    MsgBox('Error descomprimiendo Scripts.zip', mbError, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  if ResultCode <> 0 then
+  begin
+    MsgBox('Falló la extracción de Scripts.zip. Código: ' + IntToStr(ResultCode), mbError, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  // ── Paso 4: Abrir puertos en el firewall ──────────────────────────────────
+  // Se ejecuta aquí para que el puerto 3000 esté disponible cuando los
+  // dispositivos intenten conectarse al QR, antes de mostrar las páginas del wizard.
+  if not Exec(
+    'powershell.exe',
+    '-NoProfile -ExecutionPolicy Bypass -File "' + TmpDir + '\Scripts\06_firewall.ps1"',
+    '',
+    SW_HIDE,
+    ewWaitUntilTerminated,
+    ResultCode
+  ) then
+  begin
+    MsgBox('Error ejecutando script de firewall', mbError, MB_OK);
+    Result := False;
+    Exit;
+  end;
+
+  if ResultCode <> 0 then
+  begin
+    MsgBox('Falló la configuración del firewall. Código: ' + IntToStr(ResultCode), mbError, MB_OK);
     Result := False;
     Exit;
   end;
@@ -187,16 +242,16 @@ begin
 
   QRImage := TBitmapImage.Create(DevicePage.Surface);
   QRImage.Parent := DevicePage.Surface;
+  QRImage.Width := 200;    // píxeles fijos — debe coincidir con el resize de PowerShell
+  QRImage.Height := 200;   // píxeles fijos — debe coincidir con el resize de PowerShell
   QRImage.Left := ScaleX(20);
-  QRImage.Top := ScaleY(80);
-  QRImage.Width := ScaleX(200);
-  QRImage.Height := ScaleY(200);
+  QRImage.Top := ScaleY(65);
   QRImage.Visible := False;
 
   StatusLabelDevices := TNewStaticText.Create(DevicePage.Surface);
   StatusLabelDevices.Parent := DevicePage.Surface;
   StatusLabelDevices.Left := ScaleX(20);
-  StatusLabelDevices.Top := ScaleY(290);
+  StatusLabelDevices.Top := ScaleY(245);  // justo debajo del QR (65 + 170 + 10)
   StatusLabelDevices.Caption := 'Dispositivos conectados: 0/0';
   StatusLabelDevices.Visible := False;
 end;
@@ -288,14 +343,21 @@ begin
       Exit;
     end;
 
-    // 3. Ejecutar Node en segundo plano
-    //    - Usamos la ruta absoluta de NodeExe
-    //    - El directorio de trabajo es ScriptsPath para que node_modules se resuelva
-    //    - Redirigimos la salida a node.log para facilitar depuración
+    // 3. Ejecutar Node en segundo plano via archivo .bat temporal
+    //    cmd.exe /c tiene problemas de quoting cuando hay múltiples argumentos
+    //    entre comillas. Escribir un .bat evita el problema completamente.
+    SaveStringToFile(
+      ScriptsPath + 'run_node.bat',
+      '@echo off' + #13#10 +
+      '"' + NodeExe + '" "' + ScriptsPath + 'device-sync.js" ' + IntToStr(DeviceCount) +
+      ' > "' + ScriptsPath + 'node.log" 2>&1' + #13#10,
+      False
+    );
+
     if not Exec(
-      NodeExe,
-      '"' + ScriptsPath + 'device-sync.js" ' + IntToStr(DeviceCount) + ' > "' + ScriptsPath + 'node.log" 2>&1',
-      ScriptsPath,     // <-- directorio de trabajo: node_modules se resuelve desde aquí
+      'cmd.exe',
+      '/c "' + ScriptsPath + 'run_node.bat"',
+      ScriptsPath,
       SW_HIDE,
       ewNoWait,
       ResultCode
@@ -329,9 +391,14 @@ begin
     begin
       PSCommand :=
         '-NoProfile -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Drawing; ' +
-        '$img = [System.Drawing.Image]::FromFile(''' + QRPngPath + '''); ' +
-        '$img.Save(''' + QRBmpPath + ''', [System.Drawing.Imaging.ImageFormat]::Bmp); ' +
-        '$img.Dispose();"';
+        '$src = [System.Drawing.Image]::FromFile(''' + QRPngPath + '''); ' +
+        '$bmp = New-Object System.Drawing.Bitmap(200, 200); ' +
+        '$g = [System.Drawing.Graphics]::FromImage($bmp); ' +
+        '$g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic; ' +
+        '$g.DrawImage($src, 0, 0, 200, 200); ' +
+        '$g.Dispose(); $src.Dispose(); ' +
+        '$bmp.Save(''' + QRBmpPath + ''', [System.Drawing.Imaging.ImageFormat]::Bmp); ' +
+        '$bmp.Dispose();"';
 
       Exec('powershell.exe', PSCommand, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 
@@ -341,7 +408,7 @@ begin
         QRImage.Bitmap.LoadFromFile(QRBmpPath);
         QRImage.Visible := True;
         QRImage.Left := (DevicePage.SurfaceWidth - QRImage.Width) div 2;
-        QRImage.Top := ScaleY(85);
+        QRImage.Top := ScaleY(65);
       end else
       begin
         MsgBox('Error: Windows no pudo convertir el QR a formato BMP.', mbError, MB_OK);
