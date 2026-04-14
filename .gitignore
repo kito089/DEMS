@@ -3,3 +3,7 @@ dist/
 Windows/electron/dist/
 DEMS-Installer.exe
 *.exe
+
+Installers/
+*.msi
+*.exe

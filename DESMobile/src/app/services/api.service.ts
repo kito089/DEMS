@@ -1,9 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { ConfigService } from './config.service';
-import { firstValueFrom } from 'rxjs';
-import { first, Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { Pedido } from '../models/pedido.model';
 import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
