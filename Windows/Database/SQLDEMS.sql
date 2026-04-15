@@ -1,3 +1,6 @@
+DROP DATABASE IF EXISTS DEMS;
+GO
+
 CREATE DATABASE DEMS;
 GO
 USE DEMS;
@@ -987,8 +990,18 @@ BEGIN
 END;
 GO
 -- 5. SEGURIDAD (AL FINAL)
-USE master; 
+USE master;
 GO
+
+IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'admin_login')
+    DROP LOGIN admin_login;
+
+IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'mesero_login')
+    DROP LOGIN mesero_login;
+
+IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'cocina_login')
+    DROP LOGIN cocina_login;
+
 CREATE LOGIN admin_login WITH PASSWORD = 'Admin123!';
 CREATE LOGIN mesero_login WITH PASSWORD = 'Mesero123!';
 CREATE LOGIN cocina_login WITH PASSWORD = 'Cocina123!';

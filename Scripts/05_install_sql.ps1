@@ -5,31 +5,46 @@ param(
 Write-Host "Verificando SQL Server..."
 Write-Host "SetupDir: $SetupDir"
 
-# ── Detectar cualquier instancia de SQL Server instalada ─────────────────────
-# Cubre: Express, Developer, Standard, Enterprise y cualquier instancia nombrada.
-# El registro HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL
-# contiene todas las instancias activas independientemente de la edición.
-$instancesKey = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL"
+$instancePaths = @(
+  "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL",
+  "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Microsoft SQL Server\Instance Names\SQL"
+)
 $hasAnyInstance = $false
 
-if (Test-Path $instancesKey) {
-    $instances = Get-ItemProperty $instancesKey -ErrorAction SilentlyContinue
-    if ($instances) {
-        $names = $instances.PSObject.Properties |
-                 Where-Object { $_.Name -notlike "PS*" } |
-                 Select-Object -ExpandProperty Name
-        if ($names.Count -gt 0) {
-            Write-Host "Instancias de SQL Server detectadas: $($names -join ', ')"
-            $hasAnyInstance = $true
+try {
+    $baseKey = [Microsoft.Win32.RegistryKey]::OpenBaseKey([Microsoft.Win32.RegistryHive]::LocalMachine, [Microsoft.Win32.RegistryView]::Registry64)
+    $subKey = $baseKey.OpenSubKey("SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL")
+    if ($subKey) {
+        $names = $subKey.GetValueNames()
+        if ($names.Count -gt 0) { $hasAnyInstance = $true }
+        $subKey.Close(); $baseKey.Close()
+    }
+} catch {}
+
+foreach ($instancesKey in $instancePaths) {
+    if (Test-Path $instancesKey) {
+        $instances = Get-ItemProperty $instancesKey -ErrorAction SilentlyContinue
+        if ($instances) {
+            $names = $instances.PSObject.Properties |
+                     Where-Object { $_.Name -notlike "PS*" } |
+                     Select-Object -ExpandProperty Name
+            if ($names.Count -gt 0) {
+                Write-Host "Instancias detectadas en $instancesKey : $($names -join ', ')"
+                $hasAnyInstance = $true
+                break
+            }
         }
     }
 }
 
 # Fallback: buscar el servicio SQLEXPRESS específicamente
-if (!$hasAnyInstance) {
+if (-not $hasAnyInstance) {
     $svc = Get-Service -Name "MSSQL`$SQLEXPRESS" -ErrorAction SilentlyContinue
     if ($svc) {
         Write-Host "Servicio MSSQL`$SQLEXPRESS encontrado (estado: $($svc.Status))"
+        $hasAnyInstance = $true
+    }
+    if (Get-Service -Name "MSSQL*" -ErrorAction SilentlyContinue) {
         $hasAnyInstance = $true
     }
 }

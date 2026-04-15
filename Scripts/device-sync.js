@@ -65,23 +65,22 @@ const corsOptions = {
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  preflightContinue: false,
   optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 app.use(express.json());
 
 app.use((req, res, next) => {
-  console.log(`Petición recibida: ${req.method} a ${req.url}`);
+  console.log("Request:", req.method, req.url);
   next();
 });
 
 app.post('/register', (req, res) => {
   const id = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-
+  console.log("ID identificado: ", id);
   if (!devices.has(id)) {
     devices.add(id);
     connected++;
@@ -94,7 +93,10 @@ app.post('/register', (req, res) => {
 
   if (connected >= expected) {
     console.log("Todos conectados ✔");
-    process.exit(0);
+    setTimeout(() => {
+      console.log("Cerrando servidor...");
+      process.exit(0);
+    }, 2000);
   }
 });
 

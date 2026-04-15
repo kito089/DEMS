@@ -7,6 +7,7 @@ OutputDir=.
 OutputBaseFilename=DEMS-Installer
 Compression=lzma
 SolidCompression=yes
+ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=admin
 
 [Files]
@@ -36,6 +37,10 @@ Name: "{commondesktop}\DEMS"; Filename: "{app}\DEMS.exe"
 
 [Run]
 Filename: "{app}\DEMS.exe"; Description: "Abrir DEMS"; Flags: nowait postinstall skipifsilent
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; \
+  Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{tmp}\Scripts\05_install_sql.ps1"" -SetupDir ""{tmp}\SQLEXPR"""; \
+  Flags: runmaximized waituntilterminated; \
+  StatusMsg: "Verificando e instalando SQL Server..."
 
 [Code]
 
@@ -446,8 +451,8 @@ begin
     SqlSetupDir := ExpandConstant('{tmp}\SQLEXPR');
 
     // 1. Instalar SQL Server
-    ExecOrFail('powershell.exe',
-      Format('-NoProfile -ExecutionPolicy Bypass -File "%s05_install_sql.ps1" -SetupDir "%s"', [ScriptsPath, SqlSetupDir]));
+    ExecOrFail(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '05_install_sql.ps1" -SetupDir "' + SqlSetupDir + '"');
 
     // 2. Inicializar DB
     ExecOrFail('powershell.exe',
@@ -462,10 +467,19 @@ begin
     if IP = '' then
     begin
       MsgBox('Advertencia: No se pudo recuperar la IP local, pero la instalación continuará.', mbInformation, MB_OK);
+    end else
+    begin
+      // Escribir la IP real en config.js para que Electron la use
+      // Reemplaza el placeholder "API_URL" por la URL real del backend
+      SaveStringToFile(
+        ExpandConstant('{app}\renderer\assets\config.js'),
+        'window.APP_CONFIG = { API_URL: "http://' + IP + ':3000" };',
+        False
+      );
     end;
 
     // 4. Configurar Firewall
-    ExecOrFail('powershell.exe',
-      Format('-NoProfile -ExecutionPolicy Bypass -File "%s06_firewall.ps1"', [ScriptsPath]));
+    // Nota: 06_firewall.ps1 ya se ejecutó en InitializeSetup antes del wizard.
+    // No es necesario ejecutarlo de nuevo aquí.
   end;
 end;

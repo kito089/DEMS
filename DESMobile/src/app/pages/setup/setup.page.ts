@@ -6,7 +6,7 @@ import { ConfigService } from '../../services/config.service';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ContentHeadingComponent } from '../../components/content-heading/content-heading.component';
-import { ApiService } from '../../services/api.service';
+import { HttpClient } from '@angular/common/http'; 
 
 @Component({
   standalone: true,
@@ -24,7 +24,7 @@ export class SetupPage {
   constructor(
     private config: ConfigService,
     private router: Router,
-    private apiService: ApiService
+    private http: HttpClient
   ) { }
 
   async scanQR() {
@@ -47,9 +47,9 @@ export class SetupPage {
 
       // Registrar dispositivo
       try {
-        await this.config.setApiUrl(baseUrl);
-        await firstValueFrom(this.apiService.post('/register', {}));
+        await firstValueFrom(this.http.post(`${baseUrl}/register`, {}));
         console.log(`Post hacia: ${baseUrl}/register`);
+        await this.config.setApiUrl(baseUrl);
         // Ir a home
         console.log('navegando...');
         this.router.navigate(['/login']).then(res => {
