@@ -16,7 +16,6 @@ Source: "..\Windows\electron\dist\win-unpacked\*"; DestDir: "{app}"; Flags: igno
 
 ; Backend
 Source: "..\Windows\DEMSBACK\*"; DestDir: "{app}\DEMSBACK"; Flags: recursesubdirs
-Source: "..\Windows\Database\SQLDEMS.sql"; DestDir: "{app}\DEMSBACK"; Flags: ignoreversion
 
 ; Scripts comprimidos para extracción temprana (antes del wizard)
 ; IMPORTANTE: generar Scripts.zip desde la carpeta Scripts\ incluyendo node_modules
@@ -39,7 +38,7 @@ Name: "{commondesktop}\DEMS"; Filename: "{app}\DEMS.exe"
 Filename: "{app}\DEMS.exe"; Description: "Abrir DEMS"; Flags: nowait postinstall skipifsilent
 Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; \
   Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{tmp}\Scripts\05_install_sql.ps1"" -SetupDir ""{tmp}\SQLEXPR"""; \
-  Flags: runmaximized waituntilterminated; \
+  Flags: runhidden waituntilterminated; \
   StatusMsg: "Verificando e instalando SQL Server..."
 
 [Code]
@@ -455,8 +454,8 @@ begin
       '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '05_install_sql.ps1" -SetupDir "' + SqlSetupDir + '"');
 
     // 2. Inicializar DB
-    ExecOrFail('powershell.exe',
-      Format('-NoProfile -ExecutionPolicy Bypass -File "%s02_init_db.ps1" -AppDir "%s"', [ScriptsPath, ExpandConstant('{app}')]));
+    ExecOrFail(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'), 
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '02_init_db.ps1"');
 
     // 3. Obtener la IP final
     ExecOrFail('powershell.exe',

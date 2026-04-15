@@ -55,7 +55,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   const nodeExe = findNodeExe();
-  const serverPath = path.join(__dirname, '../DEMSBACK/server.js');
+  const serverPath = path.join(__dirname, '../DEMSBACK/src/server.js');
 
   // Levantar backend con ruta absoluta a node.exe
   backend = spawn(nodeExe, [serverPath], {

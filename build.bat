@@ -16,8 +16,17 @@ call npm install || exit /b
 call npm run dist || exit /b
 
 echo.
+echo 2.5 Comprimiendo Scripts...
+cd ..\..
+echo Eliminando zip antiguo si existe...
+if exist Scripts.zip del Scripts.zip
+
+echo Comprimiendo carpeta Scripts en Scripts.zip...
+powershell -Command "Compress-Archive -Path 'Scripts\*' -DestinationPath 'Scripts.zip' -Force" || (echo Error al comprimir Scripts && exit /b)
+
+echo.
 echo 3. Generando instalador final...
-cd ..\..\installer || exit /b
+cd installer || exit /b
 
 REM Ruta de Inno Setup (ajusta si es necesario)
 set INNO="C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
