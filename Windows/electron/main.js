@@ -55,20 +55,28 @@ function createWindow() {
 
 app.whenReady().then(() => {
   const nodeExe = findNodeExe();
-  const serverPath = path.join(__dirname, '../DEMSBACK/src/server.js');
+  
+  // Localizamos la carpeta DEMSBACK que Inno Setup instaló en la raíz de {app}
+  // process.execPath es C:\Program Files\DEMS\DEMS.exe
+  const appRoot = path.dirname(process.execPath);
+  const backendDir = path.join(appRoot, 'DEMSBACK');
+  const serverPath = path.join(backendDir, 'src', 'server.js');
 
-  // Levantar backend con ruta absoluta a node.exe
-  backend = spawn(nodeExe, [serverPath], {
-    // El directorio de trabajo del backend es su propia carpeta,
-    // para que pueda resolver sus propios require() y archivos relativos
-    cwd: path.join(__dirname, '../DEMSBACK'),
-    stdio: 'ignore', // evitar que stdout/stderr del backend bloquee Electron
-    detached: false,
-  });
+  console.log('Buscando servidor en:', serverPath);
 
-  backend.on('error', (err) => {
-    console.error('Error al iniciar el backend:', err);
-  });
+  if (fs.existsSync(serverPath)) {
+    backend = spawn(nodeExe, [serverPath], {
+      cwd: backendDir,
+      windowsHide: true,
+      stdio: 'pipe' // Cambiamos a pipe para poder leer logs si fuera necesario
+    });
+
+    backend.on('error', (err) => {
+      console.error('Fallo al iniciar proceso backend:', err);
+    });
+  } else {
+    console.error('No se encontró el archivo del servidor en la ruta:', serverPath);
+  }
 
   createWindow();
 });
