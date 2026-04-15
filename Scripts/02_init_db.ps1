@@ -1,24 +1,23 @@
-param(
-  [string]$AppDir
-)
+Write-Host "Inicializando base de datos desde Scripts..."
 
-Write-Host "Inicializando base de datos..."
-Write-Host "AppDir: $AppDir"
+# El archivo ahora está en la misma carpeta que este .ps1 ({tmp}\Scripts)
+$initDb = Join-Path $PSScriptRoot "init-db.js"
 
-$initDb = Join-Path $AppDir "DEMSBACK\init-db.js"
+# Buscar node.exe
+$nodeExe = "node.exe"
+if (Test-Path "$env:ProgramFiles\nodejs\node.exe") { $nodeExe = "$env:ProgramFiles\nodejs\node.exe" }
 
 if (!(Test-Path $initDb)) {
-  Write-Host "No existe: $initDb"
-  exit 1
+    Write-Host "Error: No se encuentra $initDb"
+    exit 1
 }
 
-$result = & node $initDb
-Write-Host $result
+# Ejecutar Node
+& $nodeExe $initDb
 
 if ($LASTEXITCODE -ne 0) {
-  Write-Host "Error inicializando BD. Código: $LASTEXITCODE"
-  exit 1
+    Write-Host "Fallo en init-db.js. Código: $LASTEXITCODE"
+    exit 1
 }
 
-Write-Host "BD inicializada correctamente"
 exit 0

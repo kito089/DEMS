@@ -31,6 +31,10 @@ app.use('/Pedidos', PedidosRoutes);
 app.use('/Menu', MenuRoutes);
 app.use('/reportes', reportesRouter);
 
+app.post('/register', (req, res) => {
+  res.status(200).json({ ok: true });
+});
+
 // iniciar tareas automáticas
 iniciarRecordatorios();
 
