@@ -459,7 +459,7 @@ begin
 
     // 3. Obtener la IP final
     ExecOrFail('powershell.exe',
-      Format('-NoProfile -ExecutionPolicy Bypass -File "%s04_get_ip.ps1"', [ScriptsPath]));
+      '-NoProfile -ExecutionPolicy Bypass -File "' + ScriptsPath + '04_get_ip.ps1"');
 
     IP := GetIPFromFile();
 
@@ -468,17 +468,13 @@ begin
       MsgBox('Advertencia: No se pudo recuperar la IP local, pero la instalación continuará.', mbInformation, MB_OK);
     end else
     begin
-      // Escribir la IP real en config.js para que Electron la use
-      // Reemplaza el placeholder "API_URL" por la URL real del backend
+      // Sin asar, los archivos quedan en {app}\resources\app\
+      // Ruta directa y escribible sin configuración adicional en electron-builder.
       SaveStringToFile(
-        ExpandConstant('{app}\renderer\assets\config.js'),
+        ExpandConstant('{app}\resources\app\renderer\assets\config.js'),
         'window.APP_CONFIG = { API_URL: "http://' + IP + ':3000" };',
         False
       );
     end;
-
-    // 4. Configurar Firewall
-    // Nota: 06_firewall.ps1 ya se ejecutó en InitializeSetup antes del wizard.
-    // No es necesario ejecutarlo de nuevo aquí.
   end;
 end;

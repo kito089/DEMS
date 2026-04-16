@@ -12,6 +12,6 @@ import { HeaderComponent } from '../../components/headerAdmin/headerComponent';
 export class Cuerre {
   public qrData: string = '';
   constructor(private config: ConfigService){
-    this.qrData = `${this.config.apiUrl}`;
+    this.qrData = `${this.config.apiUrl}/login`;
   }
 }

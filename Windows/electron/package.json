@@ -11,6 +11,7 @@
   "build": {
     "appId": "com.desm.app",
     "productName": "DEMS",
+    "asar": false,
     "win": {
       "target": "nsis",
       "icon": "assets/icon.ico"
