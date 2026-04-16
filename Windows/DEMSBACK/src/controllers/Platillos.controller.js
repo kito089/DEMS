@@ -122,6 +122,28 @@ const remove = async (req, res) => {
     }
 };
 
+// POST /Platillos/:id/imagen
+// Recibe el archivo ya guardado por multer y actualiza la columna Imagen en BD.
+// El nombre del archivo es {id}.{ext} — definido en el storage de multer.
+const uploadImagen = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No se recibió ningún archivo' });
+        }
+
+        const { id } = req.params;
+        const filename = req.file.filename; // ej. "5.jpg"
+
+        await svc.updateImagen(id, filename);
+
+        sendEventToAll('platillo_actualizado', { id, imagen: filename });
+
+        res.json({ message: 'Imagen guardada', imagen: filename });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 export default {
     getAll,
     getCompleto,
@@ -130,5 +152,6 @@ export default {
     getById,
     create,
     update,
-    remove
+    remove,
+    uploadImagen
 };

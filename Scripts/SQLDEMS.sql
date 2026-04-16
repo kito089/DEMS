@@ -59,6 +59,7 @@ CREATE TABLE Platillos (
     Nombre VARCHAR(45) NOT NULL,
     Descripcion VARCHAR(45),
     Precio DECIMAL(10,2) NOT NULL,
+    Imagen VARCHAR(100) NULL,
     CategoriasPlatillos_idCategoriasPlatillos INT NOT NULL,
     Activo TINYINT NOT NULL DEFAULT 1,
 
@@ -576,6 +577,7 @@ BEGIN
             p.Nombre,
             p.Descripcion,
             p.Precio,
+            p.Imagen,
             p.Activo,
             -- Estructura de objeto para la Categoría
             (SELECT 
@@ -1044,7 +1046,8 @@ SELECT
     p.Nombre AS Platillo,
     p.Precio,
     c.Nombre AS Categoria,
-    p.Activo
+    p.Activo,
+    p.Imagen
 FROM platillos p
 INNER JOIN CategoriasPlatillos c ON p.CategoriasPlatillos_idCategoriasPlatillos = c.idCategoriasPlatillos;
 

@@ -85,6 +85,22 @@ const updatePlatillo = async (id, { Nombre, Descripcion, Precio, idCategoria }) 
     return result.rowsAffected[0] > 0;
 };
 
+// Actualiza solo la columna Imagen — llamado después de guardar el archivo con multer
+const updateImagen = async (id, filename) => {
+    const pool = await getConnection();
+    const result = await pool.request()
+        .input('id', sql.Int, id)
+        .input('Imagen', sql.VarChar(100), filename)
+        .query(`
+            UPDATE Platillos
+            SET Imagen = @Imagen
+            WHERE idPlatillo = @id
+        `);
+
+    return result.rowsAffected[0] > 0;
+};
+
+
 // DELETE (soft)
 const deletePlatillo = async (id) => {
     const pool = await getConnection();
@@ -121,6 +137,7 @@ export default {
     getStructure,
     createPlatillo,
     updatePlatillo,
+    updateImagen,
     deletePlatillo,
     getMenuDigital
 };

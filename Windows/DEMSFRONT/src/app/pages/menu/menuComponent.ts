@@ -6,6 +6,8 @@ import { CardComponent } from '../../components/card-menu/card-menuComponent';
 import { PlatillosService } from '../../services/platillos.service';
 import { Subscription } from 'rxjs';
 
+declare const window: any;
+
 @Component({
   selector: 'app-menu',
   standalone: true,
@@ -18,6 +20,11 @@ export class MenuComponent implements OnInit, OnDestroy {
   isLoading = true;
   errorMessage = '';
   private sseSub?: Subscription;
+
+  // URL base del backend, leída desde config.js (escrita por el instalador)
+  private get apiUrl(): string {
+    return window.APP_CONFIG?.API_URL || 'http://localhost:3000';
+  }
 
   constructor(
     private router: Router,
@@ -54,25 +61,25 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   onEliminar(platillo: any) {
-  if (confirm(`¿Seguro que quieres eliminar "${platillo.nombre}"?`)) {
-    this.platillosService.deletePlatillo(platillo.idPlatillo).subscribe({
-      next: () => {
-        console.log('Platillo eliminado');
-        this.loadMenu();
-      },
-      error: (err) => console.error('Error eliminando:', err)
-    });
+    if (confirm(`¿Seguro que quieres eliminar "${platillo.nombre}"?`)) {
+      this.platillosService.deletePlatillo(platillo.idPlatillo).subscribe({
+        next: () => {
+          console.log('Platillo eliminado');
+          this.loadMenu();
+        },
+        error: (err) => console.error('Error eliminando:', err)
+      });
+    }
   }
-}
 
-  getImagenCategoria(categoria: string): string {
-  const imagenes: { [key: string]: string } = {
-    'Comida': 'assets/enchiladas-rojas.png',
-    'Bebidas': 'assets/coca.jpg',
-    'Extras': 'assets/cubiertos.png'
-  };
-  return imagenes[categoria] || 'assets/menu.png';
-}
+  // Construye la URL completa de la imagen del platillo.
+  // Si el platillo no tiene imagen, devuelve el placeholder genérico.
+  private getImagenUrl(imagen: string | null | undefined): string {
+    if (imagen) {
+      return `${this.apiUrl}/images/platillos/${imagen}`;
+    }
+    return 'assets/menu.png'; // placeholder por defecto
+  }
 
   loadMenu() {
     this.isLoading = true;
@@ -81,23 +88,31 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.platillosService.getCompleto().subscribe({
       next: (platillos: any[]) => {
         const grupos: { [key: string]: any[] } = {};
+
         platillos.forEach(p => {
           const cat = p.Categoria?.nombre || 'Sin categoría';
           if (!grupos[cat]) grupos[cat] = [];
+
           grupos[cat].push({
             idPlatillo: p.idPlatillo,
             nombre: p.Nombre,
             precio: p.Precio,
-            descripcion: p.Descripcion || ''
+            descripcion: p.Descripcion || '',
+            imagen: this.getImagenUrl(p.Imagen), // URL completa o placeholder
+            // Guardamos Imagen raw para que onEditar lo persista en localStorage
+            imagenRaw: p.Imagen ?? null
           });
         });
+
         this.categories = Object.keys(grupos).map(nombre => ({
           nombre,
           platillos: grupos[nombre]
         }));
+
         if (this.categories.length === 0) {
           this.errorMessage = 'No hay platillos disponibles.';
         }
+
         this.isLoading = false;
         this.cdr.detectChanges();
       },

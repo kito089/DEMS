@@ -12,7 +12,7 @@
       <ng-container *ngFor="let categoria of categories">
         <app-card
           *ngFor="let platillo of categoria.platillos"
-          [imagen]="getImagenCategoria(categoria.nombre)"
+          [imagen]="platillo.imagen"
           [nombre]="platillo.nombre"
           [precio]="platillo.precio"
           [descripcion]="platillo.descripcion"
